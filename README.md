@@ -1,50 +1,81 @@
-# Welcome to your Expo app 👋
+# Koyun & Kurt — Binaire Bulmaca Oyunu
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Takuzu/Binairo kurallarına dayanan, **Koyun 🐑** ve **Kurt 🐺** sembolleriyle temalandırılmış bir mantık bulmacası oyunu. React Native (Expo) ile geliştirilmiştir.
 
-## Get started
+---
 
-1. Install dependencies
+## Oyun Hakkında
 
-   ```bash
-   npm install
-   ```
+Her satır ve sütunda eşit sayıda koyun ve kurt yerleştirmek zorundasın — ama üç ardışık aynı sembol koyamazsın. Kulağa basit geliyor, değil mi?
 
-2. Start the app
+- **400 kampanya seviyesi** — 6×6'dan 12×12'ye kadar büyüyen ızgaralar
+- **İmkansız Mod** — hata göstergesi kapalı, körlemesine oynarsın (premium)
+- **Günlük bulmaca** — her sabah 10:00'da yeni bir bulmaca
+- **Gün/gece döngüsü** — arayüz saate göre renk paletini değiştirir
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Kurulum
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+iOS simülatör, Android emülatör veya Expo Go ile çalıştırabilirsin.
 
-## Learn more
+### Native bağımlılıklar için
 
-To learn more about developing your project with Expo, look at the following resources:
+Firebase ve diğer native modüller için `google-services.json` (Android) ve `GoogleService-Info.plist` (iOS) dosyalarını ilgili klasörlere eklemeyi unutma.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Proje Yapısı
 
-Join our community of developers creating universal apps.
+```
+app/                  Expo Router sayfaları
+├── (game)/           Oyun rotaları (menü, seviye, günlük, imkansız)
+├── leaderboard.tsx
+├── settings.tsx
+├── tutorial.tsx
+└── share-result.tsx
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+src/
+├── engine/           Oyun motoru (generator, validator, solver, precompute)
+├── store/            Zustand store'ları (game, user, settings)
+├── services/         Firebase, RevenueCat, AdMob
+├── components/       UI bileşenleri (GameGrid, GridCell, LevelCompleteModal...)
+├── hooks/            Custom hook'lar
+├── constants/        Seviyeler, unvanlar, puan tabloları
+├── i18n/             TR / EN çeviriler
+└── utils/            Puan hesaplama, tarih, paylaşım
+```
+
+---
+
+## Tech Stack
+
+| Katman | Teknoloji |
+|--------|-----------|
+| Framework | React Native + Expo (Bare uyumlu) |
+| Navigasyon | Expo Router |
+| State | Zustand + AsyncStorage |
+| Backend | Firebase (Auth, Firestore) |
+| Monetizasyon | RevenueCat + Google AdMob |
+| Animasyon | React Native Reanimated 4 |
+| Ses | expo-av |
+
+---
+
+## Oyun Kuralları
+
+1. Yatay veya dikey olarak **yan yana en fazla 2** aynı sembol konulabilir.
+2. Her satır ve sütun **tam olarak eşit sayıda** 🐑 Koyun ve 🐺 Kurt içermelidir.
+
+Kural ihlalinde hücre kırmızıya döner, cihaz titrer ve bir hayvan sesi çalar. Hatayı düzelttikçe uyarılar anında kaybolur.
+
+---
+
+## Lisans
+
+MIT
