@@ -1,0 +1,127 @@
+{
+  "app": {
+    "name": "Koyun & Kurt"
+  },
+  "greetings": {
+    "morning": "Günaydın!",
+    "afternoon": "İyi Öğlenler!",
+    "evening": "İyi Akşamlar!",
+    "night": "İyi Geceler!"
+  },
+  "menu": {
+    "play": "Oyna",
+    "dailyPuzzle": "Günlük Bulmaca",
+    "impossibleMode": "İmkansız Mod",
+    "leaderboard": "Liderlik Tablosu",
+    "settings": "Ayarlar",
+    "continueLevel": "Devam Et",
+    "levelSelect": "Seviye Seç"
+  },
+  "game": {
+    "hint": "İpucu",
+    "reset": "Sıfırla",
+    "hintsLeft": "{{count}} ipucu kaldı",
+    "levelComplete": "Seviye Tamamlandı!",
+    "newRecord": "Yeni Rekor!",
+    "shareResult": "Sonucu Paylaş",
+    "nextLevel": "Sonraki Seviye",
+    "backToMenu": "Menüye Dön",
+    "timer": "Süre: {{time}}",
+    "blindMode": "KÖR OYUN",
+    "blindModeHint": "Tahtayı doldur ve sonucu öğren!",
+    "noHintsInImpossible": "İmkansız modda ipucu kullanılamaz!",
+    "outOfHints": "İpucun bitti! Satın almak ister misin?",
+    "resetConfirm": "Yerleştirdiğin tüm semboller silinecek. Emin misin?",
+    "resetYes": "Evet, Sıfırla",
+    "resetNo": "Vazgeç"
+  },
+  "errors": {
+    "tripleRule": "3 ardışık aynı sembol olamaz!",
+    "balanceRule": "Satır veya sütun dengesiz!"
+  },
+  "difficulty": {
+    "easy": "Kolay",
+    "medium": "Orta",
+    "normal": "Normal",
+    "hard": "Zor",
+    "impossible": "İmkansız"
+  },
+  "stars": {
+    "perfect": "Kusursuz! 3 Yıldız",
+    "great": "Harika! 2 Yıldız",
+    "good": "İyi! 1 Yıldız",
+    "noStar": "Tamamlandı"
+  },
+  "scoring": {
+    "baseScore": "Baz Puan",
+    "timeBonus": "Zaman Bonusu",
+    "totalScore": "Toplam Puan",
+    "top1Percent": "En İyi %1",
+    "top5Percent": "En İyi %5",
+    "top10Percent": "En İyi %10",
+    "top25Percent": "En İyi %25",
+    "top50Percent": "En İyi %50"
+  },
+  "hints": {
+    "available": "{{count}} ipucu",
+    "dailyBonus": "+5 ipucu kazandın!",
+    "buyMore": "İpucu Al",
+    "watchAd": "Reklam İzle (+3 ipucu)"
+  },
+  "premium": {
+    "title": "Premium'a Geç",
+    "description": "Reklamları kaldır, İmkansız Mod'u aç ve sınırsız ipucu kullan!",
+    "buy": "Satın Al",
+    "restore": "Satın Alımları Geri Yükle",
+    "alreadyPremium": "Premium üyesin! ✓"
+  },
+  "tutorial": {
+    "title": "Nasıl Oynanır?",
+    "step1Title": "Hücrelere Dokun",
+    "step1Body": "Boş hücrelere dokunarak Kurt 🐺 veya Koyun 🐑 yerleştir.",
+    "step2Title": "Kural 1: Ardışık 3 Yasak",
+    "step2Body": "Yan yana 3 aynı sembol olamaz!",
+    "step3Title": "Kural 2: Denge",
+    "step3Body": "Her satır ve sütunda eşit sayıda Kurt ve Koyun olmalı.",
+    "step4Title": "Hataları Gör",
+    "step4Body": "Kural ihlali yapınca hücre kırmızıya döner.",
+    "skip": "Atla",
+    "next": "İleri",
+    "finish": "Başla!"
+  },
+  "leaderboard": {
+    "title": "Liderlik Tablosu",
+    "daily": "Günlük",
+    "global": "Global",
+    "rank": "Sıra",
+    "player": "Oyuncu",
+    "score": "Puan",
+    "time": "Süre",
+    "noData": "Henüz skor yok."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "language": "Dil",
+    "sound": "Ses",
+    "haptic": "Titreşim",
+    "removeAds": "Reklamları Kaldır",
+    "version": "Versiyon"
+  },
+  "dailyPuzzle": {
+    "title": "Günlük Bulmaca",
+    "available": "Bugünkü bulmaca hazır!",
+    "completed": "Bugünkü bulmacayı tamamladın!",
+    "nextIn": "Yeni bulmaca: {{time}} sonra",
+    "leaderboard": "Günlük Liderlik"
+  },
+  "share": {
+    "message": "Koyun & Kurt oyununda seviye {{level}}'i {{time}} sürede tamamladım! En iyi %{{percentile}} arasındayım. Sen de dene!",
+    "title": "Koyun & Kurt - Seviye {{level}} Tamamlandı!"
+  },
+  "profile": {
+    "title": "Kullanıcı Unvanı",
+    "totalPoints": "Toplam Puan",
+    "nextTitle": "Sonraki Unvan",
+    "pointsToNext": "{{points}} puan daha gerekiyor"
+  }
+}

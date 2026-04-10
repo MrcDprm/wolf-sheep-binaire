@@ -1,0 +1,127 @@
+{
+  "app": {
+    "name": "Sheep & Wolf"
+  },
+  "greetings": {
+    "morning": "Good Morning!",
+    "afternoon": "Good Afternoon!",
+    "evening": "Good Evening!",
+    "night": "Good Night!"
+  },
+  "menu": {
+    "play": "Play",
+    "dailyPuzzle": "Daily Puzzle",
+    "impossibleMode": "Impossible Mode",
+    "leaderboard": "Leaderboard",
+    "settings": "Settings",
+    "continueLevel": "Continue",
+    "levelSelect": "Select Level"
+  },
+  "game": {
+    "hint": "Hint",
+    "reset": "Reset",
+    "hintsLeft": "{{count}} hints left",
+    "levelComplete": "Level Complete!",
+    "newRecord": "New Record!",
+    "shareResult": "Share Result",
+    "nextLevel": "Next Level",
+    "backToMenu": "Back to Menu",
+    "timer": "Time: {{time}}",
+    "blindMode": "BLIND MODE",
+    "blindModeHint": "Fill the board and discover the result!",
+    "noHintsInImpossible": "Hints are disabled in Impossible Mode!",
+    "outOfHints": "Out of hints! Would you like to buy more?",
+    "resetConfirm": "All your placed symbols will be removed. Are you sure?",
+    "resetYes": "Yes, Reset",
+    "resetNo": "Cancel"
+  },
+  "errors": {
+    "tripleRule": "No 3 identical symbols in a row!",
+    "balanceRule": "Row or column is unbalanced!"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "normal": "Normal",
+    "hard": "Hard",
+    "impossible": "Impossible"
+  },
+  "stars": {
+    "perfect": "Perfect! 3 Stars",
+    "great": "Great! 2 Stars",
+    "good": "Good! 1 Star",
+    "noStar": "Completed"
+  },
+  "scoring": {
+    "baseScore": "Base Score",
+    "timeBonus": "Time Bonus",
+    "totalScore": "Total Score",
+    "top1Percent": "Top 1%",
+    "top5Percent": "Top 5%",
+    "top10Percent": "Top 10%",
+    "top25Percent": "Top 25%",
+    "top50Percent": "Top 50%"
+  },
+  "hints": {
+    "available": "{{count}} hints",
+    "dailyBonus": "+5 hints earned!",
+    "buyMore": "Buy Hints",
+    "watchAd": "Watch Ad (+3 hints)"
+  },
+  "premium": {
+    "title": "Go Premium",
+    "description": "Remove ads, unlock Impossible Mode and enjoy unlimited hints!",
+    "buy": "Buy Now",
+    "restore": "Restore Purchases",
+    "alreadyPremium": "You're Premium! ✓"
+  },
+  "tutorial": {
+    "title": "How to Play",
+    "step1Title": "Tap Cells",
+    "step1Body": "Tap empty cells to place a Wolf 🐺 or Sheep 🐑.",
+    "step2Title": "Rule 1: No Triple",
+    "step2Body": "You can't have 3 identical symbols in a row!",
+    "step3Title": "Rule 2: Balance",
+    "step3Body": "Every row and column must have equal Wolves and Sheep.",
+    "step4Title": "See Errors",
+    "step4Body": "Rule violations turn the cell red.",
+    "skip": "Skip",
+    "next": "Next",
+    "finish": "Let's Play!"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "daily": "Daily",
+    "global": "Global",
+    "rank": "Rank",
+    "player": "Player",
+    "score": "Score",
+    "time": "Time",
+    "noData": "No scores yet."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "sound": "Sound",
+    "haptic": "Haptic",
+    "removeAds": "Remove Ads",
+    "version": "Version"
+  },
+  "dailyPuzzle": {
+    "title": "Daily Puzzle",
+    "available": "Today's puzzle is ready!",
+    "completed": "You completed today's puzzle!",
+    "nextIn": "Next puzzle in: {{time}}",
+    "leaderboard": "Daily Leaderboard"
+  },
+  "share": {
+    "message": "I completed level {{level}} in Sheep & Wolf in {{time}}! I'm in the top {{percentile}}%. Try it yourself!",
+    "title": "Sheep & Wolf - Level {{level}} Complete!"
+  },
+  "profile": {
+    "title": "Player Title",
+    "totalPoints": "Total Points",
+    "nextTitle": "Next Title",
+    "pointsToNext": "{{points}} more points needed"
+  }
+}
