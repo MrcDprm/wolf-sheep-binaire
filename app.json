@@ -33,10 +33,19 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#E8F5E9",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#1A237E"
           }
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-REPLACE~REPLACE_ANDROID",
+          "iosAppId": "ca-app-pub-REPLACE~REPLACE_IOS"
         }
       ]
     ],
