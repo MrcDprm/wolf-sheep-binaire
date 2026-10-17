@@ -91,7 +91,8 @@
   "levels": {
     "title": "Levels",
     "progress": "{{done}}/{{total}} completed",
-    "locked": "Locked"
+    "locked": "Locked",
+    "stars": "{{count}} stars"
   },
   "cell": {
     "label": "Row {{row}}, column {{col}}: {{value}}",

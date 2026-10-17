@@ -11,7 +11,7 @@
   "menu": {
     "play": "Oyna",
     "settings": "Ayarlar",
-    "continueLevel": "Devam Et",
+    "continueLevel": "Devam et",
     "levels": "Seviyeler",
     "points": "{{count}} puan"
   },
@@ -91,7 +91,8 @@
   "levels": {
     "title": "Seviyeler",
     "progress": "{{done}}/{{total}} tamamlandı",
-    "locked": "Kilitli"
+    "locked": "Kilitli",
+    "stars": "{{count}} yıldız"
   },
   "cell": {
     "label": "{{row}}. satır, {{col}}. sütun: {{value}}",
