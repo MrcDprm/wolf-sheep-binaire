@@ -10,6 +10,7 @@ import React, { useMemo, memo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { GridCell } from './GridCell';
 import type { Grid } from '../../types/game';
+import { GRID_VERTICAL_RESERVE, MAX_APP_WIDTH, MAX_CELL_SIZE } from '../../constants/layout';
 
 interface GameGridProps {
   grid: Grid;
@@ -20,6 +21,8 @@ interface GameGridProps {
 }
 
 const DEFAULT_PADDING = 32;
+/** Izgara çerçevesinin iç boşluğu (styles.grid.padding ile aynı) */
+const FRAME_PADDING = 4;
 
 function GameGridComponent({
   grid,
@@ -27,17 +30,17 @@ function GameGridComponent({
   onTapCell,
   horizontalPadding = DEFAULT_PADDING,
 }: GameGridProps) {
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   const gridSize = grid.length;
 
-  // Hücre boyutu: ekran genişliği - padding, grid boyutuna böl
-  // 3px margin (her iki kenar) çıkarılır
+  // Hücre boyutu: ızgara hem genişliğe hem yüksekliğe sığmalı, çok da büyümemeli
   const cellSize = useMemo(() => {
     if (gridSize === 0) return 48;
-    const available = screenWidth - horizontalPadding * 2;
-    return Math.floor(available / gridSize);
-  }, [screenWidth, gridSize, horizontalPadding]);
+    const width = Math.min(screenWidth, MAX_APP_WIDTH) - horizontalPadding * 2;
+    const height = screenHeight - GRID_VERTICAL_RESERVE;
+    return Math.min(MAX_CELL_SIZE, Math.floor(Math.min(width, height) / gridSize));
+  }, [screenWidth, screenHeight, gridSize, horizontalPadding]);
 
   const rows = useMemo(() => grid, [grid]);
 
@@ -49,7 +52,8 @@ function GameGridComponent({
         style={[
           styles.grid,
           {
-            width: cellSize * gridSize,
+            // Hücreler + çerçevenin iki yandaki iç boşluğu
+            width: cellSize * gridSize + FRAME_PADDING * 2,
             borderRadius: Math.max(10, cellSize * 0.18),
           },
         ]}
@@ -81,7 +85,7 @@ const styles = StyleSheet.create({
   },
   grid: {
     backgroundColor: '#F5F5F5',
-    padding: 4,
+    padding: FRAME_PADDING,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 10,

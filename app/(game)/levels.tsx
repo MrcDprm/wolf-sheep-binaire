@@ -40,7 +40,7 @@ export default function LevelsScreen() {
         >
           <Text style={[styles.backArrow, { color: dayPhase.accent }]}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('levels.title')}</Text>
+        <Text style={[styles.headerTitle, { color: dayPhase.text }]}>{t('levels.title')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -57,11 +57,11 @@ export default function LevelsScreen() {
             <TouchableOpacity
               key={d.id}
               onPress={() => setTab(d.id)}
-              style={[styles.tab, active && { backgroundColor: dayPhase.accent }]}
+              style={[styles.tab, { backgroundColor: active ? dayPhase.accent : dayPhase.surface }]}
               accessibilityRole="tab"
               accessibilityState={{ selected: active }}
             >
-              <Text style={[styles.tabText, active && styles.tabTextActive]}>
+              <Text style={[styles.tabText, { color: active ? dayPhase.onAccent : dayPhase.text }]}>
                 {t(`difficulty.${d.id}`)}
               </Text>
             </TouchableOpacity>
@@ -69,7 +69,7 @@ export default function LevelsScreen() {
         })}
       </ScrollView>
 
-      <Text style={styles.progress}>
+      <Text style={[styles.progress, { color: dayPhase.textMuted }]}>
         {t('levels.progress', { done: doneInTab, total: LEVELS_PER_DIFFICULTY })}
       </Text>
 
@@ -94,7 +94,7 @@ export default function LevelsScreen() {
               <View
                 style={[
                   styles.cell,
-                  !unlocked && styles.cellLocked,
+                  !unlocked && { backgroundColor: dayPhase.surface },
                   unlocked && !result && { borderColor: dayPhase.accent },
                 ]}
               >
@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
   },
   tabsScroll: {
     flexGrow: 0,
+    flexShrink: 0,
   },
   tabs: {
     gap: 8,

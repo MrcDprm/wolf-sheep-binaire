@@ -30,22 +30,32 @@ export default function MainMenu() {
   return (
     <View style={[styles.container, { backgroundColor: dayPhase.bgFrom }]}>
       <Text style={[styles.greeting, { color: dayPhase.accent }]}>{greeting}</Text>
-      <Text style={styles.title}>{t('app.name')}</Text>
+      <Text style={[styles.title, { color: dayPhase.text }]}>{t('app.name')}</Text>
 
       <View style={styles.profileRow}>
-        <Text style={styles.titleBadge}>{currentTitle}</Text>
-        <Text style={styles.points}>{t('menu.points', { count: totalPoints })}</Text>
+        <Text
+          style={[styles.titleBadge, { color: dayPhase.text, backgroundColor: dayPhase.surface }]}
+        >
+          {currentTitle}
+        </Text>
+        <Text style={[styles.points, { color: dayPhase.textMuted }]}>
+          {t('menu.points', { count: totalPoints })}
+        </Text>
       </View>
 
-      <Text style={styles.hints}>💡 {t('hints.available', { count: availableHints })}</Text>
+      <Text style={[styles.hints, { color: dayPhase.textMuted }]}>
+        💡 {t('hints.available', { count: availableHints })}
+      </Text>
 
       <TouchableOpacity
         style={[styles.button, { backgroundColor: dayPhase.accent }]}
         onPress={() => router.push(`/(game)/level/${nextId}`)}
       >
-        <Text style={styles.buttonText}>{started ? t('menu.continueLevel') : t('menu.play')}</Text>
+        <Text style={[styles.buttonText, { color: dayPhase.onAccent }]}>
+          {started ? t('menu.continueLevel') : t('menu.play')}
+        </Text>
         {nextLevel && (
-          <Text style={styles.buttonSub}>
+          <Text style={[styles.buttonSub, { color: dayPhase.onAccent }]}>
             {t('game.level', {
               difficulty: t(`difficulty.${nextLevel.difficulty}`),
               number: nextLevel.number,
@@ -54,12 +64,22 @@ export default function MainMenu() {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.buttonOutline} onPress={() => router.push('/(game)/levels')}>
-        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>{t('menu.levels')}</Text>
+      <TouchableOpacity
+        style={[styles.buttonOutline, { borderColor: dayPhase.accent }]}
+        onPress={() => router.push('/(game)/levels')}
+      >
+        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
+          {t('menu.levels')}
+        </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.buttonOutline} onPress={() => router.push('/settings')}>
-        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>{t('menu.settings')}</Text>
+      <TouchableOpacity
+        style={[styles.buttonOutline, { borderColor: dayPhase.accent }]}
+        onPress={() => router.push('/settings')}
+      >
+        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
+          {t('menu.settings')}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -117,7 +137,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   buttonSub: {
-    color: 'rgba(255,255,255,0.85)',
+    opacity: 0.85,
     fontSize: 13,
     fontWeight: '600',
     marginTop: 2,

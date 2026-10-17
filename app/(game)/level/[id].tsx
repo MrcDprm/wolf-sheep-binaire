@@ -114,7 +114,7 @@ export default function LevelScreen() {
               ‹
             </Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
+          <Text style={[styles.headerTitle, { color: dayPhase.text }]} numberOfLines={1}>
             {t('game.level', {
               difficulty: t(`difficulty.${level.difficulty}`),
               number: level.number,
@@ -154,9 +154,12 @@ export default function LevelScreen() {
 
       {/* ── Kontrol çubuğu ── */}
       <View style={[styles.controlBar, { borderTopColor: dayPhase.accent + '30' }]}>
-        <TouchableOpacity style={[styles.controlBtn, styles.resetBtn]} onPress={handleReset}>
-          <Text style={styles.controlBtnEmoji}>↺</Text>
-          <Text style={styles.controlBtnLabel}>{t('game.reset')}</Text>
+        <TouchableOpacity
+          style={[styles.controlBtn, { backgroundColor: dayPhase.surface }]}
+          onPress={handleReset}
+        >
+          <Text style={[styles.controlBtnEmoji, { color: dayPhase.text }]}>↺</Text>
+          <Text style={[styles.controlBtnLabel, { color: dayPhase.text }]}>{t('game.reset')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -164,7 +167,7 @@ export default function LevelScreen() {
           onPress={onHint}
         >
           <Text style={styles.hintBtnEmoji}>💡</Text>
-          <Text style={styles.hintBtnLabel}>{t('game.hint')}</Text>
+          <Text style={[styles.hintBtnLabel, { color: dayPhase.onAccent }]}>{t('game.hint')}</Text>
           <View style={styles.hintBadge}>
             <Text style={styles.hintBadgeText}>{availableHints}</Text>
           </View>

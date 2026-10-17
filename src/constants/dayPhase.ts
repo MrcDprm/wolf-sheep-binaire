@@ -12,6 +12,14 @@ export interface DayPhaseConfig {
   bgTo: string;
   /** Vurgu rengi (butonlar, başlıklar) */
   accent: string;
+  /** Vurgulu düğme üzerindeki yazı */
+  onAccent: string;
+  /** Ana yazı rengi */
+  text: string;
+  /** İkincil yazı rengi */
+  textMuted: string;
+  /** Sekme, ikincil düğme gibi yüzeyler */
+  surface: string;
   /** Ambiyans müzik tarzı (şimdilik kullanılmıyor) */
   musicStyle: 'cheerful' | 'lively' | 'calm' | 'peaceful';
 }
@@ -26,6 +34,10 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     bgFrom: '#FFF8E1',
     bgTo: '#B3E5FC',
     accent: '#F9A825',
+    onAccent: '#FFFFFF',
+    text: '#1A1A1A',
+    textMuted: '#555555',
+    surface: 'rgba(0,0,0,0.07)',
     musicStyle: 'cheerful',
   },
   {
@@ -37,6 +49,10 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     bgFrom: '#E8F5E9',
     bgTo: '#C8E6C9',
     accent: '#388E3C',
+    onAccent: '#FFFFFF',
+    text: '#1A1A1A',
+    textMuted: '#555555',
+    surface: 'rgba(0,0,0,0.07)',
     musicStyle: 'lively',
   },
   {
@@ -48,6 +64,10 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     bgFrom: '#FFE0B2',
     bgTo: '#CE93D8',
     accent: '#E64A19',
+    onAccent: '#FFFFFF',
+    text: '#1A1A1A',
+    textMuted: '#555555',
+    surface: 'rgba(0,0,0,0.07)',
     musicStyle: 'calm',
   },
   {
@@ -59,6 +79,10 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     bgFrom: '#1A237E',
     bgTo: '#0D47A1',
     accent: '#90CAF9',
+    onAccent: '#0D1B4A',
+    text: '#EEF2FF',
+    textMuted: '#B4BEE6',
+    surface: 'rgba(255,255,255,0.12)',
     musicStyle: 'peaceful',
   },
 ];
