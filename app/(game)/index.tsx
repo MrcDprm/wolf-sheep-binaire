@@ -12,12 +12,12 @@ import { useUserStore } from '../../src/store/useUserStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { useSettingsHydrated } from '../../src/hooks/useSettingsHydrated';
 import { getLevelById, nextLevelToPlay } from '../../src/constants/levels';
+import { getTitleForPoints, titleName } from '../../src/constants/titles';
 
 export default function MainMenu() {
   const router = useRouter();
   const dayPhase = useDayPhase();
   const t = useTranslation();
-  const currentTitle = useUserStore((s) => s.currentTitle);
   const totalPoints = useUserStore((s) => s.totalPoints);
   const availableHints = useUserStore((s) => s.availableHints);
   const completedLevels = useUserStore((s) => s.completedLevels);
@@ -25,7 +25,8 @@ export default function MainMenu() {
   const tutorialCompleted = useSettingsStore((s) => s.tutorialCompleted);
   const settingsReady = useSettingsHydrated();
 
-  const greeting = language === 'tr' ? dayPhase.greetingTr : dayPhase.greetingEn;
+  const greeting = t(`greetings.${dayPhase.phase}`);
+  const title = getTitleForPoints(totalPoints);
   const nextId = nextLevelToPlay(completedLevels);
   const nextLevel = getLevelById(nextId);
   const started = Object.keys(completedLevels).length > 0;
@@ -42,7 +43,7 @@ export default function MainMenu() {
         <Text
           style={[styles.titleBadge, { color: dayPhase.text, backgroundColor: dayPhase.surface }]}
         >
-          {currentTitle}
+          {title.icon} {titleName(title, language)}
         </Text>
         <Text style={[styles.points, { color: dayPhase.textMuted }]}>
           {t('menu.points', { count: totalPoints })}

@@ -3,7 +3,6 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { LevelResult } from '../types/game';
 import type { UserProfile } from '../types/user';
-import { getTitleForPoints } from '../constants/titles';
 import { BASE_HINT_POOL, DAILY_LOGIN_HINT_BONUS } from '../constants/scoring';
 
 interface UserState extends UserProfile {
@@ -19,7 +18,6 @@ const DEFAULT_PROFILE: UserProfile = {
   availableHints: BASE_HINT_POOL,
   lastLoginDate: null,
   completedLevels: {},
-  currentTitle: 'Kuzu Çırağı',
 };
 
 export const useUserStore = create<UserState>()(
@@ -42,7 +40,6 @@ export const useUserStore = create<UserState>()(
           return {
             completedLevels: { ...s.completedLevels, [key]: result },
             totalPoints,
-            currentTitle: getTitleForPoints(totalPoints),
           };
         });
       },

@@ -28,36 +28,17 @@ export const TITLES: Title[] = [
   { id: 20, name: 'Master of Flocks and Claws', nameTr: 'Sürülerin ve Pençelerin Efendisi', minPoints: 3550, icon: '🏆' },
 ];
 
-/**
- * Toplam puana göre kullanıcının sahip olması gereken unvanı döner.
- */
-export function getTitleForPoints(totalPoints: number): string {
+/** Toplam puana göre oyuncunun unvanı */
+export function getTitleForPoints(totalPoints: number): Title {
   let title = TITLES[0];
   for (const t of TITLES) {
-    if (totalPoints >= t.minPoints) {
-      title = t;
-    } else {
-      break;
-    }
-  }
-  return title.nameTr;
-}
-
-export function getTitleObjectForPoints(totalPoints: number): Title {
-  let title = TITLES[0];
-  for (const t of TITLES) {
-    if (totalPoints >= t.minPoints) {
-      title = t;
-    } else {
-      break;
-    }
+    if (totalPoints < t.minPoints) break;
+    title = t;
   }
   return title;
 }
 
-export function getNextTitle(totalPoints: number): Title | null {
-  for (const t of TITLES) {
-    if (totalPoints < t.minPoints) return t;
-  }
-  return null;
+/** Unvanın seçili dildeki adı */
+export function titleName(title: Title, language: 'tr' | 'en'): string {
+  return language === 'tr' ? title.nameTr : title.name;
 }

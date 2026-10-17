@@ -55,8 +55,7 @@
     "totalScore": "Total Score"
   },
   "hints": {
-    "available": "{{count}} hints",
-    "dailyBonus": "+5 hints earned!"
+    "available": "{{count}} hints"
   },
   "tutorial": {
     "title": "How to Play",
@@ -85,12 +84,6 @@
     "title": "Sheep & Wolf: {{level}} complete",
     "button": "Share",
     "close": "Close"
-  },
-  "profile": {
-    "title": "Player Title",
-    "totalPoints": "Total Points",
-    "nextTitle": "Next Title",
-    "pointsToNext": "{{points}} more points needed"
   },
   "levels": {
     "title": "Levels",

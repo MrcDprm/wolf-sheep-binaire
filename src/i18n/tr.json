@@ -55,8 +55,7 @@
     "totalScore": "Toplam Puan"
   },
   "hints": {
-    "available": "{{count}} ipucu",
-    "dailyBonus": "+5 ipucu kazandın!"
+    "available": "{{count}} ipucu"
   },
   "tutorial": {
     "title": "Nasıl Oynanır?",
@@ -85,12 +84,6 @@
     "title": "Koyun & Kurt: {{level}} tamamlandı",
     "button": "Paylaş",
     "close": "Kapat"
-  },
-  "profile": {
-    "title": "Kullanıcı Unvanı",
-    "totalPoints": "Toplam Puan",
-    "nextTitle": "Sonraki Unvan",
-    "pointsToNext": "{{points}} puan daha gerekiyor"
   },
   "levels": {
     "title": "Seviyeler",

@@ -4,8 +4,6 @@ export interface DayPhaseConfig {
   phase: DayPhase;
   startHour: number; // dahil
   endHour: number;   // hariç
-  greetingTr: string;
-  greetingEn: string;
   /** Arka plan başlangıç rengi (gradient) */
   bgFrom: string;
   /** Arka plan bitiş rengi (gradient) */
@@ -29,8 +27,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     phase: 'morning',
     startHour: 6,
     endHour: 12,
-    greetingTr: 'Günaydın!',
-    greetingEn: 'Good Morning!',
     bgFrom: '#FFF8E1',
     bgTo: '#B3E5FC',
     accent: '#F9A825',
@@ -44,8 +40,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     phase: 'afternoon',
     startHour: 12,
     endHour: 18,
-    greetingTr: 'İyi Öğlenler!',
-    greetingEn: 'Good Afternoon!',
     bgFrom: '#E8F5E9',
     bgTo: '#C8E6C9',
     accent: '#388E3C',
@@ -59,8 +53,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     phase: 'evening',
     startHour: 18,
     endHour: 23,
-    greetingTr: 'İyi Akşamlar!',
-    greetingEn: 'Good Evening!',
     bgFrom: '#FFE0B2',
     bgTo: '#CE93D8',
     accent: '#E64A19',
@@ -74,8 +66,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     phase: 'night',
     startHour: 23,
     endHour: 6, // gece yarısını geçer
-    greetingTr: 'İyi Geceler!',
-    greetingEn: 'Good Night!',
     bgFrom: '#1A237E',
     bgTo: '#0D47A1',
     accent: '#90CAF9',

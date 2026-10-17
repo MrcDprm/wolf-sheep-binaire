@@ -5,7 +5,6 @@ export interface UserProfile {
   availableHints: number;
   lastLoginDate: number | null; // Unix timestamp (ms)
   completedLevels: Record<string, LevelResult>;
-  currentTitle: string;
 }
 
 export interface Title {
