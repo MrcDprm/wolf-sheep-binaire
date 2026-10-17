@@ -2,7 +2,7 @@
 
 # Sheep & Wolf
 
-A calm logic puzzle for Android: fill a 6×6 pasture with sheep and wolves so that no three of the same animal stand side by side and every row and column holds 3 of each. 300 hand-checked levels, fully offline.
+A calm logic puzzle for your phone: fill a 6×6 pasture with sheep and wolves so that no three of the same animal stand side by side and every row and column holds 3 of each. 300 hand-checked levels, fully offline.
 
 **[Download the APK](https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest)** · Coming soon to App Store and Google Play
 
