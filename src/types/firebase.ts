@@ -1,5 +1,5 @@
 import type { LevelResult } from './game';
-import { Timestamp } from '@react-native-firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 
 /**
  * Firestore `users/{uid}` dokümanı

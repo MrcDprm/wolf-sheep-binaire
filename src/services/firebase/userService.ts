@@ -1,24 +1,25 @@
 /**
  * Firestore `users` koleksiyonu CRUD işlemleri
  */
-import firestore from '@react-native-firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { firestoreDb } from './config';
 import type { FirestoreUser } from '../../types/firebase';
 import type { LevelResult } from '../../types/game';
 import type { UserProfile } from '../../types/user';
 import { getTitleForPoints } from '../../constants/titles';
 import { BASE_HINT_POOL } from '../../constants/scoring';
 
-const usersCol = () => firestore().collection('users');
+const userDoc = (uid: string) => doc(firestoreDb(), 'users', uid);
 
 /**
  * Kullanıcı profilini Firestore'dan çeker.
  * Doküman yoksa varsayılan profili oluşturur ve döner.
  */
 export async function fetchOrCreateUser(uid: string): Promise<UserProfile> {
-  const ref = usersCol().doc(uid);
-  const snap = await ref.get();
+  const ref = userDoc(uid);
+  const snap = await getDoc(ref);
 
-  if (!snap.exists) {
+  if (!snap.exists()) {
     const defaults: FirestoreUser = {
       displayName: 'Anonim Oyuncu',
       totalPoints: 0,
@@ -26,7 +27,7 @@ export async function fetchOrCreateUser(uid: string): Promise<UserProfile> {
       lastLoginDate: null,
       completedLevels: {},
     };
-    await ref.set(defaults);
+    await setDoc(ref, defaults);
     return {
       uid,
       ...defaults,
@@ -49,7 +50,7 @@ export async function fetchOrCreateUser(uid: string): Promise<UserProfile> {
 
 /**
  * Seviye tamamlandığında ilgili alanları günceller.
- * Firestore merge: yalnızca değişen alanları yazar.
+ * updateDoc yalnızca verilen alanları yazar.
  */
 export async function updateLevelComplete(
   uid: string,
@@ -57,7 +58,7 @@ export async function updateLevelComplete(
   result: LevelResult,
   newTotalPoints: number
 ): Promise<void> {
-  await usersCol().doc(uid).update({
+  await updateDoc(userDoc(uid), {
     [`completedLevels.${levelId}`]: result,
     totalPoints: newTotalPoints,
   });
@@ -70,9 +71,9 @@ export async function claimDailyBonusOnServer(
   uid: string,
   newHintCount: number
 ): Promise<void> {
-  await usersCol().doc(uid).update({
+  await updateDoc(userDoc(uid), {
     availableHints: newHintCount,
-    lastLoginDate: firestore.FieldValue.serverTimestamp(),
+    lastLoginDate: serverTimestamp(),
   });
 }
 
@@ -80,5 +81,5 @@ export async function claimDailyBonusOnServer(
  * Hint sayısını günceller.
  */
 export async function updateHints(uid: string, availableHints: number): Promise<void> {
-  await usersCol().doc(uid).update({ availableHints });
+  await updateDoc(userDoc(uid), { availableHints });
 }

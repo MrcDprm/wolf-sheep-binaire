@@ -4,7 +4,11 @@
  * Uygulama ilk açıldığında kullanıcıyı anonim olarak giriş yapar.
  * Bu sayede Firestore'a yazma/okuma izni verilir.
  */
-import auth from '@react-native-firebase/auth';
+import {
+  signInAnonymously,
+  onAuthStateChanged as onFirebaseAuthStateChanged,
+} from 'firebase/auth';
+import { firebaseAuth } from './config';
 
 export type FirebaseUser = {
   uid: string;
@@ -15,12 +19,16 @@ export type FirebaseUser = {
  * Mevcut kullanıcı varsa döner, yoksa anonim giriş yapar.
  */
 export async function signInAnonymouslyIfNeeded(): Promise<FirebaseUser> {
-  const current = auth().currentUser;
+  const auth = firebaseAuth();
+  // Kayıtlı oturumun AsyncStorage'dan yüklenmesini bekle
+  await auth.authStateReady();
+
+  const current = auth.currentUser;
   if (current) {
     return { uid: current.uid, isAnonymous: current.isAnonymous };
   }
 
-  const credential = await auth().signInAnonymously();
+  const credential = await signInAnonymously(auth);
   return {
     uid: credential.user.uid,
     isAnonymous: credential.user.isAnonymous,
@@ -28,7 +36,7 @@ export async function signInAnonymouslyIfNeeded(): Promise<FirebaseUser> {
 }
 
 export function getCurrentUser(): FirebaseUser | null {
-  const user = auth().currentUser;
+  const user = firebaseAuth().currentUser;
   if (!user) return null;
   return { uid: user.uid, isAnonymous: user.isAnonymous };
 }
@@ -36,7 +44,7 @@ export function getCurrentUser(): FirebaseUser | null {
 export function onAuthStateChanged(
   callback: (user: FirebaseUser | null) => void
 ): () => void {
-  return auth().onAuthStateChanged((user) => {
+  return onFirebaseAuthStateChanged(firebaseAuth(), (user) => {
     if (!user) {
       callback(null);
       return;

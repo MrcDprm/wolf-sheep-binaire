@@ -4,12 +4,11 @@
  * Document ID formatı: "YYYY-MM-DD"
  * Saat 10:00'dan itibaren aktif olur (istemci taraflı kontrol).
  */
-import firestore from '@react-native-firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { firestoreDb } from './config';
 import type { FirestoreDailyPuzzle } from '../../types/firebase';
 import type { RawGrid } from '../../types/game';
 import { getTodayKey } from '../../utils/dateHelpers';
-
-const dailyCol = () => firestore().collection('daily_puzzles');
 
 export interface DailyPuzzleData {
   dateKey: string;
@@ -24,9 +23,9 @@ export interface DailyPuzzleData {
  */
 export async function fetchTodayPuzzle(): Promise<DailyPuzzleData | null> {
   const dateKey = getTodayKey();
-  const snap = await dailyCol().doc(dateKey).get();
+  const snap = await getDoc(doc(firestoreDb(), 'daily_puzzles', dateKey));
 
-  if (!snap.exists) return null;
+  if (!snap.exists()) return null;
 
   const data = snap.data() as FirestoreDailyPuzzle;
   const size = data.gridSize;
