@@ -68,7 +68,7 @@ export default function RootLayout() {
           />
         </Stack>
       </View>
-      <StatusBar style="auto" />
+      <StatusBar style={dayPhase.dark ? 'light' : 'dark'} />
     </View>
   );
 }
