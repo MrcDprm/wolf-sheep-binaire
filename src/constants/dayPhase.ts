@@ -1,79 +1,107 @@
+/**
+ * Gün dilimleri
+ *
+ * Saate göre sadece gökyüzü, yazı, yüzey ve tepe renkleri değişir;
+ * tahta ve taşlar her saatte aynıdır.
+ */
 import type { DayPhase } from '../types/game';
 
 export interface DayPhaseConfig {
   phase: DayPhase;
   startHour: number; // dahil
-  endHour: number;   // hariç
-  /** Arka plan başlangıç rengi (gradient) */
-  bgFrom: string;
-  /** Arka plan bitiş rengi (gradient) */
-  bgTo: string;
-  /** Vurgu rengi (butonlar, başlıklar) */
-  accent: string;
-  /** Vurgulu düğme üzerindeki yazı */
-  onAccent: string;
+  endHour: number; // hariç
+  /** Koyu gökyüzü mü (gece) */
+  dark: boolean;
+  /** Arka plan (gökyüzü) */
+  sky: string;
   /** Ana yazı rengi */
   text: string;
   /** İkincil yazı rengi */
   textMuted: string;
-  /** Sekme, ikincil düğme gibi yüzeyler */
+  /** İkincil düğme, sekme gibi yüzeyler */
   surface: string;
-  /** Ambiyans müzik tarzı (şimdilik kullanılmıyor) */
-  musicStyle: 'cheerful' | 'lively' | 'calm' | 'peaceful';
+  /** Yüzeylerin dokunsal alt kenarı */
+  surfaceEdge: string;
+  /** Tahtanın keçesi ve alt kenarı */
+  felt: string;
+  feltEdge: string;
+  /** Menüdeki tepeler: uzak ve yakın */
+  hillFar: string;
+  hillNear: string;
+
+  // Eski ekranların kullandığı alanlar; ekranlar yeni temaya geçince kalkacak
+  bgFrom: string;
+  bgTo: string;
+  accent: string;
+  onAccent: string;
 }
+
+const DAY_SURFACE = {
+  dark: false,
+  text: '#2E2A24',
+  textMuted: '#5C564D',
+  surface: 'rgba(255,255,255,0.6)',
+  surfaceEdge: 'rgba(46,42,36,0.16)',
+  felt: '#5E8C3A',
+  feltEdge: '#4C7530',
+  onAccent: '#FFFFFF',
+};
 
 export const DAY_PHASES: DayPhaseConfig[] = [
   {
     phase: 'morning',
     startHour: 6,
     endHour: 12,
-    bgFrom: '#FFF8E1',
-    bgTo: '#B3E5FC',
-    accent: '#F9A825',
-    onAccent: '#FFFFFF',
-    text: '#1A1A1A',
-    textMuted: '#555555',
-    surface: 'rgba(0,0,0,0.07)',
-    musicStyle: 'cheerful',
+    ...DAY_SURFACE,
+    sky: '#D9EDF7',
+    hillFar: '#A9CC86',
+    hillNear: '#86B562',
+    bgFrom: '#D9EDF7',
+    bgTo: '#C3E0EF',
+    accent: '#B7791F',
   },
   {
     phase: 'afternoon',
     startHour: 12,
     endHour: 18,
-    bgFrom: '#E8F5E9',
-    bgTo: '#C8E6C9',
-    accent: '#388E3C',
-    onAccent: '#FFFFFF',
-    text: '#1A1A1A',
-    textMuted: '#555555',
-    surface: 'rgba(0,0,0,0.07)',
-    musicStyle: 'lively',
+    ...DAY_SURFACE,
+    sky: '#CFE6F2',
+    hillFar: '#9CC27A',
+    hillNear: '#7FAE5A',
+    bgFrom: '#CFE6F2',
+    bgTo: '#B9DAEB',
+    accent: '#3F7A2A',
   },
   {
     phase: 'evening',
     startHour: 18,
     endHour: 23,
-    bgFrom: '#FFE0B2',
-    bgTo: '#CE93D8',
-    accent: '#E64A19',
-    onAccent: '#FFFFFF',
-    text: '#1A1A1A',
-    textMuted: '#555555',
-    surface: 'rgba(0,0,0,0.07)',
-    musicStyle: 'calm',
+    ...DAY_SURFACE,
+    sky: '#EFD3D6',
+    hillFar: '#9AAE76',
+    hillNear: '#7A9459',
+    bgFrom: '#EFD3D6',
+    bgTo: '#E3BFC6',
+    accent: '#A4422F',
   },
   {
     phase: 'night',
     startHour: 23,
     endHour: 6, // gece yarısını geçer
-    bgFrom: '#1A237E',
-    bgTo: '#0D47A1',
-    accent: '#90CAF9',
-    onAccent: '#0D1B4A',
-    text: '#EEF2FF',
-    textMuted: '#B4BEE6',
+    dark: true,
+    sky: '#1E2747',
+    text: '#F2EEE4',
+    textMuted: '#B9BFD6',
     surface: 'rgba(255,255,255,0.12)',
-    musicStyle: 'peaceful',
+    surfaceEdge: 'rgba(0,0,0,0.35)',
+    felt: '#2F4A2A',
+    feltEdge: '#253C21',
+    hillFar: '#26402A',
+    hillNear: '#1D3322',
+    bgFrom: '#1E2747',
+    bgTo: '#18203B',
+    accent: '#E8B23A',
+    onAccent: '#2E2A24',
   },
 ];
 

@@ -3,14 +3,28 @@
  *
  * Expo Router Stack navigasyonunu tanımlar. Oyuncu ilerlemesi
  * Zustand + AsyncStorage ile telefonda saklanır; sunucu yoktur.
+ * Baloo 2 yazı tipi yüklenene kadar açılış ekranı ekranda kalır.
  */
+import { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  useFonts,
+  Baloo2_500Medium,
+  Baloo2_600SemiBold,
+  Baloo2_700Bold,
+  Baloo2_800ExtraBold,
+} from '@expo-google-fonts/baloo-2';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useTranslation } from '../src/i18n';
 import { useDayPhase } from '../src/hooks/useDayPhase';
 import { MAX_APP_WIDTH } from '../src/constants/layout';
+
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // Açılış ekranı zaten kapanmışsa (ör. web) yapılacak bir şey yok
+});
 
 export const unstable_settings = {
   anchor: '(game)',
@@ -19,10 +33,24 @@ export const unstable_settings = {
 export default function RootLayout() {
   const t = useTranslation();
   const dayPhase = useDayPhase();
+  const [fontsLoaded, fontError] = useFonts({
+    Baloo2_500Medium,
+    Baloo2_600SemiBold,
+    Baloo2_700Bold,
+    Baloo2_800ExtraBold,
+  });
+  // Yazı tipi yüklenemese de uygulama sistem yazı tipiyle açılır
+  const ready = fontsLoaded || fontError !== null;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  if (!ready) return null;
 
   return (
     // Geniş ekranda ortada telefon genişliğinde sütun; kenarlar günün rengiyle dolar
-    <View style={[styles.page, { backgroundColor: dayPhase.bgTo }]}>
+    <View style={[styles.page, { backgroundColor: dayPhase.sky }]}>
       <View style={styles.column}>
         <Stack
           screenOptions={{
