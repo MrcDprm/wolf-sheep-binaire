@@ -10,9 +10,7 @@
   },
   "menu": {
     "play": "Oyna",
-    "dailyPuzzle": "Günlük Bulmaca",
     "impossibleMode": "İmkansız Mod",
-    "leaderboard": "Liderlik Tablosu",
     "settings": "Ayarlar",
     "continueLevel": "Devam Et",
     "levelSelect": "Seviye Seç"
@@ -53,14 +51,7 @@
     "noStar": "Tamamlandı"
   },
   "scoring": {
-    "baseScore": "Baz Puan",
-    "timeBonus": "Zaman Bonusu",
-    "totalScore": "Toplam Puan",
-    "top1Percent": "En İyi %1",
-    "top5Percent": "En İyi %5",
-    "top10Percent": "En İyi %10",
-    "top25Percent": "En İyi %25",
-    "top50Percent": "En İyi %50"
+    "totalScore": "Toplam Puan"
   },
   "hints": {
     "available": "{{count}} ipucu",
@@ -80,17 +71,6 @@
     "next": "İleri",
     "finish": "Başla!"
   },
-  "leaderboard": {
-    "title": "Liderlik Tablosu",
-    "daily": "Günlük",
-    "global": "Global",
-    "rank": "Sıra",
-    "player": "Oyuncu",
-    "score": "Puan",
-    "time": "Süre",
-    "noData": "Henüz skor yok.",
-    "offline": "Liderlik tablosuna şu an ulaşılamıyor."
-  },
   "settings": {
     "title": "Ayarlar",
     "language": "Dil",
@@ -98,15 +78,8 @@
     "haptic": "Titreşim",
     "version": "Versiyon"
   },
-  "dailyPuzzle": {
-    "title": "Günlük Bulmaca",
-    "available": "Bugünkü bulmaca hazır!",
-    "completed": "Bugünkü bulmacayı tamamladın!",
-    "nextIn": "Yeni bulmaca: {{time}} sonra",
-    "leaderboard": "Günlük Liderlik"
-  },
   "share": {
-    "message": "Koyun & Kurt oyununda seviye {{level}}'i {{time}} sürede tamamladım! En iyi %{{percentile}} arasındayım. Sen de dene!",
+    "message": "Koyun & Kurt oyununda {{level}}. seviyeyi {{time}} sürede tamamladım. Sen de dene!",
     "title": "Koyun & Kurt - Seviye {{level}} Tamamlandı!"
   },
   "profile": {

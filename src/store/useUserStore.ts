@@ -7,8 +7,6 @@ import { getTitleForPoints } from '../constants/titles';
 import { BASE_HINT_POOL, DAILY_LOGIN_HINT_BONUS } from '../constants/scoring';
 
 interface UserState extends UserProfile {
-  isLoading: boolean;
-
   // Actions
   hydrate: (profile: UserProfile) => void;
   consumeHint: () => boolean;       // true: başarılı, false: yeterli ipucu yok
@@ -16,13 +14,9 @@ interface UserState extends UserProfile {
   addPoints: (points: number) => void;
   markLevelComplete: (levelId: string, result: LevelResult) => void;
   claimDailyBonus: () => void;
-  setDisplayName: (name: string) => void;
-  setLoading: (value: boolean) => void;
 }
 
 const DEFAULT_PROFILE: UserProfile = {
-  uid: '',
-  displayName: 'Anonim Oyuncu',
   totalPoints: 0,
   availableHints: BASE_HINT_POOL,
   lastLoginDate: null,
@@ -34,7 +28,6 @@ export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       ...DEFAULT_PROFILE,
-      isLoading: false,
 
       hydrate: (profile) => {
         set({ ...profile, currentTitle: getTitleForPoints(profile.totalPoints) });
@@ -77,19 +70,10 @@ export const useUserStore = create<UserState>()(
           lastLoginDate: Date.now(),
         }));
       },
-
-      setDisplayName: (name) => set({ displayName: name }),
-
-      setLoading: (value) => set({ isLoading: value }),
     }),
     {
       name: 'koyun-kurt-user',
       storage: createJSONStorage(() => AsyncStorage),
-      // Tüm alanları persist et, isLoading hariç
-      partialize: (state) => {
-        const { isLoading: _loading, ...rest } = state;
-        return rest;
-      },
     }
   )
 );

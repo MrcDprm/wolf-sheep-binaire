@@ -1,7 +1,7 @@
 /**
  * Sonuç Paylaşım Ekranı
  *
- * Bölüm tamamlama bilgisini (seviye, süre, yıldız, yüzdelik dilim)
+ * Bölüm tamamlama bilgisini (seviye, süre, yıldız, puan)
  * güzel bir kart halinde gösterir ve paylaşım sağlar.
  */
 import { useRef } from 'react';
@@ -19,7 +19,6 @@ export default function ShareResultScreen() {
     stars: string;
     time: string;
     score: string;
-    percentile: string;
   }>();
 
   const cardRef = useRef<any>(null);
@@ -28,7 +27,6 @@ export default function ShareResultScreen() {
   const stars = parseInt(params.stars ?? '0', 10);
   const time = parseInt(params.time ?? '0', 10);
   const score = parseInt(params.score ?? '0', 10);
-  const percentile = parseInt(params.percentile ?? '50', 10);
 
   const starEmoji = ['', '⭐', '⭐⭐', '⭐⭐⭐'][stars] ?? '';
 
@@ -36,7 +34,6 @@ export default function ShareResultScreen() {
     const message = t('share.message', {
       level,
       time: formatTime(time),
-      percentile,
     });
     const title = t('share.title', { level });
     await captureAndShare(cardRef, message, title);
@@ -51,7 +48,6 @@ export default function ShareResultScreen() {
         <Text style={styles.level}>Seviye {level}</Text>
         <Text style={styles.stars}>{starEmoji}</Text>
         <Text style={styles.time}>{formatTime(time)}</Text>
-        <Text style={styles.percentile}>En İyi %{percentile}</Text>
         <Text style={styles.score}>{score} Puan</Text>
       </View>
 
@@ -107,10 +103,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '800',
     color: '#388E3C',
-  },
-  percentile: {
-    fontSize: 14,
-    color: '#888',
   },
   score: {
     fontSize: 20,

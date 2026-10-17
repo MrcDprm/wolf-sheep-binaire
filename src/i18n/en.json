@@ -10,9 +10,7 @@
   },
   "menu": {
     "play": "Play",
-    "dailyPuzzle": "Daily Puzzle",
     "impossibleMode": "Impossible Mode",
-    "leaderboard": "Leaderboard",
     "settings": "Settings",
     "continueLevel": "Continue",
     "levelSelect": "Select Level"
@@ -53,14 +51,7 @@
     "noStar": "Completed"
   },
   "scoring": {
-    "baseScore": "Base Score",
-    "timeBonus": "Time Bonus",
-    "totalScore": "Total Score",
-    "top1Percent": "Top 1%",
-    "top5Percent": "Top 5%",
-    "top10Percent": "Top 10%",
-    "top25Percent": "Top 25%",
-    "top50Percent": "Top 50%"
+    "totalScore": "Total Score"
   },
   "hints": {
     "available": "{{count}} hints",
@@ -80,17 +71,6 @@
     "next": "Next",
     "finish": "Let's Play!"
   },
-  "leaderboard": {
-    "title": "Leaderboard",
-    "daily": "Daily",
-    "global": "Global",
-    "rank": "Rank",
-    "player": "Player",
-    "score": "Score",
-    "time": "Time",
-    "noData": "No scores yet.",
-    "offline": "The leaderboard is not available right now."
-  },
   "settings": {
     "title": "Settings",
     "language": "Language",
@@ -98,15 +78,8 @@
     "haptic": "Haptic",
     "version": "Version"
   },
-  "dailyPuzzle": {
-    "title": "Daily Puzzle",
-    "available": "Today's puzzle is ready!",
-    "completed": "You completed today's puzzle!",
-    "nextIn": "Next puzzle in: {{time}}",
-    "leaderboard": "Daily Leaderboard"
-  },
   "share": {
-    "message": "I completed level {{level}} in Sheep & Wolf in {{time}}! I'm in the top {{percentile}}%. Try it yourself!",
+    "message": "I finished level {{level}} of Wolf & Sheep in {{time}}. Give it a try!",
     "title": "Sheep & Wolf - Level {{level}} Complete!"
   },
   "profile": {

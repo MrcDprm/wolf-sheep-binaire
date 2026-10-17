@@ -32,7 +32,7 @@ export interface GameLevel {
 export interface LevelResult {
   stars: 0 | 1 | 2 | 3;
   time: number;       // saniye cinsinden süre
-  score: number;      // baz puan + zaman bonusu
+  score: number;      // yıldıza göre puan
   hintsUsed: number;
 }
 

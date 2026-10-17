@@ -1,34 +1,22 @@
 /**
- * Günlük Giriş Ödülü Hook'u
+ * Günlük giriş ödülü
  *
  * Uygulama açıldığında veya ön plana geldiğinde kontrol eder.
- * Bugün ödül alınmamışsa talep eder ve Firestore'a yazar.
+ * Bugün ödül alınmamışsa ipucu stoğuna eklenir.
  */
 import { useEffect, useCallback } from 'react';
 import { AppState } from 'react-native';
 import { useUserStore } from '../store/useUserStore';
 import { isSameDay } from '../utils/dateHelpers';
-import { claimDailyBonusOnServer } from '../services/firebase/userService';
-import { isFirebaseConfigured } from '../services/firebase/config';
-import { DAILY_LOGIN_HINT_BONUS } from '../constants/scoring';
 
 export function useDailyReward(): void {
-  const { uid, lastLoginDate, availableHints, claimDailyBonus } = useUserStore();
+  const lastLoginDate = useUserStore((s) => s.lastLoginDate);
+  const claimDailyBonus = useUserStore((s) => s.claimDailyBonus);
 
-  const checkAndClaim = useCallback(async () => {
+  const checkAndClaim = useCallback(() => {
     if (isSameDay(lastLoginDate)) return; // Bugün zaten alındı
-
-    // Önce optimistik UI güncellemesi
     claimDailyBonus();
-
-    // Sonra Firestore'a yaz (çevrimiçiyse)
-    if (!uid || !isFirebaseConfigured()) return;
-    try {
-      await claimDailyBonusOnServer(uid, availableHints + DAILY_LOGIN_HINT_BONUS);
-    } catch {
-      // Sessiz hata — yerel state zaten güncellendi
-    }
-  }, [uid, lastLoginDate, availableHints, claimDailyBonus]);
+  }, [lastLoginDate, claimDailyBonus]);
 
   useEffect(() => {
     checkAndClaim();

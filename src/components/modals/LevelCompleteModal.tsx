@@ -3,7 +3,7 @@
  *
  * - Şeffaf Modal + Reanimated scale-in kart animasyonu
  * - Yıldız göstergesi (kazanılan sarı, kalanlar gri)
- * - Puan dökümü: Baz + Zaman Bonusu + Toplam
+ * - Kazanılan puan
  * - Süre göstergesi
  * - "Sonraki Seviye", "Paylaş", "Menüye Dön" butonları
  */
@@ -25,8 +25,6 @@ interface LevelCompleteModalProps {
   visible: boolean;
   levelId: number;
   result: LevelResult;
-  baseScore: number;
-  timeBonus: number;
   accentColor: string;
   onClose: () => void;
 }
@@ -75,8 +73,6 @@ function LevelCompleteModalComponent({
   visible,
   levelId,
   result,
-  baseScore,
-  timeBonus,
   accentColor,
   onClose,
 }: LevelCompleteModalProps) {
@@ -111,7 +107,7 @@ function LevelCompleteModalComponent({
   const handleShare = () => {
     onClose();
     router.push(
-      `/share-result?level=${levelId}&stars=${result.stars}&time=${result.time}&score=${result.score}&percentile=50`
+      `/share-result?level=${levelId}&stars=${result.stars}&time=${result.time}&score=${result.score}`
     );
   };
 
@@ -151,12 +147,7 @@ function LevelCompleteModalComponent({
 
           {/* Puan dökümü */}
           <View style={styles.scoreBox}>
-            <ScoreRow label={t('scoring.baseScore')} value={`+${baseScore}`} />
-            {timeBonus > 0 && (
-              <ScoreRow label={t('scoring.timeBonus')} value={`+${timeBonus}`} />
-            )}
-            <View style={styles.divider} />
-            <ScoreRow label={t('scoring.totalScore')} value={`${result.score}`} highlight />
+            <ScoreRow label={t('scoring.totalScore')} value={`+${result.score}`} highlight />
           </View>
 
           {/* Butonlar */}
@@ -246,11 +237,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     gap: 2,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E0E0E0',
-    marginVertical: 6,
   },
   btnPrimary: {
     width: '100%',

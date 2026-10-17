@@ -1,48 +1,28 @@
 /**
  * Puan hesaplama yardımcıları (pure functions)
  */
-import type { LevelResult } from '../types/game';
-import type { GameLevel } from '../types/game';
-import {
-  STAR_POINTS,
-  calculateStars,
-  calculateTimeBonus,
-} from '../constants/scoring';
+import type { GameLevel, LevelResult } from '../types/game';
+import { STAR_POINTS, calculateStars } from '../constants/scoring';
 
 export interface ScoreInput {
   hintsUsed: number;
   elapsedSeconds: number;
   level: GameLevel;
-  /** Firebase'den dönen yüzdelik dilim (1-100). null = henüz bilinmiyor → 0 bonus */
-  timePercentile: number | null;
-}
-
-export interface ScoreOutput extends LevelResult {
-  baseScore: number;
-  timeBonus: number;
 }
 
 /**
- * Bir seviyenin final puanını ve yıldız sayısını hesaplar.
+ * Bir seviyenin puanını ve yıldız sayısını hesaplar.
  * Kullanılan ipucu sayısı yıldızı ve puanı düşürür.
  */
-export function computeLevelScore(input: ScoreInput): ScoreOutput {
-  const { hintsUsed, elapsedSeconds, level, timePercentile } = input;
-
+export function computeLevelScore(input: ScoreInput): LevelResult {
+  const { hintsUsed, elapsedSeconds, level } = input;
   const stars = calculateStars(hintsUsed, level.maxHintsForPerfect);
-  const baseScore = STAR_POINTS[stars];
-  const timeBonus =
-    stars > 0 && timePercentile !== null
-      ? calculateTimeBonus(timePercentile)
-      : 0;
 
   return {
     stars,
     time: elapsedSeconds,
     hintsUsed,
-    score: baseScore + timeBonus,
-    baseScore,
-    timeBonus,
+    score: STAR_POINTS[stars],
   };
 }
 
@@ -53,16 +33,4 @@ export function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-/**
- * Yüzdelik dilimi hesaplar.
- * `allTimes`: Firebase'den gelen diğer oyuncuların süreleri (saniye).
- * `playerTime`: Oyuncunun süresi.
- * Dönen değer: 1-100 arası integer (1 = en iyi).
- */
-export function computePercentile(allTimes: number[], playerTime: number): number {
-  if (allTimes.length === 0) return 50; // Veri yoksa orta al
-  const betterCount = allTimes.filter((t) => t > playerTime).length;
-  return Math.max(1, Math.round(((allTimes.length - betterCount) / allTimes.length) * 100));
 }

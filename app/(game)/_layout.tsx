@@ -3,7 +3,7 @@
  *
  * Tüm oyun ekranlarını sarar:
  * - Gün/gece döngüsüne göre dinamik arka plan rengi
- * - Günlük ödül kontrolü
+ * - Günlük ipucu ödülü kontrolü
  */
 import { Stack } from 'expo-router';
 import { useDayPhase } from '../../src/hooks/useDayPhase';

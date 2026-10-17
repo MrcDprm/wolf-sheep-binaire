@@ -13,8 +13,7 @@
       "@i18n/*": ["./src/i18n/*"],
       "@utils/*": ["./src/utils/*"],
       "@services/*": ["./src/services/*"],
-      "@types/*": ["./src/types/*"],
-      "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
+      "@types/*": ["./src/types/*"]
     }
   },
   "include": [

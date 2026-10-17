@@ -31,12 +31,11 @@ import { useGameStore } from '../../../src/store/useGameStore';
 import { useUserStore } from '../../../src/store/useUserStore';
 import { getLevelById } from '../../../src/constants/levels';
 import { precomputePuzzleAsync } from '../../../src/engine/precompute';
-import { computeLevelScore } from '../../../src/utils/scoring';
-import { formatTime } from '../../../src/utils/scoring';
+import { computeLevelScore, formatTime } from '../../../src/utils/scoring';
 import { useTranslation } from '../../../src/i18n';
 import { GameGrid } from '../../../src/components/grid/GameGrid';
 import { LevelCompleteModal } from '../../../src/components/modals/LevelCompleteModal';
-import type { ScoreOutput } from '../../../src/utils/scoring';
+import type { LevelResult } from '../../../src/types/game';
 
 export default function LevelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -49,7 +48,7 @@ export default function LevelScreen() {
 
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [scoreResult, setScoreResult] = useState<ScoreOutput | null>(null);
+  const [scoreResult, setScoreResult] = useState<LevelResult | null>(null);
 
   const {
     grid,
@@ -109,7 +108,6 @@ export default function LevelScreen() {
       hintsUsed,
       elapsedSeconds,
       level: activeLevel,
-      timePercentile: null, // Firebase asenkron — şimdilik 50 varsayılan
     });
 
     setScoreResult(result);
@@ -249,8 +247,6 @@ export default function LevelScreen() {
           visible={modalVisible}
           levelId={levelId}
           result={scoreResult}
-          baseScore={scoreResult.baseScore}
-          timeBonus={scoreResult.timeBonus}
           accentColor={dayPhase.accent}
           onClose={() => setModalVisible(false)}
         />

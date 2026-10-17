@@ -47,28 +47,10 @@ export default function MainMenu() {
 
       <TouchableOpacity
         style={styles.buttonOutline}
-        onPress={() => router.push('/(game)/daily')}
-      >
-        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
-          {t('menu.dailyPuzzle')}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.buttonOutline}
         onPress={() => router.push('/(game)/impossible/1001')}
       >
         <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
           {t('menu.impossibleMode')}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.buttonOutline}
-        onPress={() => router.push('/leaderboard')}
-      >
-        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
-          {t('menu.leaderboard')}
         </Text>
       </TouchableOpacity>
 
