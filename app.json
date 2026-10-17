@@ -1,14 +1,15 @@
 {
   "expo": {
     "name": "Koyun & Kurt",
-    "slug": "KoyunKurtOyunu",
+    "slug": "wolf-sheep",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "koyunkurtoyunu",
+    "scheme": "koyunkurt",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mrcdprm.koyunkurt"
     },
     "android": {
       "adaptiveIcon": {
@@ -16,7 +17,12 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.mrcdprm.koyunkurt",
+      "permissions": [
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
+      "versionCode": 1
     },
     "web": {
       "output": "static",
@@ -52,6 +58,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "07d8bbad-e221-4e52-81c7-e99cca13d963"
+      }
+    },
+    "owner": "mrcdprm"
   }
 }
