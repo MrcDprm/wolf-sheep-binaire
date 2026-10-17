@@ -91,7 +91,7 @@ function LevelCompleteModalComponent({
       scale.value = 0.6;
       opacity.value = 0;
     }
-  }, [visible]);
+  }, [visible, scale, opacity]);
 
   const cardStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

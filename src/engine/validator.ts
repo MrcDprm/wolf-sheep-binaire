@@ -4,7 +4,7 @@
  * Kural 1: Yatay veya dikey olarak yan yana en fazla 2 aynı sembol.
  * Kural 2: Her satır ve sütun tam olarak eşit sayıda Koyun (2) ve Kurt (1) içerir.
  */
-import type { Cell, Grid, RawGrid, CellValue } from '../types/game';
+import type { Grid, RawGrid, CellValue } from '../types/game';
 
 // ---------------------------------------------------------------------------
 // Düşük seviye kontroller (RawGrid üzerinde çalışır — algoritma içi kullanım)
@@ -172,7 +172,7 @@ export function findTripleAnimals(grid: Grid): { wolf: boolean; sheep: boolean }
 interface ValidationResult {
   validatedGrid: Grid;
   hasError: boolean;
-  errorCells: Array<{ row: number; col: number }>;
+  errorCells: { row: number; col: number }[];
 }
 
 /**
@@ -243,7 +243,7 @@ export function applyErrorsToGrid(grid: Grid): ValidationResult {
   }
 
   const hasError = errorSet.size > 0;
-  const errorCells: Array<{ row: number; col: number }> = [];
+  const errorCells: { row: number; col: number }[] = [];
 
   const validatedGrid: Grid = grid.map((row) =>
     row.map((cell) => {

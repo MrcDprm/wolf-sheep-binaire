@@ -47,7 +47,7 @@ function GridCellComponent({ cell, cellSize, accentColor, onTap }: GridCellProps
     } else {
       offsetX.value = 0;
     }
-  }, [cell.hasError]);
+  }, [cell.hasError, offsetX]);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: offsetX.value }],
