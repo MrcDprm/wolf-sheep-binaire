@@ -139,6 +139,33 @@ export function buildGridFromRaw(raw: RawGrid): Grid {
 }
 
 // ---------------------------------------------------------------------------
+// Üçlü tespiti (ses için)
+// ---------------------------------------------------------------------------
+
+/**
+ * Izgarada yan yana üç kurt ya da üç koyun var mı?
+ * Kurt üçlüsü uluma, koyun üçlüsü meleme sesini başlatır.
+ */
+export function findTripleAnimals(grid: Grid): { wolf: boolean; sheep: boolean } {
+  const size = grid.length;
+  const found = { wolf: false, sheep: false };
+  const mark = (v: CellValue) => {
+    if (v === 1) found.wolf = true;
+    if (v === 2) found.sheep = true;
+  };
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const v = grid[r][c].value;
+      if (v === 0) continue;
+      if (c + 2 < size && grid[r][c + 1].value === v && grid[r][c + 2].value === v) mark(v);
+      if (r + 2 < size && grid[r + 1][c].value === v && grid[r + 2][c].value === v) mark(v);
+    }
+  }
+  return found;
+}
+
+// ---------------------------------------------------------------------------
 // Hata tespiti ve Grid güncelleme
 // ---------------------------------------------------------------------------
 

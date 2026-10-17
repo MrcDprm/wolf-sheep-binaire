@@ -5,9 +5,9 @@
  * Oyun ekranı (`level/[id].tsx`) bu hook'u kullanır.
  */
 import { createAudioPlayer, type AudioPlayer } from "expo-audio";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { isBoardFilled } from "../engine/solver";
-import { rawFromGrid } from "../engine/validator";
+import { findTripleAnimals, rawFromGrid } from "../engine/validator";
 import type { PrecomputedEntry } from "../store/useGameStore";
 import { useGameStore } from "../store/useGameStore";
 import { useSettingsStore } from "../store/useSettingsStore";
@@ -56,21 +56,52 @@ export function useGameEngine() {
     };
   }, [isComplete, tickTimer]);
 
-  // --- Ses yardımcısı ---
-  // Her ses bir kez yüklenir, sonraki çalmalarda baştan sarılır
-  const playSound = useCallback((type: keyof typeof SOUND_MAP) => {
-    try {
-      let player = playersRef.current[type];
-      if (!player) {
-        player = createAudioPlayer(SOUND_MAP[type]);
-        playersRef.current[type] = player;
-      }
-      player.seekTo(0);
-      player.play();
-    } catch {
-      // Ses çalınamadıysa oyun sessizce devam eder
+  // --- Ses yardımcıları ---
+  // Her ses bir kez yüklenir ve tekrar kullanılır
+  const getPlayer = useCallback((type: keyof typeof SOUND_MAP) => {
+    let player = playersRef.current[type];
+    if (!player) {
+      player = createAudioPlayer(SOUND_MAP[type]);
+      // Kurt ve koyun üçlü düzelene kadar döngüde çalar
+      player.loop = type !== "complete";
+      playersRef.current[type] = player;
     }
+    return player;
   }, []);
+
+  const playOnce = useCallback(
+    (type: keyof typeof SOUND_MAP) => {
+      try {
+        const player = getPlayer(type);
+        player.seekTo(0);
+        player.play();
+      } catch {
+        // Ses çalınamadıysa oyun sessizce devam eder
+      }
+    },
+    [getPlayer],
+  );
+
+  /** Döngüdeki sesi başlatır ya da durdurup başa sarar. */
+  const setLooping = useCallback(
+    (type: keyof typeof SOUND_MAP, on: boolean) => {
+      try {
+        const existing = playersRef.current[type];
+        if (!on) {
+          if (existing?.playing) {
+            existing.pause();
+            existing.seekTo(0);
+          }
+          return;
+        }
+        const player = existing ?? getPlayer(type);
+        if (!player.playing) player.play();
+      } catch {
+        // Ses çalınamadıysa oyun sessizce devam eder
+      }
+    },
+    [getPlayer],
+  );
 
   useEffect(() => {
     const players = playersRef.current;
@@ -79,24 +110,32 @@ export function useGameEngine() {
     };
   }, []);
 
-  // --- Hata Haptik & Ses ---
+  // --- Üçlü sesleri: üçlü düzeltilene kadar döngüde çalar ---
+  const triples = useMemo(() => findTripleAnimals(grid), [grid]);
+  const loopWolf = soundEnabled && !isBlindMode && !isComplete && triples.wolf;
+  const loopSheep = soundEnabled && !isBlindMode && !isComplete && triples.sheep;
+
+  useEffect(() => {
+    setLooping("wolf", loopWolf);
+  }, [loopWolf, setLooping]);
+
+  useEffect(() => {
+    setLooping("sheep", loopSheep);
+  }, [loopSheep, setLooping]);
+
+  // --- Hata titreşimi (her yeni hatada bir kez) ---
   const prevErrorRef = useRef(false);
   useEffect(() => {
-    if (hasActiveError && !prevErrorRef.current) {
-      haptic("error");
-      if (soundEnabled) playSound("wolf");
-    }
+    if (hasActiveError && !prevErrorRef.current) haptic("error");
     prevErrorRef.current = hasActiveError;
-  // haptic ve playSound stabil callback'ler, soundEnabled değeri effect içinde okunur
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasActiveError]);
+  }, [hasActiveError, haptic]);
 
-  // --- Tamamlama Haptik & Ses ---
+  // --- Tamamlama titreşimi ve sesi ---
   useEffect(() => {
-    if (isComplete) {
-      haptic("success");
-      if (soundEnabled) playSound("complete");
-    }
+    if (!isComplete) return;
+    haptic("success");
+    if (soundEnabled) playOnce("complete");
+  // Sadece tamamlandığı an çalsın; ses ayarı değişince tekrar çalmasın
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isComplete]);
 
