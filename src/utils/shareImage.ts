@@ -1,43 +1,28 @@
 /**
- * Paylaşım Görseli Yardımcısı
+ * Sonuç kartını paylaşma
  *
- * react-native-view-shot ile bir View'ı görüntüye çevirir,
- * ardından expo-sharing veya React Native Share API ile paylaşır.
+ * Telefonda kartın ekran görüntüsü alınıp (react-native-view-shot)
+ * sistemin paylaşım penceresiyle (expo-sharing) gönderilir.
+ * Görüntü paylaşılamıyorsa (ör. web) sadece metin paylaşılır.
  */
-import { Share, Platform } from 'react-native';
 import type { RefObject } from 'react';
+import { Platform, Share, type View } from 'react-native';
+import { captureRef } from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
 
-/**
- * ViewShot ref'ini kullanarak ekran görüntüsü alır ve paylaşır.
- * Bileşen içinde çağrılır (ViewShot ref gerekir).
- */
-export async function captureAndShare(
-  viewRef: RefObject<{ capture: () => Promise<string> }>,
-  shareMessage: string,
-  shareTitle: string
+export async function shareCard(
+  cardRef: RefObject<View | null>,
+  message: string,
+  title: string
 ): Promise<void> {
-  if (!viewRef.current) return;
-
   try {
-    const uri = await viewRef.current.capture();
-
-    if (Platform.OS === 'ios') {
-      await Share.share({ url: uri, message: shareMessage, title: shareTitle });
-    } else {
-      await Share.share({ message: `${shareMessage}\n${uri}`, title: shareTitle });
+    if (Platform.OS !== 'web' && cardRef.current && (await Sharing.isAvailableAsync())) {
+      const uri = await captureRef(cardRef, { format: 'png', quality: 1 });
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png', dialogTitle: title });
+      return;
     }
-  } catch {
-    // Kullanıcı paylaşımı iptal etti veya hata oluştu — sessizce geç
-  }
-}
-
-/**
- * Sadece metin paylaşımı (görsel olmadan).
- */
-export async function shareText(message: string, title: string): Promise<void> {
-  try {
     await Share.share({ message, title });
   } catch {
-    // İptal veya hata
+    // Kullanıcı paylaşımı iptal etti ya da paylaşım desteklenmiyor
   }
 }

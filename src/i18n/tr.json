@@ -81,8 +81,10 @@
     "howToPlay": "Nasıl Oynanır?"
   },
   "share": {
-    "message": "Koyun & Kurt oyununda {{level}}. seviyeyi {{time}} sürede tamamladım. Sen de dene!",
-    "title": "Koyun & Kurt - Seviye {{level}} Tamamlandı!"
+    "message": "Koyun & Kurt'ta {{level}} bulmacasını {{time}} sürede çözdüm. Sen de dene!",
+    "title": "Koyun & Kurt: {{level}} tamamlandı",
+    "button": "Paylaş",
+    "close": "Kapat"
   },
   "profile": {
     "title": "Kullanıcı Unvanı",

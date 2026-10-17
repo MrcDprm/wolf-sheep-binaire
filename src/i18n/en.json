@@ -81,8 +81,10 @@
     "howToPlay": "How to Play"
   },
   "share": {
-    "message": "I finished level {{level}} of Wolf & Sheep in {{time}}. Give it a try!",
-    "title": "Sheep & Wolf - Level {{level}} Complete!"
+    "message": "I solved {{level}} in Sheep & Wolf in {{time}}. Give it a try!",
+    "title": "Sheep & Wolf: {{level}} complete",
+    "button": "Share",
+    "close": "Close"
   },
   "profile": {
     "title": "Player Title",
