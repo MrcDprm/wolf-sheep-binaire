@@ -19,6 +19,7 @@ export default function DailyScreen() {
   useEffect(() => {
     fetchTodayPuzzle()
       .then(setPuzzle)
+      .catch(() => setPuzzle(null))
       .finally(() => setLoading(false));
   }, []);
 

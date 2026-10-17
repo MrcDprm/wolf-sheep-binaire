@@ -12,6 +12,7 @@ import {
   fetchDailyLeaderboard,
   type LeaderboardEntry,
 } from '../src/services/firebase/leaderboardService';
+import { isFirebaseConfigured } from '../src/services/firebase/config';
 import { useTranslation } from '../src/i18n';
 import { formatTime } from '../src/utils/scoring';
 
@@ -20,16 +21,25 @@ type Tab = 'global' | 'daily';
 export default function LeaderboardScreen() {
   const t = useTranslation();
   const [tab, setTab] = useState<Tab>('global');
-  const [data, setData] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(false);
+  // Sonuç hangi sekmeye aitse onunla birlikte tutulur; sekme değişince yükleniyor sayılır
+  const [result, setResult] = useState<{ tab: Tab; entries: LeaderboardEntry[] | null } | null>(null);
+  const online = isFirebaseConfigured();
 
   useEffect(() => {
-    setLoading(true);
-    const fetch = tab === 'global' ? fetchGlobalLeaderboard : fetchDailyLeaderboard;
-    fetch()
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [tab]);
+    if (!online) return;
+    let cancelled = false;
+    const fetchEntries = tab === 'global' ? fetchGlobalLeaderboard : fetchDailyLeaderboard;
+    fetchEntries()
+      .then((entries) => !cancelled && setResult({ tab, entries }))
+      .catch(() => !cancelled && setResult({ tab, entries: null }));
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, online]);
+
+  const loading = online && result?.tab !== tab;
+  const failed = !online || (result?.tab === tab && result.entries === null);
+  const data = result?.tab === tab ? result.entries ?? [] : [];
 
   return (
     <View style={styles.container}>
@@ -50,6 +60,10 @@ export default function LeaderboardScreen() {
 
       {loading ? (
         <ActivityIndicator size="large" color="#388E3C" style={{ marginTop: 32 }} />
+      ) : failed ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>{t('leaderboard.offline')}</Text>
+        </View>
       ) : data.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyText}>{t('leaderboard.noData')}</Text>

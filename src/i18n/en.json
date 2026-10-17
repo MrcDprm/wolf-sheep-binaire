@@ -88,7 +88,8 @@
     "player": "Player",
     "score": "Score",
     "time": "Time",
-    "noData": "No scores yet."
+    "noData": "No scores yet.",
+    "offline": "The leaderboard is not available right now."
   },
   "settings": {
     "title": "Settings",

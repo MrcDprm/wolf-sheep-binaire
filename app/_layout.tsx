@@ -13,6 +13,7 @@ import 'react-native-reanimated';
 
 import { signInAnonymouslyIfNeeded, onAuthStateChanged } from '../src/services/firebase/auth';
 import { fetchOrCreateUser } from '../src/services/firebase/userService';
+import { isFirebaseConfigured } from '../src/services/firebase/config';
 import { useUserStore } from '../src/store/useUserStore';
 
 export const unstable_settings = {
@@ -30,6 +31,9 @@ export default function RootLayout() {
       setLoading(true);
 
       try {
+        // Firebase ayarı yoksa oyun sadece cihazda çalışır
+        if (!isFirebaseConfigured()) return;
+
         // 1. Firebase anonim giriş
         const user = await signInAnonymouslyIfNeeded();
 
