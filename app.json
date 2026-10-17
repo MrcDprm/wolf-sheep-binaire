@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "KoyunKurtOyunu",
+    "name": "Koyun & Kurt",
     "slug": "KoyunKurtOyunu",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,9 +12,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#5E8C3A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
@@ -31,9 +30,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#E8F5E9",
+          "backgroundColor": "#CFE6F2",
           "dark": {
-            "backgroundColor": "#1A237E"
+            "backgroundColor": "#1E2747"
           }
         }
       ],
