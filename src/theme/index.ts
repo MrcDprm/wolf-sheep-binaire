@@ -61,3 +61,22 @@ export const radius = {
 
 /** Dokunsal düğmelerin alt kenar yüksekliği (basınca bu kadar aşağı iner) */
 export const EDGE = 5;
+
+/** Pencere ve paylaşım kartı renkleri: gündüz yün kreması, gece koyu lacivert */
+export function cardColors(dark: boolean) {
+  return dark
+    ? {
+        background: '#283158',
+        text: '#F2EEE4',
+        muted: '#B9BFD6',
+        button: { face: 'rgba(255,255,255,0.12)', edge: 'rgba(0,0,0,0.35)', text: '#F2EEE4' },
+        starOff: 'rgba(255,255,255,0.18)',
+      }
+    : {
+        background: palette.wool,
+        text: palette.ink,
+        muted: '#6B6358',
+        button: { face: '#EFE5D2', edge: '#D8CBB2', text: palette.ink },
+        starOff: '#E6DCC8',
+      };
+}

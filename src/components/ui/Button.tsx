@@ -23,6 +23,8 @@ interface ButtonProps {
   trailing?: ReactNode;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
+  /** Gökyüzü dışındaki zeminlerde (ör. pencere kartı) ikincil düğmenin renkleri */
+  colors?: { face: string; edge: string; text: string };
 }
 
 export function Button({
@@ -35,13 +37,14 @@ export function Button({
   trailing,
   style,
   accessibilityLabel,
+  colors,
 }: ButtonProps) {
   const dayPhase = useDayPhase();
   const primary = variant === 'primary';
 
-  const face = primary ? palette.straw : dayPhase.surface;
-  const edge = primary ? palette.strawEdge : dayPhase.surfaceEdge;
-  const color = primary ? palette.ink : dayPhase.text;
+  const face = colors?.face ?? (primary ? palette.straw : dayPhase.surface);
+  const edge = colors?.edge ?? (primary ? palette.strawEdge : dayPhase.surfaceEdge);
+  const color = colors?.text ?? (primary ? palette.ink : dayPhase.text);
 
   return (
     <Pressable

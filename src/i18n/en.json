@@ -3,10 +3,10 @@
     "name": "Sheep & Wolf"
   },
   "greetings": {
-    "morning": "Good Morning!",
-    "afternoon": "Good Afternoon!",
-    "evening": "Good Evening!",
-    "night": "Good Night!"
+    "morning": "Good morning!",
+    "afternoon": "Good afternoon!",
+    "evening": "Good evening!",
+    "night": "Good night!"
   },
   "menu": {
     "play": "Play",
@@ -18,13 +18,13 @@
   "game": {
     "hint": "Hint",
     "reset": "Reset",
-    "levelComplete": "Level Complete!",
-    "shareResult": "Share Result",
-    "nextLevel": "Next Level",
-    "backToMenu": "Back to Menu",
+    "levelComplete": "Level complete",
+    "shareResult": "Share result",
+    "nextLevel": "Next level",
+    "backToMenu": "Back to menu",
     "outOfHints": "You are out of hints. You get 5 more every day.",
-    "resetConfirm": "All your placed symbols will be removed. Are you sure?",
-    "resetYes": "Yes, Reset",
+    "resetConfirm": "All the pieces you placed will be removed. Are you sure?",
+    "resetYes": "Yes, reset",
     "resetNo": "Cancel",
     "level": "{{difficulty}} {{number}}",
     "levelNotFound": "Level not found.",
@@ -33,7 +33,8 @@
     "next": "Next level",
     "back": "Back",
     "allDone": "You finished every level!",
-    "close": "Close"
+    "close": "Close",
+    "time": "Time"
   },
   "errors": {
     "tripleSheep": "No three sheep side by side.",
@@ -49,30 +50,31 @@
     "impossible": "Impossible"
   },
   "stars": {
-    "perfect": "Perfect! 3 Stars",
-    "great": "Great! 2 Stars",
-    "good": "Good! 1 Star",
+    "perfect": "Perfect!",
+    "great": "Great!",
+    "good": "Good!",
     "noStar": "Completed"
   },
   "scoring": {
-    "totalScore": "Total Score"
+    "totalScore": "Points"
   },
   "hints": {
     "available": "{{count}} hints"
   },
   "tutorial": {
-    "title": "How to Play",
-    "step1Title": "Tap the Cells",
-    "step1Body": "Tap an empty cell once for a wolf 🐺, twice for a sheep 🐑, three times to clear it.",
-    "step2Title": "Rule 1: No Three in a Row",
+    "title": "How to play",
+    "step1Title": "Tap the cells",
+    "step1Body": "Tap an empty cell once for a wolf, twice for a sheep, three times to clear it.",
+    "step2Title": "Rule 1: No three in a row",
     "step2Body": "No three of the same animal side by side, across or down.",
     "step3Title": "Rule 2: Balance",
     "step3Body": "Every row and every column needs 3 wolves and 3 sheep.",
-    "step4Title": "Hear Your Mistakes",
+    "step4Title": "Hear your mistakes",
     "step4Body": "Cells that break a rule turn red. Three sheep in a row start bleating, three wolves start howling, until you fix it.",
     "skip": "Skip",
     "next": "Next",
-    "finish": "Let's Play!"
+    "finish": "Let's play",
+    "progress": "Step {{step}} of {{total}}"
   },
   "settings": {
     "title": "Settings",
@@ -80,7 +82,7 @@
     "sound": "Sound",
     "haptic": "Haptic",
     "version": "Version",
-    "howToPlay": "How to Play"
+    "howToPlay": "How to play"
   },
   "share": {
     "message": "I solved {{level}} in Sheep & Wolf in {{time}}. Give it a try!",

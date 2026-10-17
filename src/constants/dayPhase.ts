@@ -28,12 +28,6 @@ export interface DayPhaseConfig {
   /** Menüdeki tepeler: uzak ve yakın */
   hillFar: string;
   hillNear: string;
-
-  // Eski ekranların kullandığı alanlar; ekranlar yeni temaya geçince kalkacak
-  bgFrom: string;
-  bgTo: string;
-  accent: string;
-  onAccent: string;
 }
 
 const DAY_SURFACE = {
@@ -44,7 +38,6 @@ const DAY_SURFACE = {
   surfaceEdge: 'rgba(46,42,36,0.16)',
   felt: '#5E8C3A',
   feltEdge: '#4C7530',
-  onAccent: '#FFFFFF',
 };
 
 export const DAY_PHASES: DayPhaseConfig[] = [
@@ -56,9 +49,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     sky: '#D9EDF7',
     hillFar: '#A9CC86',
     hillNear: '#86B562',
-    bgFrom: '#D9EDF7',
-    bgTo: '#C3E0EF',
-    accent: '#B7791F',
   },
   {
     phase: 'afternoon',
@@ -68,9 +58,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     sky: '#CFE6F2',
     hillFar: '#9CC27A',
     hillNear: '#7FAE5A',
-    bgFrom: '#CFE6F2',
-    bgTo: '#B9DAEB',
-    accent: '#3F7A2A',
   },
   {
     phase: 'evening',
@@ -80,9 +67,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     sky: '#EFD3D6',
     hillFar: '#9AAE76',
     hillNear: '#7A9459',
-    bgFrom: '#EFD3D6',
-    bgTo: '#E3BFC6',
-    accent: '#A4422F',
   },
   {
     phase: 'night',
@@ -98,10 +82,6 @@ export const DAY_PHASES: DayPhaseConfig[] = [
     feltEdge: '#253C21',
     hillFar: '#26402A',
     hillNear: '#1D3322',
-    bgFrom: '#1E2747',
-    bgTo: '#18203B',
-    accent: '#E8B23A',
-    onAccent: '#2E2A24',
   },
 ];
 

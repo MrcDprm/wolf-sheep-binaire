@@ -4,9 +4,9 @@
   },
   "greetings": {
     "morning": "Günaydın!",
-    "afternoon": "İyi Öğlenler!",
-    "evening": "İyi Akşamlar!",
-    "night": "İyi Geceler!"
+    "afternoon": "İyi öğlenler!",
+    "evening": "İyi akşamlar!",
+    "night": "İyi geceler!"
   },
   "menu": {
     "play": "Oyna",
@@ -18,13 +18,13 @@
   "game": {
     "hint": "İpucu",
     "reset": "Sıfırla",
-    "levelComplete": "Seviye Tamamlandı!",
-    "shareResult": "Sonucu Paylaş",
-    "nextLevel": "Sonraki Seviye",
-    "backToMenu": "Menüye Dön",
+    "levelComplete": "Seviye tamamlandı",
+    "shareResult": "Sonucu paylaş",
+    "nextLevel": "Sonraki seviye",
+    "backToMenu": "Menüye dön",
     "outOfHints": "İpucun bitti. Her gün 5 ipucu daha kazanırsın.",
-    "resetConfirm": "Yerleştirdiğin tüm semboller silinecek. Emin misin?",
-    "resetYes": "Evet, Sıfırla",
+    "resetConfirm": "Yerleştirdiğin bütün taşlar silinecek. Emin misin?",
+    "resetYes": "Evet, sıfırla",
     "resetNo": "Vazgeç",
     "level": "{{difficulty}} {{number}}",
     "levelNotFound": "Seviye bulunamadı.",
@@ -33,7 +33,8 @@
     "next": "Sonraki seviye",
     "back": "Geri",
     "allDone": "Bütün seviyeleri bitirdin!",
-    "close": "Kapat"
+    "close": "Kapat",
+    "time": "Süre"
   },
   "errors": {
     "tripleSheep": "Yan yana 3 koyun olamaz.",
@@ -49,30 +50,31 @@
     "impossible": "İmkânsız"
   },
   "stars": {
-    "perfect": "Kusursuz! 3 Yıldız",
-    "great": "Harika! 2 Yıldız",
-    "good": "İyi! 1 Yıldız",
+    "perfect": "Kusursuz!",
+    "great": "Harika!",
+    "good": "İyi!",
     "noStar": "Tamamlandı"
   },
   "scoring": {
-    "totalScore": "Toplam Puan"
+    "totalScore": "Puan"
   },
   "hints": {
     "available": "{{count}} ipucu"
   },
   "tutorial": {
-    "title": "Nasıl Oynanır?",
-    "step1Title": "Hücrelere Dokun",
-    "step1Body": "Boş hücreye bir kez dokun: kurt 🐺. İki kez: koyun 🐑. Üç kez: hücre boşalır.",
-    "step2Title": "Kural 1: Yan Yana 3 Yok",
+    "title": "Nasıl oynanır?",
+    "step1Title": "Hücrelere dokun",
+    "step1Body": "Boş hücreye bir kez dokun: kurt. İki kez: koyun. Üç kez: hücre boşalır.",
+    "step2Title": "Kural 1: Yan yana 3 yok",
     "step2Body": "Yatayda ya da dikeyde yan yana 3 aynı hayvan olamaz.",
     "step3Title": "Kural 2: Denge",
     "step3Body": "Her satırda ve her sütunda 3 kurt ve 3 koyun olmalı.",
-    "step4Title": "Hataları Duy",
+    "step4Title": "Hataları duy",
     "step4Body": "Kurala uymayan hücreler kırmızı yanar. Yan yana 3 koyun gelirse meler, 3 kurt gelirse uluyur; sen düzeltene kadar susmazlar.",
     "skip": "Atla",
     "next": "İleri",
-    "finish": "Başla!"
+    "finish": "Başla",
+    "progress": "{{total}} adımdan {{step}}."
   },
   "settings": {
     "title": "Ayarlar",
@@ -80,7 +82,7 @@
     "sound": "Ses",
     "haptic": "Titreşim",
     "version": "Sürüm",
-    "howToPlay": "Nasıl Oynanır?"
+    "howToPlay": "Nasıl oynanır?"
   },
   "share": {
     "message": "Koyun & Kurt'ta {{level}} bulmacasını {{time}} sürede çözdüm. Sen de dene!",

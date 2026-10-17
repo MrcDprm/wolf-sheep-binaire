@@ -1,121 +1,119 @@
 /**
- * LevelCompleteModal — Seviye Tamamlama Ekranı
+ * Seviye tamamlama penceresi
  *
- * - Şeffaf Modal + Reanimated scale-in kart animasyonu
- * - Yıldız göstergesi (kazanılan sarı, kalanlar gri)
- * - Kazanılan puan
- * - Süre göstergesi
- * - "Sonraki Seviye", "Paylaş", "Menüye Dön" butonları
+ * Tek kutlama anı: kart açılır, yıldızlar sırayla yerine oturur.
+ * Hareketi azalt ayarı açıksa her şey doğrudan görünür.
+ * Altında süre ve kazanılan puan; düğmeler: Sonraki seviye, Sonucu paylaş, Menüye dön.
  */
-import React, { useEffect, memo } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { memo, useEffect } from 'react';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
-  withSpring,
+  useReducedMotion,
+  useSharedValue,
   withDelay,
+  withSpring,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { formatTime } from '../../utils/scoring';
 import { useTranslation } from '../../i18n';
+import { useDayPhase } from '../../hooks/useDayPhase';
+import { getLevelById, TOTAL_LEVELS } from '../../constants/levels';
+import { Button } from '../ui/Button';
+import { Icon } from '../ui/Icon';
+import { cardColors, fontSize, fonts, palette } from '../../theme';
 import type { LevelResult } from '../../types/game';
-import { TOTAL_LEVELS } from '../../constants/levels';
 
 interface LevelCompleteModalProps {
   visible: boolean;
   levelId: number;
   result: LevelResult;
-  accentColor: string;
   onClose: () => void;
 }
 
-function StarIcon({ filled, size = 32 }: { filled: boolean; size?: number }) {
+const STAR_LABEL = {
+  0: 'stars.noStar',
+  1: 'stars.good',
+  2: 'stars.great',
+  3: 'stars.perfect',
+} as const;
+
+function Star({
+  value,
+  on,
+  offColor,
+}: {
+  value: SharedValue<number>;
+  on: boolean;
+  offColor: string;
+}) {
+  const style = useAnimatedStyle(() => ({
+    transform: [{ scale: value.value }],
+    opacity: Math.min(1, value.value * 1.5),
+  }));
   return (
-    <Text style={{ fontSize: size, opacity: filled ? 1 : 0.25 }}>⭐</Text>
+    <Animated.View style={style}>
+      <Icon name="star" size={46} color={on ? palette.straw : offColor} />
+    </Animated.View>
   );
 }
-
-function ScoreRow({ label, value, highlight = false }: { label: string; value: string | number; highlight?: boolean }) {
-  return (
-    <View style={scoreRowStyles.row}>
-      <Text style={scoreRowStyles.label}>{label}</Text>
-      <Text style={[scoreRowStyles.value, highlight && scoreRowStyles.highlightValue]}>
-        {value}
-      </Text>
-    </View>
-  );
-}
-
-const scoreRowStyles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  label: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  value: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#333',
-  },
-  highlightValue: {
-    fontSize: 20,
-    color: '#F9A825',
-  },
-});
 
 function LevelCompleteModalComponent({
   visible,
   levelId,
   result,
-  accentColor,
   onClose,
 }: LevelCompleteModalProps) {
   const router = useRouter();
   const t = useTranslation();
+  const dayPhase = useDayPhase();
+  const reduceMotion = useReducedMotion();
+  const card = cardColors(dayPhase.dark);
+  const level = getLevelById(levelId);
 
-  const scale = useSharedValue(0.6);
-  const opacity = useSharedValue(0);
+  const overlay = useSharedValue(1);
+  const cardScale = useSharedValue(1);
+  const star1 = useSharedValue(1);
+  const star2 = useSharedValue(1);
+  const star3 = useSharedValue(1);
 
   useEffect(() => {
-    if (visible) {
-      scale.value = withDelay(50, withSpring(1, { damping: 14, stiffness: 180 }));
-      opacity.value = withDelay(50, withTiming(1, { duration: 200 }));
-    } else {
-      scale.value = 0.6;
-      opacity.value = 0;
-    }
-  }, [visible, scale, opacity]);
+    if (!visible || reduceMotion) return;
+    overlay.value = 0;
+    overlay.value = withTiming(1, { duration: 180 });
+    cardScale.value = 0.85;
+    cardScale.value = withSpring(1, { damping: 14, stiffness: 200 });
+    [star1, star2, star3].forEach((s, i) => {
+      s.value = 0;
+      s.value = withDelay(220 + i * 160, withSpring(1, { damping: 9, stiffness: 220 }));
+    });
+  }, [visible, reduceMotion, overlay, cardScale, star1, star2, star3]);
 
-  const cardStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
+  const overlayStyle = useAnimatedStyle(() => ({ opacity: overlay.value }));
+  const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: cardScale.value }] }));
 
-  const starLabel = ['', t('stars.noStar'), t('stars.good'), t('stars.great'), t('stars.perfect')];
-
-  const handleNextLevel = () => {
+  const goNext = () => {
     onClose();
     router.replace(`/(game)/level/${levelId + 1}`);
   };
 
-  const handleShare = () => {
+  const goShare = () => {
     onClose();
     router.push(
-      `/share-result?level=${levelId}&stars=${result.stars}&time=${result.time}&score=${result.score}`
+      `/share-result?level=${levelId}&stars=${result.stars}&time=${result.time}&score=${result.score}`,
     );
   };
 
-  const handleMenu = () => {
+  const goMenu = () => {
     onClose();
     router.replace('/(game)');
   };
+
+  const levelName = level
+    ? t('game.level', { difficulty: t(`difficulty.${level.difficulty}`), number: level.number })
+    : '';
 
   return (
     <Modal
@@ -125,55 +123,69 @@ function LevelCompleteModalComponent({
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <Animated.View style={[styles.card, cardStyle]}>
-          {/* Başlık */}
-          <Text style={styles.title}>{t('game.levelComplete')}</Text>
+      <Animated.View style={[styles.overlay, overlayStyle]}>
+        {/* Kartın dışına dokununca pencere kapanır, tahta görünür kalır */}
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          accessibilityLabel={t('game.close')}
+        />
+        <Animated.View style={[styles.card, { backgroundColor: card.background }, cardStyle]}>
+          <Text style={[styles.title, { color: card.text }]} accessibilityRole="header">
+            {t('game.levelComplete')}
+          </Text>
+          <Text style={[styles.levelName, { color: card.muted }]}>{levelName}</Text>
 
-          {/* Yıldızlar */}
-          <View style={styles.starsRow}>
-            {[1, 2, 3].map((i) => (
-              <StarIcon key={i} filled={i <= result.stars} size={38} />
-            ))}
+          <View
+            style={styles.stars}
+            accessible
+            accessibilityLabel={t('levels.stars', { count: result.stars })}
+          >
+            <Star value={star1} on={result.stars >= 1} offColor={card.starOff} />
+            <Star value={star2} on={result.stars >= 2} offColor={card.starOff} />
+            <Star value={star3} on={result.stars >= 3} offColor={card.starOff} />
           </View>
-          <Text style={[styles.starLabel, { color: accentColor }]}>
-            {starLabel[result.stars + 1]}
+          <Text style={[styles.starLabel, { color: card.text }]}>
+            {t(STAR_LABEL[result.stars])}
           </Text>
 
-          {/* Süre */}
-          <View style={styles.timeBadge}>
-            <Text style={styles.timeEmoji}>⏱</Text>
-            <Text style={styles.timeText}>{formatTime(result.time)}</Text>
+          <View style={styles.facts}>
+            <View style={styles.fact}>
+              <Text style={[styles.factValue, { color: card.text }]}>
+                {formatTime(result.time)}
+              </Text>
+              <Text style={[styles.factLabel, { color: card.muted }]}>{t('game.time')}</Text>
+            </View>
+            <View style={styles.fact}>
+              <Text style={[styles.factValue, { color: card.text }]}>+{result.score}</Text>
+              <Text style={[styles.factLabel, { color: card.muted }]}>
+                {t('scoring.totalScore')}
+              </Text>
+            </View>
           </View>
 
-          {/* Puan dökümü */}
-          <View style={styles.scoreBox}>
-            <ScoreRow label={t('scoring.totalScore')} value={`+${result.score}`} highlight />
-          </View>
-
-          {/* Butonlar */}
-          {levelId < TOTAL_LEVELS ? (
-            <TouchableOpacity
-              style={[styles.btnPrimary, { backgroundColor: accentColor }]}
-              onPress={handleNextLevel}
+          <View style={styles.buttons}>
+            {levelId < TOTAL_LEVELS ? (
+              <Button title={t('game.nextLevel')} onPress={goNext} />
+            ) : (
+              <Text style={[styles.allDone, { color: card.text }]}>{t('game.allDone')}</Text>
+            )}
+            <Button
+              title={t('game.shareResult')}
+              variant="secondary"
+              colors={card.button}
+              onPress={goShare}
+            />
+            <Pressable
+              onPress={goMenu}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.link, pressed && styles.linkPressed]}
             >
-              <Text style={styles.btnPrimaryText}>{t('game.nextLevel')}</Text>
-            </TouchableOpacity>
-          ) : (
-            <Text style={[styles.allDone, { color: accentColor }]}>{t('game.allDone')}</Text>
-          )}
-
-          <TouchableOpacity style={styles.btnSecondary} onPress={handleShare}>
-            <Text style={[styles.btnSecondaryText, { color: accentColor }]}>
-              {t('game.shareResult')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.btnGhost} onPress={handleMenu}>
-            <Text style={styles.btnGhostText}>{t('game.backToMenu')}</Text>
-          </TouchableOpacity>
+              <Text style={[styles.linkText, { color: card.muted }]}>{t('game.backToMenu')}</Text>
+            </Pressable>
+          </View>
         </Animated.View>
-      </View>
+      </Animated.View>
     </Modal>
   );
 }
@@ -183,101 +195,77 @@ export const LevelCompleteModal = memo(LevelCompleteModalComponent);
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: 'rgba(20,24,40,0.55)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 28,
-    padding: 28,
     width: '100%',
     maxWidth: 380,
+    borderRadius: 28,
+    paddingHorizontal: 24,
+    paddingTop: 26,
+    paddingBottom: 18,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.22,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
-    gap: 12,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#1A1A1A',
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.title,
     textAlign: 'center',
   },
-  starsRow: {
+  levelName: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.small,
+  },
+  stars: {
     flexDirection: 'row',
-    gap: 8,
-    marginVertical: 4,
+    gap: 6,
+    marginTop: 14,
   },
   starLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: -4,
-  },
-  timeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 24,
-  },
-  timeEmoji: {
-    fontSize: 18,
-  },
-  timeText: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#333',
-    fontVariant: ['tabular-nums'],
-  },
-  scoreBox: {
-    width: '100%',
-    backgroundColor: '#FAFAFA',
-    borderRadius: 14,
-    padding: 14,
-    gap: 2,
-  },
-  allDone: {
-    fontSize: 16,
-    fontWeight: '800',
-    textAlign: 'center',
-  },
-  btnPrimary: {
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: 'center',
+    fontFamily: fonts.bold,
+    fontSize: fontSize.body,
     marginTop: 4,
   },
-  btnPrimaryText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '800',
+  facts: {
+    flexDirection: 'row',
+    gap: 40,
+    marginTop: 14,
+    marginBottom: 18,
   },
-  btnSecondary: {
-    width: '100%',
-    paddingVertical: 11,
-    borderRadius: 14,
+  fact: {
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
   },
-  btnSecondaryText: {
-    fontSize: 15,
-    fontWeight: '700',
+  factValue: {
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.heading,
+    fontVariant: ['tabular-nums'],
   },
-  btnGhost: {
-    paddingVertical: 6,
+  factLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.caption,
   },
-  btnGhostText: {
-    fontSize: 14,
-    color: '#999',
-    fontWeight: '500',
+  buttons: {
+    alignSelf: 'stretch',
+    gap: 8,
+  },
+  allDone: {
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.body,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  link: {
+    alignSelf: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  linkPressed: {
+    opacity: 0.6,
+  },
+  linkText: {
+    fontFamily: fonts.bold,
+    fontSize: fontSize.small,
   },
 });

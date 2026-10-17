@@ -182,7 +182,6 @@ export default function LevelScreen() {
           visible={modalVisible}
           levelId={levelId}
           result={result}
-          accentColor={dayPhase.accent}
           onClose={() => setDismissedLevel(levelId)}
         />
       )}

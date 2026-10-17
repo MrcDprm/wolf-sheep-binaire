@@ -18,7 +18,6 @@ import {
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { useTranslation } from '../src/i18n';
 import { useDayPhase } from '../src/hooks/useDayPhase';
 import { MAX_APP_WIDTH } from '../src/constants/layout';
 
@@ -31,7 +30,6 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const t = useTranslation();
   const dayPhase = useDayPhase();
   const [fontsLoaded, fontError] = useFonts({
     Baloo2_500Medium,
@@ -62,7 +60,7 @@ export default function RootLayout() {
           <Stack.Screen name="tutorial" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen
             name="settings"
-            options={{ title: t('settings.title'), headerShown: true }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="share-result"

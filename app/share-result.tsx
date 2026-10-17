@@ -6,12 +6,18 @@
  * Bilgiler bağlantı parametresinden geldiği için sınırlar içinde okunur.
  */
 import { useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from '../src/i18n';
+import { useDayPhase } from '../src/hooks/useDayPhase';
 import { formatTime } from '../src/utils/scoring';
 import { shareCard } from '../src/utils/shareImage';
 import { getLevelById, TOTAL_LEVELS } from '../src/constants/levels';
+import { Piece } from '../src/components/pieces/Piece';
+import { Button } from '../src/components/ui/Button';
+import { Icon } from '../src/components/ui/Icon';
+import { cardColors, fontSize, fonts, palette } from '../src/theme';
 
 /** Sayı değilse ya da aralık dışındaysa sınıra çeker */
 function readInt(value: string | undefined, min: number, max: number): number {
@@ -22,7 +28,14 @@ function readInt(value: string | undefined, min: number, max: number): number {
 export default function ShareResultScreen() {
   const t = useTranslation();
   const router = useRouter();
-  const params = useLocalSearchParams<{ level: string; stars: string; time: string; score: string }>();
+  const dayPhase = useDayPhase();
+  const card = cardColors(dayPhase.dark);
+  const params = useLocalSearchParams<{
+    level: string;
+    stars: string;
+    time: string;
+    score: string;
+  }>();
   const cardRef = useRef<View>(null);
 
   const level = getLevelById(readInt(params.level, 1, TOTAL_LEVELS)) ?? getLevelById(1)!;
@@ -39,94 +52,104 @@ export default function ShareResultScreen() {
     shareCard(
       cardRef,
       t('share.message', { level: levelName, time: formatTime(time) }),
-      t('share.title', { level: levelName })
+      t('share.title', { level: levelName }),
     );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
       {/* Paylaşılan kart; Android'de görüntüsü alınabilsin diye collapsable={false} */}
-      <View ref={cardRef} collapsable={false} style={styles.card}>
-        <Text style={styles.emoji}>🐑🐺</Text>
-        <Text style={styles.title}>{t('app.name')}</Text>
-        <Text style={styles.level}>{levelName}</Text>
-        <Text style={styles.stars}>{'⭐'.repeat(stars)}</Text>
-        <Text style={styles.time}>{formatTime(time)}</Text>
-        <Text style={styles.score}>{t('menu.points', { count: score })}</Text>
+      <View
+        ref={cardRef}
+        collapsable={false}
+        style={[styles.card, { backgroundColor: card.background }]}
+      >
+        <View style={[styles.band, { backgroundColor: dayPhase.felt }]}>
+          <Piece kind="sheep" size={44} />
+          <Text style={styles.appName}>{t('app.name')}</Text>
+          <Piece kind="wolf" size={44} />
+        </View>
+
+        <Text style={[styles.level, { color: card.text }]}>{levelName}</Text>
+
+        <View style={styles.stars}>
+          {[1, 2, 3].map((i) => (
+            <Icon key={i} name="star" size={40} color={i <= stars ? palette.straw : card.starOff} />
+          ))}
+        </View>
+
+        <View style={styles.facts}>
+          <View style={styles.fact}>
+            <Text style={[styles.factValue, { color: card.text }]}>{formatTime(time)}</Text>
+            <Text style={[styles.factLabel, { color: card.muted }]}>{t('game.time')}</Text>
+          </View>
+          <View style={styles.fact}>
+            <Text style={[styles.factValue, { color: card.text }]}>{score}</Text>
+            <Text style={[styles.factLabel, { color: card.muted }]}>{t('scoring.totalScore')}</Text>
+          </View>
+        </View>
       </View>
 
-      <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
-        <Text style={styles.shareBtnText}>{t('share.button')}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
-        <Text style={styles.closeBtnText}>{t('share.close')}</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={styles.buttons}>
+        <Button title={t('share.button')} onPress={handleShare} />
+        <Button title={t('share.close')} variant="secondary" onPress={() => router.back()} />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1A237E',
-    gap: 16,
     padding: 24,
+    gap: 24,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 32,
+    borderRadius: 28,
+    overflow: 'hidden',
     alignItems: 'center',
-    width: '100%',
-    gap: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
+    paddingBottom: 24,
   },
-  emoji: {
-    fontSize: 40,
+  band: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    marginBottom: 18,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#1A237E',
+  appName: {
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.heading,
+    color: palette.wool,
   },
   level: {
-    fontSize: 16,
-    color: '#555',
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.title,
   },
   stars: {
-    fontSize: 28,
+    flexDirection: 'row',
+    gap: 6,
+    marginVertical: 10,
   },
-  time: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#388E3C',
+  facts: {
+    flexDirection: 'row',
+    gap: 48,
   },
-  score: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#F9A825',
+  fact: {
+    alignItems: 'center',
   },
-  shareBtn: {
-    backgroundColor: '#F9A825',
-    paddingHorizontal: 48,
-    paddingVertical: 14,
-    borderRadius: 14,
+  factValue: {
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.title,
+    fontVariant: ['tabular-nums'],
   },
-  shareBtnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 18,
+  factLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.caption,
   },
-  closeBtn: {
-    paddingVertical: 8,
-  },
-  closeBtnText: {
-    color: '#9FA8DA',
-    fontSize: 15,
+  buttons: {
+    gap: 10,
   },
 });
