@@ -10,38 +10,39 @@
   },
   "menu": {
     "play": "Play",
-    "impossibleMode": "Impossible Mode",
     "settings": "Settings",
     "continueLevel": "Continue",
-    "levelSelect": "Select Level"
+    "levels": "Levels",
+    "points": "{{count}} points"
   },
   "game": {
     "hint": "Hint",
     "reset": "Reset",
-    "hintsLeft": "{{count}} hints left",
     "levelComplete": "Level Complete!",
-    "newRecord": "New Record!",
     "shareResult": "Share Result",
     "nextLevel": "Next Level",
     "backToMenu": "Back to Menu",
-    "timer": "Time: {{time}}",
-    "blindMode": "BLIND MODE",
-    "blindModeHint": "Fill the board and discover the result!",
-    "noHintsInImpossible": "Hints are disabled in Impossible Mode!",
-    "outOfHints": "Out of hints! Would you like to buy more?",
+    "outOfHints": "You are out of hints. You get 5 more every day.",
     "resetConfirm": "All your placed symbols will be removed. Are you sure?",
     "resetYes": "Yes, Reset",
-    "resetNo": "Cancel"
+    "resetNo": "Cancel",
+    "level": "{{difficulty}} · {{number}}",
+    "levelNotFound": "Level not found.",
+    "locked": "This level is locked. Finish the previous level first.",
+    "previous": "Previous level",
+    "next": "Next level",
+    "back": "Back",
+    "allDone": "You finished every level!"
   },
   "errors": {
-    "tripleRule": "No 3 identical symbols in a row!",
-    "balanceRule": "Row or column is unbalanced!"
+    "anyRule": "No three of the same side by side, and each row and column must be balanced."
   },
   "difficulty": {
+    "easiest": "Easiest",
     "easy": "Easy",
     "medium": "Medium",
-    "normal": "Normal",
     "hard": "Hard",
+    "veryHard": "Very Hard",
     "impossible": "Impossible"
   },
   "stars": {
@@ -87,5 +88,10 @@
     "totalPoints": "Total Points",
     "nextTitle": "Next Title",
     "pointsToNext": "{{points}} more points needed"
+  },
+  "levels": {
+    "title": "Levels",
+    "progress": "{{done}}/{{total}} completed",
+    "locked": "Locked"
   }
 }

@@ -1,198 +1,100 @@
 /**
- * Takuzu/Binairo Backtracking Grid Üretici
+ * Bulmaca üretici
  *
- * 1. Boş NxN grid oluştur.
- * 2. Her hücreyi sırayla doldur: [1,2] değerlerini rastgele sırayla dene.
- * 3. wouldViolateTriple + wouldViolateBalance kontrolleriyle geçerli değerleri filtrele.
- * 4. Tam çözüm bulununca kopyala.
- * 5. İlk board için zorluk seviyesine göre hücreleri temizle.
- * 6. Benzersiz çözüm garantisi: countSolutions() ile 1 adet çözüm olduğunu doğrula.
+ * 1. Kurallara uyan tam dolu bir çözüm üretilir (geri izleme / backtracking).
+ * 2. Hücreler rastgele sırayla silinir; silme çözümü tek olmaktan çıkarırsa geri alınır.
+ * 3. İstenen açık simge sayısına inilince durulur.
+ *
+ * Oyun bu dosyayı çalışırken kullanmaz: seviyeler scripts/generate-levels.ts ile
+ * bir kez üretilip src/constants/levelData.ts dosyasına yazılır.
  */
-import type { RawGrid, CellValue, Difficulty } from '../types/game';
+import type { RawGrid, CellValue } from '../types/game';
 import { wouldViolateTriple, wouldViolateBalance } from './validator';
-
-// ---------------------------------------------------------------------------
-// Yardımcı fonksiyonlar
-// ---------------------------------------------------------------------------
-
-function createEmptyRaw(size: number): RawGrid {
-  return Array.from({ length: size }, () => new Array(size).fill(0) as CellValue[]);
-}
+import { shuffle, type Rng } from './random';
 
 function cloneRaw(raw: RawGrid): RawGrid {
   return raw.map((row) => [...row] as CellValue[]);
 }
 
-/** Fisher-Yates shuffle */
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// ---------------------------------------------------------------------------
-// Backtracking çözücü/üretici
-// ---------------------------------------------------------------------------
-
-/**
- * Tam dolu, geçerli bir Takuzu grid üretir.
- * @param raw Mevcut (boş) grid — in-place değiştirilir
- * @param pos Başlangıç indeksi (row * size + col)
- * @returns true: çözüm bulundu, false: backtrack gerekli
- */
-function fillGrid(raw: RawGrid, pos: number): boolean {
+/** Boş hücreleri sırayla doldurarak tam bir çözüm arar. */
+function fillGrid(raw: RawGrid, pos: number, rng: Rng): boolean {
   const size = raw.length;
-  const total = size * size;
-
-  if (pos === total) return true;
+  if (pos === size * size) return true;
 
   const row = Math.floor(pos / size);
   const col = pos % size;
 
-  const candidates = shuffle([1, 2] as CellValue[]);
-
-  for (const value of candidates) {
-    if (
-      !wouldViolateTriple(raw, row, col, value) &&
-      !wouldViolateBalance(raw, row, col, value)
-    ) {
+  for (const value of shuffle([1, 2] as CellValue[], rng)) {
+    if (!wouldViolateTriple(raw, row, col, value) && !wouldViolateBalance(raw, row, col, value)) {
       raw[row][col] = value;
-      if (fillGrid(raw, pos + 1)) return true;
+      if (fillGrid(raw, pos + 1, rng)) return true;
       raw[row][col] = 0;
     }
   }
-
   return false;
 }
 
-/**
- * Tam dolu çözüm grid üretir.
- */
-export function generateSolution(size: number): RawGrid {
-  const raw = createEmptyRaw(size);
-  const success = fillGrid(raw, 0);
-  if (!success) throw new Error(`${size}x${size} için çözüm üretilemedi`);
+/** Kurallara uyan, tam dolu bir çözüm üretir. */
+export function generateSolution(size: number, rng: Rng = Math.random): RawGrid {
+  const raw: RawGrid = Array.from({ length: size }, () => new Array(size).fill(0) as CellValue[]);
+  if (!fillGrid(raw, 0, rng)) throw new Error(`${size}x${size} için çözüm üretilemedi`);
   return raw;
 }
 
-// ---------------------------------------------------------------------------
-// Benzersiz çözüm sayacı
-// ---------------------------------------------------------------------------
-
 /**
- * Verilen partial grid için kaç benzersiz çözüm mevcut olduğunu sayar.
- * Erken çıkış: 2 bulunca dur (benzersizlik kontrolü için yeterli).
+ * Kısmi bir tahtanın kaç çözümü olduğunu sayar.
+ * `limit`e ulaşınca durur (tek çözüm kontrolü için 2 yeterli).
  */
-function countSolutions(raw: RawGrid, pos: number, limit: number): number {
-  const size = raw.length;
-  const total = size * size;
+export function countSolutions(raw: RawGrid, limit = 2): number {
+  const grid = cloneRaw(raw);
+  const size = grid.length;
 
-  if (pos === total) return 1;
+  function walk(pos: number): number {
+    if (pos === size * size) return 1;
+    const row = Math.floor(pos / size);
+    const col = pos % size;
+    if (grid[row][col] !== 0) return walk(pos + 1);
 
-  const row = Math.floor(pos / size);
-  const col = pos % size;
-
-  if (raw[row][col] !== 0) {
-    return countSolutions(raw, pos + 1, limit);
-  }
-
-  let count = 0;
-  for (const value of [1, 2] as CellValue[]) {
-    if (
-      !wouldViolateTriple(raw, row, col, value) &&
-      !wouldViolateBalance(raw, row, col, value)
-    ) {
-      raw[row][col] = value;
-      count += countSolutions(raw, pos + 1, limit);
-      raw[row][col] = 0;
-      if (count >= limit) return count;
+    let count = 0;
+    for (const value of [1, 2] as CellValue[]) {
+      if (!wouldViolateTriple(grid, row, col, value) && !wouldViolateBalance(grid, row, col, value)) {
+        grid[row][col] = value;
+        count += walk(pos + 1);
+        grid[row][col] = 0;
+        if (count >= limit) return count;
+      }
     }
+    return count;
   }
 
-  return count;
+  return walk(0);
 }
 
 export function hasUniqueSolution(raw: RawGrid): boolean {
-  const clone = cloneRaw(raw);
-  return countSolutions(clone, 0, 2) === 1;
+  return countSolutions(raw, 2) === 1;
 }
 
-// ---------------------------------------------------------------------------
-// Puzzle üretici (çözümden hücre sil)
-// ---------------------------------------------------------------------------
-
-/** Zorluk → tutulacak hücre yüzdesi */
-const CLUE_DENSITY: Record<Difficulty, number> = {
-  easy: 0.55,
-  medium: 0.45,
-  normal: 0.38,
-  hard: 0.32,
-  impossible: 0.25,
-};
-
 /**
- * Çözümden başlayarak hücreleri kaldırır, benzersiz çözümü korur.
- *
- * @param solution Tam dolu çözüm grid (değiştirilmez)
- * @param difficulty Zorluk seviyesi
- * @returns Başlangıç puzzle grid'i (bazı hücreler 0)
+ * Çözümden hücre silerek tam `clues` açık simgeli, tek çözümlü bir bulmaca üretir.
+ * Bu çözümle o sayıya inilemiyorsa null döner (çağıran yeni çözümle tekrar dener).
  */
-export function generatePuzzle(solution: RawGrid, difficulty: Difficulty): RawGrid {
+export function carvePuzzle(solution: RawGrid, clues: number, rng: Rng = Math.random): RawGrid | null {
   const size = solution.length;
-  const total = size * size;
-  const targetClues = Math.round(total * CLUE_DENSITY[difficulty]);
-
   const puzzle = cloneRaw(solution);
+  let filled = size * size;
 
-  // Tüm hücre pozisyonlarını karıştır
-  const positions = shuffle(
-    Array.from({ length: total }, (_, i) => i)
-  );
-
-  let removed = 0;
-  const maxToRemove = total - targetClues;
-
-  for (const pos of positions) {
-    if (removed >= maxToRemove) break;
-
+  for (const pos of shuffle(Array.from({ length: size * size }, (_, i) => i), rng)) {
+    if (filled === clues) break;
     const row = Math.floor(pos / size);
     const col = pos % size;
     const backup = puzzle[row][col];
-
     puzzle[row][col] = 0;
-
-    if (!hasUniqueSolution(puzzle)) {
-      // Benzersizlik bozulursa geri al
-      puzzle[row][col] = backup;
+    if (hasUniqueSolution(puzzle)) {
+      filled--;
     } else {
-      removed++;
+      puzzle[row][col] = backup;
     }
   }
 
-  return puzzle;
-}
-
-// ---------------------------------------------------------------------------
-// Ana üretim fonksiyonu
-// ---------------------------------------------------------------------------
-
-export interface GeneratedPuzzle {
-  initialRaw: RawGrid;
-  solutionRaw: RawGrid;
-}
-
-/**
- * Belirli bir boyut ve zorluk için tam bir puzzle üretir.
- * (Çözüm + başlangıç board)
- */
-export function generateFullPuzzle(
-  size: number,
-  difficulty: Difficulty
-): GeneratedPuzzle {
-  const solutionRaw = generateSolution(size);
-  const initialRaw = generatePuzzle(solutionRaw, difficulty);
-  return { initialRaw, solutionRaw };
+  return filled === clues ? puzzle : null;
 }

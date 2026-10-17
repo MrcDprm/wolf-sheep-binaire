@@ -10,39 +10,40 @@
   },
   "menu": {
     "play": "Oyna",
-    "impossibleMode": "İmkansız Mod",
     "settings": "Ayarlar",
     "continueLevel": "Devam Et",
-    "levelSelect": "Seviye Seç"
+    "levels": "Seviyeler",
+    "points": "{{count}} puan"
   },
   "game": {
     "hint": "İpucu",
     "reset": "Sıfırla",
-    "hintsLeft": "{{count}} ipucu kaldı",
     "levelComplete": "Seviye Tamamlandı!",
-    "newRecord": "Yeni Rekor!",
     "shareResult": "Sonucu Paylaş",
     "nextLevel": "Sonraki Seviye",
     "backToMenu": "Menüye Dön",
-    "timer": "Süre: {{time}}",
-    "blindMode": "KÖR OYUN",
-    "blindModeHint": "Tahtayı doldur ve sonucu öğren!",
-    "noHintsInImpossible": "İmkansız modda ipucu kullanılamaz!",
-    "outOfHints": "İpucun bitti! Satın almak ister misin?",
+    "outOfHints": "İpucun bitti. Her gün 5 ipucu daha kazanırsın.",
     "resetConfirm": "Yerleştirdiğin tüm semboller silinecek. Emin misin?",
     "resetYes": "Evet, Sıfırla",
-    "resetNo": "Vazgeç"
+    "resetNo": "Vazgeç",
+    "level": "{{difficulty}} · {{number}}",
+    "levelNotFound": "Seviye bulunamadı.",
+    "locked": "Bu seviye kilitli. Önce bir önceki seviyeyi bitir.",
+    "previous": "Önceki seviye",
+    "next": "Sonraki seviye",
+    "back": "Geri",
+    "allDone": "Bütün seviyeleri bitirdin!"
   },
   "errors": {
-    "tripleRule": "3 ardışık aynı sembol olamaz!",
-    "balanceRule": "Satır veya sütun dengesiz!"
+    "anyRule": "Yan yana 3 aynı simge olamaz, her satır ve sütunda eşit sayıda olmalı."
   },
   "difficulty": {
+    "easiest": "En Kolay",
     "easy": "Kolay",
     "medium": "Orta",
-    "normal": "Normal",
     "hard": "Zor",
-    "impossible": "İmkansız"
+    "veryHard": "Çok Zor",
+    "impossible": "İmkânsız"
   },
   "stars": {
     "perfect": "Kusursuz! 3 Yıldız",
@@ -87,5 +88,10 @@
     "totalPoints": "Toplam Puan",
     "nextTitle": "Sonraki Unvan",
     "pointsToNext": "{{points}} puan daha gerekiyor"
+  },
+  "levels": {
+    "title": "Seviyeler",
+    "progress": "{{done}}/{{total}} tamamlandı",
+    "locked": "Kilitli"
   }
 }

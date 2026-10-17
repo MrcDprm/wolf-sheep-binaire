@@ -5,28 +5,29 @@ export interface Cell {
   row: number;
   col: number;
   value: CellValue;
-  isLocked: boolean;   // ipucu veya başlangıç hücresi — dokunulamaz
+  isLocked: boolean;   // başta açık verilen ya da ipucuyla açılan hücre — dokunulamaz
   hasError: boolean;   // kural ihlali işaretleyici
 }
 
 export type Grid = Cell[][];
 
-// Sayısal grid gösterimi (serialization / algoritma içi kullanım)
+// Sayısal grid gösterimi (algoritma içi kullanım)
 export type RawGrid = CellValue[][];
 
-export type Difficulty = 'easy' | 'medium' | 'normal' | 'hard' | 'impossible';
-export type GameMode = 'campaign' | 'daily' | 'impossible';
-
-export type GridSize = 6 | 8 | 10 | 12;
+export type Difficulty = 'easiest' | 'easy' | 'medium' | 'hard' | 'veryHard' | 'impossible';
 
 export interface GameLevel {
+  /** 1-300 arası genel seviye numarası */
   id: number;
   difficulty: Difficulty;
-  gridSize: GridSize;
-  /** Kusursuz (3 yıldız) tamamlama için kullanılabilecek max ipucu sayısı */
+  /** Zorluk içindeki sıra (1-50) */
+  number: number;
+  /** Başlangıç tahtası */
+  puzzle: RawGrid;
+  /** Tek çözüm */
+  solution: RawGrid;
+  /** 2 yıldız için izin verilen en fazla ipucu */
   maxHintsForPerfect: number;
-  /** İmkansız mod: başlangıçta verilen hücre sayısı (minimum clue) */
-  minClues?: number;
 }
 
 export interface LevelResult {
@@ -34,12 +35,6 @@ export interface LevelResult {
   time: number;       // saniye cinsinden süre
   score: number;      // yıldıza göre puan
   hintsUsed: number;
-}
-
-export interface GameError {
-  row: number;
-  col: number;
-  reason: 'triple' | 'imbalance';
 }
 
 export type DayPhase = 'morning' | 'afternoon' | 'evening' | 'night';

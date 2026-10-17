@@ -20,6 +20,7 @@ import { useRouter } from 'expo-router';
 import { formatTime } from '../../utils/scoring';
 import { useTranslation } from '../../i18n';
 import type { LevelResult } from '../../types/game';
+import { TOTAL_LEVELS } from '../../constants/levels';
 
 interface LevelCompleteModalProps {
   visible: boolean;
@@ -151,12 +152,16 @@ function LevelCompleteModalComponent({
           </View>
 
           {/* Butonlar */}
-          <TouchableOpacity
-            style={[styles.btnPrimary, { backgroundColor: accentColor }]}
-            onPress={handleNextLevel}
-          >
-            <Text style={styles.btnPrimaryText}>{t('game.nextLevel')}</Text>
-          </TouchableOpacity>
+          {levelId < TOTAL_LEVELS ? (
+            <TouchableOpacity
+              style={[styles.btnPrimary, { backgroundColor: accentColor }]}
+              onPress={handleNextLevel}
+            >
+              <Text style={styles.btnPrimaryText}>{t('game.nextLevel')}</Text>
+            </TouchableOpacity>
+          ) : (
+            <Text style={[styles.allDone, { color: accentColor }]}>{t('game.allDone')}</Text>
+          )}
 
           <TouchableOpacity style={styles.btnSecondary} onPress={handleShare}>
             <Text style={[styles.btnSecondaryText, { color: accentColor }]}>
@@ -237,6 +242,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     gap: 2,
+  },
+  allDone: {
+    fontSize: 16,
+    fontWeight: '800',
+    textAlign: 'center',
   },
   btnPrimary: {
     width: '100%',

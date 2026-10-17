@@ -1,8 +1,8 @@
 /**
- * Ana Menü Ekranı
+ * Ana menü
  *
- * Gün/gece döngüsüne göre dinamik arka plan ve karşılama mesajı.
- * Temel navigasyon butonları.
+ * Gün/gece döngüsüne göre arka plan ve karşılama mesajı.
+ * "Oyna" bitirilmemiş ilk seviyeyi açar.
  */
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -10,57 +10,56 @@ import { useDayPhase } from '../../src/hooks/useDayPhase';
 import { useTranslation } from '../../src/i18n';
 import { useUserStore } from '../../src/store/useUserStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { getLevelById, nextLevelToPlay } from '../../src/constants/levels';
 
 export default function MainMenu() {
   const router = useRouter();
   const dayPhase = useDayPhase();
   const t = useTranslation();
-  const { currentTitle, totalPoints, availableHints } = useUserStore();
+  const currentTitle = useUserStore((s) => s.currentTitle);
+  const totalPoints = useUserStore((s) => s.totalPoints);
+  const availableHints = useUserStore((s) => s.availableHints);
+  const completedLevels = useUserStore((s) => s.completedLevels);
   const language = useSettingsStore((s) => s.language);
 
-  const greeting = language === 'tr'
-    ? dayPhase.greetingTr
-    : dayPhase.greetingEn;
+  const greeting = language === 'tr' ? dayPhase.greetingTr : dayPhase.greetingEn;
+  const nextId = nextLevelToPlay(completedLevels);
+  const nextLevel = getLevelById(nextId);
+  const started = Object.keys(completedLevels).length > 0;
 
   return (
     <View style={[styles.container, { backgroundColor: dayPhase.bgFrom }]}>
-      {/* Başlık */}
       <Text style={[styles.greeting, { color: dayPhase.accent }]}>{greeting}</Text>
       <Text style={styles.title}>{t('app.name')}</Text>
 
-      {/* Kullanıcı bilgisi */}
       <View style={styles.profileRow}>
         <Text style={styles.titleBadge}>{currentTitle}</Text>
-        <Text style={styles.points}>{totalPoints} puan</Text>
+        <Text style={styles.points}>{t('menu.points', { count: totalPoints })}</Text>
       </View>
 
-      {/* Hint göstergesi */}
-      <Text style={styles.hints}>💡 {availableHints} ipucu</Text>
+      <Text style={styles.hints}>💡 {t('hints.available', { count: availableHints })}</Text>
 
-      {/* Navigasyon butonları */}
       <TouchableOpacity
         style={[styles.button, { backgroundColor: dayPhase.accent }]}
-        onPress={() => router.push('/(game)/level/1')}
+        onPress={() => router.push(`/(game)/level/${nextId}`)}
       >
-        <Text style={styles.buttonText}>{t('menu.play')}</Text>
+        <Text style={styles.buttonText}>{started ? t('menu.continueLevel') : t('menu.play')}</Text>
+        {nextLevel && (
+          <Text style={styles.buttonSub}>
+            {t('game.level', {
+              difficulty: t(`difficulty.${nextLevel.difficulty}`),
+              number: nextLevel.number,
+            })}
+          </Text>
+        )}
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.buttonOutline}
-        onPress={() => router.push('/(game)/impossible/1001')}
-      >
-        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
-          {t('menu.impossibleMode')}
-        </Text>
+      <TouchableOpacity style={styles.buttonOutline} onPress={() => router.push('/(game)/levels')}>
+        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>{t('menu.levels')}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.buttonOutline}
-        onPress={() => router.push('/settings')}
-      >
-        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
-          {t('menu.settings')}
-        </Text>
+      <TouchableOpacity style={styles.buttonOutline} onPress={() => router.push('/settings')}>
+        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>{t('menu.settings')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -116,6 +115,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
+  },
+  buttonSub: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 13,
+    fontWeight: '600',
+    marginTop: 2,
   },
   buttonOutline: {
     width: '80%',

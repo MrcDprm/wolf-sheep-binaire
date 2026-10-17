@@ -79,7 +79,7 @@ export function wouldViolateBalance(
 
 /**
  * Bir RawGrid'in tam çözüme uygun olup olmadığını doğrular.
- * (Kural 1 + Kural 2 + satır/sütun benzersizliği)
+ * (Kural 1: yan yana 3 aynı yok, Kural 2: her satır/sütunda eşit sayı)
  */
 export function isRawGridValid(raw: RawGrid): boolean {
   const size = raw.length;

@@ -8,11 +8,9 @@ import { BASE_HINT_POOL, DAILY_LOGIN_HINT_BONUS } from '../constants/scoring';
 
 interface UserState extends UserProfile {
   // Actions
-  hydrate: (profile: UserProfile) => void;
   consumeHint: () => boolean;       // true: başarılı, false: yeterli ipucu yok
-  addHints: (amount: number) => void;
-  addPoints: (points: number) => void;
-  markLevelComplete: (levelId: string, result: LevelResult) => void;
+  /** Seviye sonucunu kaydeder; puana sadece önceki en iyi sonuçtan fazlası eklenir. */
+  recordLevelResult: (levelId: number, result: LevelResult) => void;
   claimDailyBonus: () => void;
 }
 
@@ -29,37 +27,22 @@ export const useUserStore = create<UserState>()(
     (set, get) => ({
       ...DEFAULT_PROFILE,
 
-      hydrate: (profile) => {
-        set({ ...profile, currentTitle: getTitleForPoints(profile.totalPoints) });
-      },
-
       consumeHint: () => {
         if (get().availableHints <= 0) return false;
         set((s) => ({ availableHints: s.availableHints - 1 }));
         return true;
       },
 
-      addHints: (amount) => {
-        set((s) => ({ availableHints: s.availableHints + amount }));
-      },
-
-      addPoints: (points) => {
+      recordLevelResult: (levelId, result) => {
         set((s) => {
-          const newTotal = s.totalPoints + points;
+          const key = String(levelId);
+          const previous = s.completedLevels[key];
+          if (previous && previous.score >= result.score) return {};
+          const totalPoints = s.totalPoints + result.score - (previous?.score ?? 0);
           return {
-            totalPoints: newTotal,
-            currentTitle: getTitleForPoints(newTotal),
-          };
-        });
-      },
-
-      markLevelComplete: (levelId, result) => {
-        set((s) => {
-          const existing = s.completedLevels[levelId];
-          // Daha iyi sonucu koru
-          if (existing && existing.score >= result.score) return {};
-          return {
-            completedLevels: { ...s.completedLevels, [levelId]: result },
+            completedLevels: { ...s.completedLevels, [key]: result },
+            totalPoints,
+            currentTitle: getTitleForPoints(totalPoints),
           };
         });
       },
@@ -74,6 +57,19 @@ export const useUserStore = create<UserState>()(
     {
       name: 'koyun-kurt-user',
       storage: createJSONStorage(() => AsyncStorage),
+      // Sürüm 2: 300 sabit seviye. Eski rastgele seviyelerin ilerlemesi sıfırlanır, ipuçları kalır.
+      version: 2,
+      migrate: (persisted, version) => {
+        const old = (persisted ?? {}) as Partial<UserProfile>;
+        if (version < 2) {
+          return {
+            ...DEFAULT_PROFILE,
+            availableHints: old.availableHints ?? BASE_HINT_POOL,
+            lastLoginDate: old.lastLoginDate ?? null,
+          };
+        }
+        return old as UserProfile;
+      },
     }
   )
 );
