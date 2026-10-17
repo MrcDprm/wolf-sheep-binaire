@@ -10,7 +10,6 @@ import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGameEngine } from '../../../src/hooks/useGameEngine';
 import { usePrecompute } from '../../../src/hooks/usePrecompute';
-import { useUserStore } from '../../../src/store/useUserStore';
 import { getLevelById } from '../../../src/constants/levels';
 import { precomputePuzzleAsync } from '../../../src/engine/precompute';
 import { useGameStore } from '../../../src/store/useGameStore';
@@ -22,20 +21,12 @@ export default function ImpossibleScreen() {
   const level = getLevelById(levelId);
   const router = useRouter();
   const t = useTranslation();
-  const isPremium = useUserStore((s) => s.isPremium);
 
   const [loading, setLoading] = useState(true);
   const { startGame, grid, isComplete } = useGameEngine();
   const getPrecomputed = useGameStore((s) => s.getPrecomputed);
 
   usePrecompute(level ?? null);
-
-  // Premium kontrolü
-  useEffect(() => {
-    if (!isPremium) {
-      router.replace('/(game)');
-    }
-  }, [isPremium]);
 
   useEffect(() => {
     if (!level) return;
@@ -55,8 +46,6 @@ export default function ImpossibleScreen() {
         .finally(() => setLoading(false));
     }
   }, [levelId]);
-
-  if (!isPremium) return null;
 
   if (!level) {
     return (

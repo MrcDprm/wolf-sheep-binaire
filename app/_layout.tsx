@@ -3,7 +3,6 @@
  *
  * - Firebase anonim kimlik doğrulamasını başlatır
  * - Kullanıcı profilini Firestore'dan çeker ve store'a hydrate eder
- * - RevenueCat'i başlatır
  * - Expo Router Stack navigasyonunu tanımlar
  */
 import { useEffect, useState } from 'react';
@@ -15,7 +14,6 @@ import 'react-native-reanimated';
 import { signInAnonymouslyIfNeeded, onAuthStateChanged } from '../src/services/firebase/auth';
 import { fetchOrCreateUser } from '../src/services/firebase/userService';
 import { useUserStore } from '../src/store/useUserStore';
-import { initRevenueCat, checkPremiumStatus } from '../src/services/revenueCat';
 
 export const unstable_settings = {
   anchor: '(game)',
@@ -23,7 +21,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
-  const { hydrate, setLoading, setPremium } = useUserStore();
+  const { hydrate, setLoading } = useUserStore();
 
   useEffect(() => {
     let unsubAuth: (() => void) | undefined;
@@ -39,12 +37,7 @@ export default function RootLayout() {
         const profile = await fetchOrCreateUser(user.uid);
         hydrate(profile);
 
-        // 3. RevenueCat başlat & premium kontrol
-        await initRevenueCat(user.uid);
-        const isPremium = await checkPremiumStatus();
-        setPremium(isPremium);
-
-        // 4. Auth state değişimlerini dinle
+        // 3. Auth state değişimlerini dinle
         unsubAuth = onAuthStateChanged((u) => {
           if (!u) {
             // Beklenmedik çıkış — anonim re-login
@@ -64,7 +57,7 @@ export default function RootLayout() {
     return () => {
       unsubAuth?.();
     };
-  }, [hydrate, setLoading, setPremium]);
+  }, [hydrate, setLoading]);
 
   if (!ready) {
     return (

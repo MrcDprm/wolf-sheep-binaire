@@ -64,16 +64,7 @@
   },
   "hints": {
     "available": "{{count}} ipucu",
-    "dailyBonus": "+5 ipucu kazandın!",
-    "buyMore": "İpucu Al",
-    "watchAd": "Reklam İzle (+3 ipucu)"
-  },
-  "premium": {
-    "title": "Premium'a Geç",
-    "description": "Reklamları kaldır, İmkansız Mod'u aç ve sınırsız ipucu kullan!",
-    "buy": "Satın Al",
-    "restore": "Satın Alımları Geri Yükle",
-    "alreadyPremium": "Premium üyesin! ✓"
+    "dailyBonus": "+5 ipucu kazandın!"
   },
   "tutorial": {
     "title": "Nasıl Oynanır?",
@@ -104,7 +95,6 @@
     "language": "Dil",
     "sound": "Ses",
     "haptic": "Titreşim",
-    "removeAds": "Reklamları Kaldır",
     "version": "Versiyon"
   },
   "dailyPuzzle": {

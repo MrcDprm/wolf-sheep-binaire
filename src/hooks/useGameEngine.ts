@@ -38,7 +38,7 @@ export function useGameEngine() {
     initGame,
   } = useGameStore();
 
-  const { availableHints, isPremium, consumeHint } = useUserStore();
+  const { availableHints, consumeHint } = useUserStore();
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const { trigger: haptic } = useHaptics();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -139,7 +139,7 @@ export function useGameEngine() {
     isBlindMode,
     isComplete,
     hasActiveError,
-    availableHints: isPremium ? Infinity : availableHints,
+    availableHints,
     blindCheckNeeded,
     handleTapCell,
     handleApplyHint,

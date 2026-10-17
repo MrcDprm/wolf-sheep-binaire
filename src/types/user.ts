@@ -6,7 +6,6 @@ export interface UserProfile {
   totalPoints: number;
   availableHints: number;
   lastLoginDate: number | null; // Unix timestamp (ms)
-  isPremium: boolean;
   completedLevels: Record<string, LevelResult>;
   currentTitle: string;
 }

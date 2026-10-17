@@ -34,7 +34,7 @@ export const CAMPAIGN_LEVELS: GameLevel[] = [
   ...createLevels(301, 100, 'hard', 12, 6),
 ];
 
-/** İmkansız mod (premium): 500 seviye, 6-10 arası rastgele boyut */
+/** İmkansız mod: 500 seviye, 6-10 arası rastgele boyut */
 const IMPOSSIBLE_GRID_SIZES: GridSize[] = [6, 8, 10];
 
 export const IMPOSSIBLE_LEVELS: GameLevel[] = Array.from(

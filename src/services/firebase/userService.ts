@@ -24,7 +24,6 @@ export async function fetchOrCreateUser(uid: string): Promise<UserProfile> {
       totalPoints: 0,
       availableHints: BASE_HINT_POOL,
       lastLoginDate: null,
-      isPremium: false,
       completedLevels: {},
     };
     await ref.set(defaults);
@@ -43,7 +42,6 @@ export async function fetchOrCreateUser(uid: string): Promise<UserProfile> {
     totalPoints: data.totalPoints,
     availableHints: data.availableHints,
     lastLoginDate: data.lastLoginDate?.toMillis() ?? null,
-    isPremium: data.isPremium,
     completedLevels: data.completedLevels ?? {},
     currentTitle: getTitleForPoints(data.totalPoints),
   };
@@ -79,14 +77,7 @@ export async function claimDailyBonusOnServer(
 }
 
 /**
- * Premium durumunu günceller.
- */
-export async function setPremiumStatus(uid: string, isPremium: boolean): Promise<void> {
-  await usersCol().doc(uid).update({ isPremium });
-}
-
-/**
- * Hint sayısını günceller (satın alma sonrası).
+ * Hint sayısını günceller.
  */
 export async function updateHints(uid: string, availableHints: number): Promise<void> {
   await usersCol().doc(uid).update({ availableHints });

@@ -9,7 +9,7 @@ Takuzu/Binairo kurallarına dayanan, **Koyun 🐑** ve **Kurt 🐺** sembolleriy
 Her satır ve sütunda eşit sayıda koyun ve kurt yerleştirmek zorundasın — ama üç ardışık aynı sembol koyamazsın. Kulağa basit geliyor, değil mi?
 
 - **400 kampanya seviyesi** — 6×6'dan 12×12'ye kadar büyüyen ızgaralar
-- **İmkansız Mod** — hata göstergesi kapalı, körlemesine oynarsın (premium)
+- **İmkansız Mod** — hata göstergesi kapalı, körlemesine oynarsın
 - **Günlük bulmaca** — her sabah 10:00'da yeni bir bulmaca
 - **Gün/gece döngüsü** — arayüz saate göre renk paletini değiştirir
 
@@ -43,7 +43,7 @@ app/                  Expo Router sayfaları
 src/
 ├── engine/           Oyun motoru (generator, validator, solver, precompute)
 ├── store/            Zustand store'ları (game, user, settings)
-├── services/         Firebase, RevenueCat, AdMob
+├── services/         Firebase
 ├── components/       UI bileşenleri (GameGrid, GridCell, LevelCompleteModal...)
 ├── hooks/            Custom hook'lar
 ├── constants/        Seviyeler, unvanlar, puan tabloları
@@ -61,7 +61,6 @@ src/
 | Navigasyon | Expo Router |
 | State | Zustand + AsyncStorage |
 | Backend | Firebase (Auth, Firestore) |
-| Monetizasyon | RevenueCat + Google AdMob |
 | Animasyon | React Native Reanimated 4 |
 | Ses | expo-av |
 

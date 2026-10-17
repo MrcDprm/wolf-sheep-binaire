@@ -9,7 +9,6 @@ export interface FirestoreUser {
   totalPoints: number;
   availableHints: number;
   lastLoginDate: Timestamp | null;
-  isPremium: boolean;
   completedLevels: Record<string, LevelResult>;
 }
 

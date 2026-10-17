@@ -15,7 +15,7 @@ export default function MainMenu() {
   const router = useRouter();
   const dayPhase = useDayPhase();
   const t = useTranslation();
-  const { currentTitle, totalPoints, availableHints, isPremium } = useUserStore();
+  const { currentTitle, totalPoints, availableHints } = useUserStore();
   const language = useSettingsStore((s) => s.language);
 
   const greeting = language === 'tr'
@@ -54,16 +54,14 @@ export default function MainMenu() {
         </Text>
       </TouchableOpacity>
 
-      {isPremium ? (
-        <TouchableOpacity
-          style={styles.buttonOutline}
-          onPress={() => router.push('/(game)/impossible/1001')}
-        >
-          <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
-            {t('menu.impossibleMode')}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
+      <TouchableOpacity
+        style={styles.buttonOutline}
+        onPress={() => router.push('/(game)/impossible/1001')}
+      >
+        <Text style={[styles.buttonOutlineText, { color: dayPhase.accent }]}>
+          {t('menu.impossibleMode')}
+        </Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.buttonOutline}

@@ -1,9 +1,5 @@
 /**
  * Puan hesaplama yardımcıları (pure functions)
- *
- * Anti-P2W mantığı:
- *  - Premium kullanıcı ipucu kullanırsa yıldız/puan ücretsiz oyuncu gibi düşer.
- *  - Bu mantık burada uygulanır, store bunu doğrudan çağırır.
  */
 import type { LevelResult } from '../types/game';
 import type { GameLevel } from '../types/game';
@@ -28,7 +24,7 @@ export interface ScoreOutput extends LevelResult {
 
 /**
  * Bir seviyenin final puanını ve yıldız sayısını hesaplar.
- * Premium/ücretsiz ayrımı yok — ipucu sayısı her zaman etkilidir.
+ * Kullanılan ipucu sayısı yıldızı ve puanı düşürür.
  */
 export function computeLevelScore(input: ScoreInput): ScoreOutput {
   const { hintsUsed, elapsedSeconds, level, timePercentile } = input;

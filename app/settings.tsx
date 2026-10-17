@@ -3,15 +3,12 @@
  *
  * - Dil seçimi (TR/EN)
  * - Ses ve titreşim toggle
- * - Premium satın alma
  * - Uygulama versiyonu
  */
-import { View, Text, Switch, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
 import { useSettingsStore } from '../src/store/useSettingsStore';
-import { useUserStore } from '../src/store/useUserStore';
 import { useTranslation } from '../src/i18n';
-import { fetchOfferings, purchasePackage, restorePurchases } from '../src/services/revenueCat';
 
 export default function SettingsScreen() {
   const t = useTranslation();
@@ -23,31 +20,6 @@ export default function SettingsScreen() {
     toggleSound,
     toggleHaptic,
   } = useSettingsStore();
-  const { isPremium, setPremium } = useUserStore();
-
-  const handleBuyPremium = async () => {
-    const packages = await fetchOfferings();
-    if (packages.length === 0) {
-      Alert.alert('Hata', 'Şu anda satın alım mevcut değil.');
-      return;
-    }
-    const success = await purchasePackage(packages[0]);
-    if (success) {
-      setPremium(true);
-      Alert.alert('✓', t('premium.alreadyPremium'));
-    }
-  };
-
-  const handleRestore = async () => {
-    const success = await restorePurchases();
-    if (success) {
-      setPremium(true);
-      Alert.alert('✓', t('premium.alreadyPremium'));
-    } else {
-      Alert.alert('', 'Geri yüklenecek satın alım bulunamadı.');
-    }
-  };
-
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
@@ -78,24 +50,6 @@ export default function SettingsScreen() {
       <View style={styles.row}>
         <Text style={styles.rowLabel}>{t('settings.haptic')}</Text>
         <Switch value={hapticEnabled} onValueChange={toggleHaptic} />
-      </View>
-
-      {/* Premium */}
-      <View style={styles.premiumBox}>
-        {isPremium ? (
-          <Text style={styles.premiumOwned}>{t('premium.alreadyPremium')}</Text>
-        ) : (
-          <>
-            <Text style={styles.premiumTitle}>{t('premium.title')}</Text>
-            <Text style={styles.premiumDesc}>{t('premium.description')}</Text>
-            <TouchableOpacity style={styles.premiumBtn} onPress={handleBuyPremium}>
-              <Text style={styles.premiumBtnText}>{t('premium.buy')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleRestore}>
-              <Text style={styles.restoreText}>{t('premium.restore')}</Text>
-            </TouchableOpacity>
-          </>
-        )}
       </View>
 
       {/* Versiyon */}
@@ -156,45 +110,6 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: '500',
-  },
-  premiumBox: {
-    backgroundColor: '#1A237E',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    gap: 8,
-    alignItems: 'center',
-  },
-  premiumTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  premiumDesc: {
-    color: '#C5CAE9',
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  premiumOwned: {
-    color: '#A5D6A7',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  premiumBtn: {
-    backgroundColor: '#F9A825',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginTop: 4,
-  },
-  premiumBtnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 16,
-  },
-  restoreText: {
-    color: '#9FA8DA',
-    fontSize: 13,
   },
   version: {
     textAlign: 'center',

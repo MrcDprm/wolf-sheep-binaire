@@ -16,7 +16,6 @@ interface UserState extends UserProfile {
   addPoints: (points: number) => void;
   markLevelComplete: (levelId: string, result: LevelResult) => void;
   claimDailyBonus: () => void;
-  setPremium: (value: boolean) => void;
   setDisplayName: (name: string) => void;
   setLoading: (value: boolean) => void;
 }
@@ -27,7 +26,6 @@ const DEFAULT_PROFILE: UserProfile = {
   totalPoints: 0,
   availableHints: BASE_HINT_POOL,
   lastLoginDate: null,
-  isPremium: false,
   completedLevels: {},
   currentTitle: 'Kuzu Çırağı',
 };
@@ -43,9 +41,7 @@ export const useUserStore = create<UserState>()(
       },
 
       consumeHint: () => {
-        const { availableHints, isPremium } = get();
-        if (isPremium) return true; // Sınırsız — stok düşmez
-        if (availableHints <= 0) return false;
+        if (get().availableHints <= 0) return false;
         set((s) => ({ availableHints: s.availableHints - 1 }));
         return true;
       },
@@ -81,8 +77,6 @@ export const useUserStore = create<UserState>()(
           lastLoginDate: Date.now(),
         }));
       },
-
-      setPremium: (value) => set({ isPremium: value }),
 
       setDisplayName: (name) => set({ displayName: name }),
 

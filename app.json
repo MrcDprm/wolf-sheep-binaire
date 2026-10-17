@@ -40,14 +40,7 @@
         }
       ],
       "@react-native-firebase/app",
-      "@react-native-firebase/auth",
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-REPLACE~REPLACE_ANDROID",
-          "iosAppId": "ca-app-pub-REPLACE~REPLACE_IOS"
-        }
-      ]
+      "@react-native-firebase/auth"
     ],
     "experiments": {
       "typedRoutes": true,

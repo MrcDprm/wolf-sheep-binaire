@@ -64,16 +64,7 @@
   },
   "hints": {
     "available": "{{count}} hints",
-    "dailyBonus": "+5 hints earned!",
-    "buyMore": "Buy Hints",
-    "watchAd": "Watch Ad (+3 hints)"
-  },
-  "premium": {
-    "title": "Go Premium",
-    "description": "Remove ads, unlock Impossible Mode and enjoy unlimited hints!",
-    "buy": "Buy Now",
-    "restore": "Restore Purchases",
-    "alreadyPremium": "You're Premium! ✓"
+    "dailyBonus": "+5 hints earned!"
   },
   "tutorial": {
     "title": "How to Play",
@@ -104,7 +95,6 @@
     "language": "Language",
     "sound": "Sound",
     "haptic": "Haptic",
-    "removeAds": "Remove Ads",
     "version": "Version"
   },
   "dailyPuzzle": {

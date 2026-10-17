@@ -3,7 +3,6 @@
  *
  * Tüm oyun ekranlarını sarar:
  * - Gün/gece döngüsüne göre dinamik arka plan rengi
- * - Premium olmayan kullanıcılar için alt banner reklam alanı rezervasyonu
  * - Günlük ödül kontrolü
  */
 import { Stack } from 'expo-router';
