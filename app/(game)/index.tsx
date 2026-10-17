@@ -5,11 +5,12 @@
  * "Oyna" bitirilmemiş ilk seviyeyi açar.
  */
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useDayPhase } from '../../src/hooks/useDayPhase';
 import { useTranslation } from '../../src/i18n';
 import { useUserStore } from '../../src/store/useUserStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { useSettingsHydrated } from '../../src/hooks/useSettingsHydrated';
 import { getLevelById, nextLevelToPlay } from '../../src/constants/levels';
 
 export default function MainMenu() {
@@ -21,11 +22,16 @@ export default function MainMenu() {
   const availableHints = useUserStore((s) => s.availableHints);
   const completedLevels = useUserStore((s) => s.completedLevels);
   const language = useSettingsStore((s) => s.language);
+  const tutorialCompleted = useSettingsStore((s) => s.tutorialCompleted);
+  const settingsReady = useSettingsHydrated();
 
   const greeting = language === 'tr' ? dayPhase.greetingTr : dayPhase.greetingEn;
   const nextId = nextLevelToPlay(completedLevels);
   const nextLevel = getLevelById(nextId);
   const started = Object.keys(completedLevels).length > 0;
+
+  // İlk açılışta önce eğitim
+  if (settingsReady && !tutorialCompleted) return <Redirect href="/tutorial" />;
 
   return (
     <View style={[styles.container, { backgroundColor: dayPhase.bgFrom }]}>

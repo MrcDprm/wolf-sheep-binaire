@@ -61,13 +61,13 @@
   "tutorial": {
     "title": "Nasıl Oynanır?",
     "step1Title": "Hücrelere Dokun",
-    "step1Body": "Boş hücrelere dokunarak Kurt 🐺 veya Koyun 🐑 yerleştir.",
-    "step2Title": "Kural 1: Ardışık 3 Yasak",
-    "step2Body": "Yan yana 3 aynı sembol olamaz!",
+    "step1Body": "Boş hücreye bir kez dokun: kurt 🐺. İki kez: koyun 🐑. Üç kez: hücre boşalır.",
+    "step2Title": "Kural 1: Yan Yana 3 Yok",
+    "step2Body": "Yatayda ya da dikeyde yan yana 3 aynı hayvan olamaz.",
     "step3Title": "Kural 2: Denge",
-    "step3Body": "Her satır ve sütunda eşit sayıda Kurt ve Koyun olmalı.",
-    "step4Title": "Hataları Gör",
-    "step4Body": "Kural ihlali yapınca hücre kırmızıya döner.",
+    "step3Body": "Her satırda ve her sütunda 3 kurt ve 3 koyun olmalı.",
+    "step4Title": "Hataları Duy",
+    "step4Body": "Kurala uymayan hücreler kırmızı yanar. Yan yana 3 koyun gelirse meler, 3 kurt gelirse uluyur; sen düzeltene kadar susmazlar.",
     "skip": "Atla",
     "next": "İleri",
     "finish": "Başla!"
@@ -77,7 +77,8 @@
     "language": "Dil",
     "sound": "Ses",
     "haptic": "Titreşim",
-    "version": "Versiyon"
+    "version": "Sürüm",
+    "howToPlay": "Nasıl Oynanır?"
   },
   "share": {
     "message": "Koyun & Kurt oyununda {{level}}. seviyeyi {{time}} sürede tamamladım. Sen de dene!",

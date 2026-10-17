@@ -60,14 +60,14 @@
   },
   "tutorial": {
     "title": "How to Play",
-    "step1Title": "Tap Cells",
-    "step1Body": "Tap empty cells to place a Wolf 🐺 or Sheep 🐑.",
-    "step2Title": "Rule 1: No Triple",
-    "step2Body": "You can't have 3 identical symbols in a row!",
+    "step1Title": "Tap the Cells",
+    "step1Body": "Tap an empty cell once for a wolf 🐺, twice for a sheep 🐑, three times to clear it.",
+    "step2Title": "Rule 1: No Three in a Row",
+    "step2Body": "No three of the same animal side by side, across or down.",
     "step3Title": "Rule 2: Balance",
-    "step3Body": "Every row and column must have equal Wolves and Sheep.",
-    "step4Title": "See Errors",
-    "step4Body": "Rule violations turn the cell red.",
+    "step3Body": "Every row and every column needs 3 wolves and 3 sheep.",
+    "step4Title": "Hear Your Mistakes",
+    "step4Body": "Cells that break a rule turn red. Three sheep in a row start bleating, three wolves start howling, until you fix it.",
     "skip": "Skip",
     "next": "Next",
     "finish": "Let's Play!"
@@ -77,7 +77,8 @@
     "language": "Language",
     "sound": "Sound",
     "haptic": "Haptic",
-    "version": "Version"
+    "version": "Version",
+    "howToPlay": "How to Play"
   },
   "share": {
     "message": "I finished level {{level}} of Wolf & Sheep in {{time}}. Give it a try!",

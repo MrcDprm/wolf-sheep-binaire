@@ -20,7 +20,8 @@ export default function TutorialScreen() {
 
   const handleFinish = () => {
     completeTutorial();
-    router.replace('/(game)');
+    if (router.canGoBack()) router.back();
+    else router.replace('/(game)');
   };
 
   const handleNext = () => {

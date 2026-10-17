@@ -3,15 +3,18 @@
  *
  * - Dil seçimi (TR/EN)
  * - Ses ve titreşim toggle
+ * - Nasıl Oynanır? (eğitimi yeniden açar)
  * - Uygulama versiyonu
  */
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { useTranslation } from '../src/i18n';
 
 export default function SettingsScreen() {
   const t = useTranslation();
+  const router = useRouter();
   const {
     language,
     soundEnabled,
@@ -51,6 +54,12 @@ export default function SettingsScreen() {
         <Text style={styles.rowLabel}>{t('settings.haptic')}</Text>
         <Switch value={hapticEnabled} onValueChange={toggleHaptic} />
       </View>
+
+      {/* Nasıl Oynanır? */}
+      <TouchableOpacity style={styles.row} onPress={() => router.push('/tutorial')}>
+        <Text style={styles.rowLabel}>{t('settings.howToPlay')}</Text>
+        <Text style={styles.chevron}>›</Text>
+      </TouchableOpacity>
 
       {/* Versiyon */}
       <Text style={styles.version}>{t('settings.version')} {version}</Text>
@@ -110,6 +119,10 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  chevron: {
+    fontSize: 22,
+    color: '#999',
   },
   version: {
     textAlign: 'center',
