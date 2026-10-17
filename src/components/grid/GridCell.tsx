@@ -1,154 +1,121 @@
 /**
- * GridCell — Tek Izgara Hücresi
+ * Izgaranın tek hücresi
  *
- * - value=0: boş (dokunulabilir)
- * - value=1: Kurt 🐺
- * - value=2: Koyun 🐑
- * - isLocked: ipucu/başlangıç hücresi — farklı arka plan, dokunulamaz
- * - hasError: kırmızı çerçeve + ! rozeti + Reanimated shake animasyonu
+ * Keçe tahtada hafif çukur bir yuva; içinde koyun ya da kurt taşı durur.
+ * - Başta açık verilen ve ipucuyla açılan hücreler daha koyu yuvadadır, dokunulamaz.
+ * - Taş konunca küçük bir zıplama, kural ihlalinde kırmızı halka ve sallanma.
+ * - Hareketi azalt ayarı açıksa animasyon yapılmaz.
  */
-import React, { useEffect, memo } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
+import { memo, useEffect, useRef } from 'react';
+import { Pressable, StyleSheet } from 'react-native';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { Piece } from '../pieces/Piece';
+import { useTranslation } from '../../i18n';
+import { palette, radius } from '../../theme';
 import type { Cell } from '../../types/game';
 
 interface GridCellProps {
   cell: Cell;
+  /** Yuva dahil hücrenin kapladığı alan (px) */
   cellSize: number;
-  accentColor: string;
+  /** Hücreler arası boşluk (px) */
+  gap: number;
   onTap: (row: number, col: number) => void;
 }
 
-const SYMBOL: Record<0 | 1 | 2, string> = {
-  0: '',
-  1: '🐺',
-  2: '🐑',
-};
+const VALUE_KEY = { 0: 'cell.empty', 1: 'cell.wolf', 2: 'cell.sheep' } as const;
 
-function GridCellComponent({ cell, cellSize, accentColor, onTap }: GridCellProps) {
+function GridCellComponent({ cell, cellSize, gap, onTap }: GridCellProps) {
+  const t = useTranslation();
+  const reduceMotion = useReducedMotion();
   const offsetX = useSharedValue(0);
+  const scale = useSharedValue(1);
 
-  // Shake animasyonunu hasError değişince tetikle
+  // Taş değişince zıpla (ilk çizimde değil)
+  const previousValue = useRef(cell.value);
   useEffect(() => {
-    if (cell.hasError) {
+    if (previousValue.current === cell.value) return;
+    previousValue.current = cell.value;
+    if (cell.value !== 0 && !reduceMotion) {
+      scale.value = 0.55;
+      scale.value = withSpring(1, { damping: 11, stiffness: 260 });
+    }
+  }, [cell.value, reduceMotion, scale]);
+
+  // Hata çıkınca salla
+  useEffect(() => {
+    if (cell.hasError && !reduceMotion) {
       offsetX.value = withSequence(
-        withTiming(-7, { duration: 45 }),
-        withTiming(7, { duration: 45 }),
-        withTiming(-5, { duration: 38 }),
-        withTiming(5, { duration: 38 }),
-        withTiming(-3, { duration: 30 }),
-        withTiming(0, { duration: 25 }),
+        withTiming(-6, { duration: 45 }),
+        withTiming(6, { duration: 45 }),
+        withTiming(-4, { duration: 38 }),
+        withTiming(4, { duration: 38 }),
+        withTiming(0, { duration: 30 }),
       );
     } else {
       offsetX.value = 0;
     }
-  }, [cell.hasError, offsetX]);
+  }, [cell.hasError, reduceMotion, offsetX]);
 
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: offsetX.value }],
-  }));
+  const slotStyle = useAnimatedStyle(() => ({ transform: [{ translateX: offsetX.value }] }));
+  const pieceStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  const fontSize = cellSize > 44 ? 26 : cellSize > 32 ? 20 : 14;
-
-  const cellStyle = [
-    styles.cell,
-    {
-      width: cellSize - 3,
-      height: cellSize - 3,
-      borderRadius: Math.max(6, cellSize * 0.15),
-    },
-    cell.isLocked && styles.locked,
-    cell.hasError && styles.error,
-    cell.value === 0 && !cell.isLocked && { borderColor: accentColor + '55' },
-  ];
+  const size = cellSize - gap;
+  const label = t('cell.label', {
+    row: cell.row + 1,
+    col: cell.col + 1,
+    value: t(VALUE_KEY[cell.value]),
+  });
 
   return (
-    <Animated.View style={animStyle}>
-      <TouchableOpacity
-        style={cellStyle}
-        onPress={() => onTap(cell.row, cell.col)}
-        disabled={cell.isLocked}
-        activeOpacity={0.7}
+    <Pressable
+      onPress={() => onTap(cell.row, cell.col)}
+      disabled={cell.isLocked}
+      accessibilityRole="button"
+      accessibilityLabel={cell.isLocked ? `${label}, ${t('cell.fixed')}` : label}
+      accessibilityState={{ disabled: cell.isLocked }}
+      style={{ margin: gap / 2 }}
+    >
+      <Animated.View
+        style={[
+          styles.slot,
+          { width: size, height: size, borderRadius: Math.min(radius.cell, size * 0.28) },
+          cell.isLocked && styles.slotGiven,
+          cell.hasError && styles.slotError,
+          slotStyle,
+        ]}
       >
         {cell.value !== 0 && (
-          <Text style={[styles.symbol, { fontSize }]}>{SYMBOL[cell.value]}</Text>
+          <Animated.View style={pieceStyle}>
+            <Piece kind={cell.value === 1 ? 'wolf' : 'sheep'} size={size * 0.82} />
+          </Animated.View>
         )}
-
-        {/* Hata rozeti */}
-        {cell.hasError && (
-          <View style={styles.errorBadge} pointerEvents="none">
-            <Text style={styles.errorBadgeText}>!</Text>
-          </View>
-        )}
-
-        {/* Kilit göstergesi */}
-        {cell.isLocked && cell.value !== 0 && (
-          <View style={styles.lockDot} pointerEvents="none" />
-        )}
-      </TouchableOpacity>
-    </Animated.View>
+      </Animated.View>
+    </Pressable>
   );
 }
 
 export const GridCell = memo(GridCellComponent);
 
 const styles = StyleSheet.create({
-  cell: {
-    backgroundColor: '#fff',
-    borderWidth: 1.5,
-    borderColor: '#D0D0D0',
+  slot: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 1.5,
-    overflow: 'visible',
+    backgroundColor: palette.slot,
   },
-  locked: {
-    backgroundColor: '#EDE7F6',
-    borderColor: '#9575CD',
-    borderWidth: 2,
+  slotGiven: {
+    backgroundColor: palette.slotGiven,
   },
-  error: {
-    backgroundColor: '#FFEBEE',
-    borderColor: '#E53935',
-    borderWidth: 2,
-  },
-  symbol: {
-    lineHeight: undefined,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-  errorBadge: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#E53935',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  errorBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '900',
-    lineHeight: 14,
-    includeFontPadding: false,
-  },
-  lockDot: {
-    position: 'absolute',
-    bottom: 3,
-    right: 3,
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#9575CD',
-    opacity: 0.7,
+  slotError: {
+    backgroundColor: palette.slotError,
+    borderWidth: 3,
+    borderColor: palette.error,
   },
 });

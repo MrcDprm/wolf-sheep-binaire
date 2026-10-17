@@ -176,6 +176,7 @@ export function useGameEngine(level: GameLevel | undefined) {
     elapsedSeconds,
     isComplete,
     hasActiveError,
+    triples,
     availableHints,
     result,
     handleTapCell,

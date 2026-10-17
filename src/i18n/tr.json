@@ -26,16 +26,19 @@
     "resetConfirm": "Yerleştirdiğin tüm semboller silinecek. Emin misin?",
     "resetYes": "Evet, Sıfırla",
     "resetNo": "Vazgeç",
-    "level": "{{difficulty}} · {{number}}",
+    "level": "{{difficulty}} {{number}}",
     "levelNotFound": "Seviye bulunamadı.",
     "locked": "Bu seviye kilitli. Önce bir önceki seviyeyi bitir.",
     "previous": "Önceki seviye",
     "next": "Sonraki seviye",
     "back": "Geri",
-    "allDone": "Bütün seviyeleri bitirdin!"
+    "allDone": "Bütün seviyeleri bitirdin!",
+    "close": "Kapat"
   },
   "errors": {
-    "anyRule": "Yan yana 3 aynı simge olamaz, her satır ve sütunda eşit sayıda olmalı."
+    "tripleSheep": "Yan yana 3 koyun olamaz.",
+    "tripleWolf": "Yan yana 3 kurt olamaz.",
+    "balance": "Her satırda ve sütunda 3 kurt, 3 koyun olmalı."
   },
   "difficulty": {
     "easiest": "En Kolay",
@@ -89,5 +92,12 @@
     "title": "Seviyeler",
     "progress": "{{done}}/{{total}} tamamlandı",
     "locked": "Kilitli"
+  },
+  "cell": {
+    "label": "{{row}}. satır, {{col}}. sütun: {{value}}",
+    "empty": "boş",
+    "wolf": "kurt",
+    "sheep": "koyun",
+    "fixed": "sabit"
   }
 }

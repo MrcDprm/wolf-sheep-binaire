@@ -9,10 +9,10 @@ export const palette = {
   // Keçe tahta
   felt: '#5E8C3A',
   feltEdge: '#4C7530',
-  feltNight: '#2F4A2A',
-  feltNightEdge: '#253C21',
   stitch: 'rgba(255,248,236,0.35)',
   slot: 'rgba(0,0,0,0.14)',
+  slotGiven: 'rgba(0,0,0,0.26)',
+  slotError: 'rgba(200,55,45,0.28)',
 
   // Koyun taşı
   wool: '#FFF8EC',

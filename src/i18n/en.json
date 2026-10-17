@@ -26,16 +26,19 @@
     "resetConfirm": "All your placed symbols will be removed. Are you sure?",
     "resetYes": "Yes, Reset",
     "resetNo": "Cancel",
-    "level": "{{difficulty}} · {{number}}",
+    "level": "{{difficulty}} {{number}}",
     "levelNotFound": "Level not found.",
     "locked": "This level is locked. Finish the previous level first.",
     "previous": "Previous level",
     "next": "Next level",
     "back": "Back",
-    "allDone": "You finished every level!"
+    "allDone": "You finished every level!",
+    "close": "Close"
   },
   "errors": {
-    "anyRule": "No three of the same side by side, and each row and column must be balanced."
+    "tripleSheep": "No three sheep side by side.",
+    "tripleWolf": "No three wolves side by side.",
+    "balance": "Each row and column needs 3 wolves and 3 sheep."
   },
   "difficulty": {
     "easiest": "Easiest",
@@ -89,5 +92,12 @@
     "title": "Levels",
     "progress": "{{done}}/{{total}} completed",
     "locked": "Locked"
+  },
+  "cell": {
+    "label": "Row {{row}}, column {{col}}: {{value}}",
+    "empty": "empty",
+    "wolf": "wolf",
+    "sheep": "sheep",
+    "fixed": "fixed"
   }
 }

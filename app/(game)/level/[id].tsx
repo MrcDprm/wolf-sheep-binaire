@@ -2,16 +2,16 @@
  * Oyun ekranı — seviye [id]
  *
  * Düzen:
- *   Üst çubuk: kapat | ‹ önceki · "Kolay · 12" · sonraki › | süre
- *   Izgara (6x6)
- *   Hata bandı (kural ihlali varsa)
- *   Kontrol çubuğu: Sıfırla | İpucu
+ *   Üst çubuk: kapat | ‹ "Kolay 12" › | süre
+ *   Keçe tahta (6x6)
+ *   Hata satırı: ne yanlışsa onu söyler
+ *   Kontroller: Sıfırla | İpucu (kalan sayı)
  *   Tamamlama penceresi
  *
  * Kilitli bir seviyeye (ör. bağlantıyla) gelinirse oynatılmaz, uyarı gösterilir.
  */
 import { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGameEngine } from '../../../src/hooks/useGameEngine';
@@ -22,6 +22,10 @@ import { formatTime } from '../../../src/utils/scoring';
 import { useTranslation } from '../../../src/i18n';
 import { GameGrid } from '../../../src/components/grid/GameGrid';
 import { LevelCompleteModal } from '../../../src/components/modals/LevelCompleteModal';
+import { Button } from '../../../src/components/ui/Button';
+import { Icon } from '../../../src/components/ui/Icon';
+import { IconButton } from '../../../src/components/ui/IconButton';
+import { fontSize, fonts, palette } from '../../../src/theme';
 
 export default function LevelScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -39,6 +43,7 @@ export default function LevelScreen() {
     grid,
     elapsedSeconds,
     hasActiveError,
+    triples,
     availableHints,
     result,
     handleTapCell,
@@ -66,18 +71,18 @@ export default function LevelScreen() {
     if (!handleApplyHint()) Alert.alert(t('game.outOfHints'));
   }, [handleApplyHint, t]);
 
+  const errorColor = dayPhase.dark ? palette.errorOnDark : palette.error;
+
   // --- Bulunamayan ya da kilitli seviye ---
   if (!level) {
     const exists = getLevelById(levelId) !== undefined;
     return (
-      <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.bgFrom }]}>
+      <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
         <View style={styles.center}>
-          <Text style={styles.errorText}>
+          <Text style={[styles.message, { color: dayPhase.text }]}>
             {exists ? t('game.locked') : t('game.levelNotFound')}
           </Text>
-          <TouchableOpacity onPress={() => router.replace('/(game)/levels')}>
-            <Text style={[styles.linkText, { color: dayPhase.accent }]}>{t('menu.levels')}</Text>
-          </TouchableOpacity>
+          <Button title={t('menu.levels')} onPress={() => router.replace('/(game)/levels')} />
         </View>
       </SafeAreaView>
     );
@@ -86,92 +91,89 @@ export default function LevelScreen() {
   const hasPrevious = levelId > 1;
   const nextUnlocked = isLevelUnlocked(levelId + 1, completedLevels);
 
+  // Hata satırı: önce üçlü (hangi hayvan), yoksa satır/sütun dengesi
+  const errorMessage = !hasActiveError
+    ? ''
+    : triples.sheep
+      ? t('errors.tripleSheep')
+      : triples.wolf
+        ? t('errors.tripleWolf')
+        : t('errors.balance');
+
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.bgFrom }]}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
       {/* ── Üst çubuk ── */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
+        <IconButton
+          name="close"
+          color={dayPhase.text}
           onPress={() => router.back()}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t('game.back')}
-        >
-          <Text style={[styles.backArrow, { color: dayPhase.accent }]}>✕</Text>
-        </TouchableOpacity>
+          accessibilityLabel={t('game.close')}
+        />
 
         <View style={styles.titleRow}>
-          <TouchableOpacity
+          <IconButton
+            name="chevronLeft"
+            color={dayPhase.text}
             disabled={!hasPrevious}
             onPress={() => goTo(levelId - 1)}
-            hitSlop={10}
-            accessibilityRole="button"
             accessibilityLabel={t('game.previous')}
-          >
-            <Text
-              style={[styles.navArrow, { color: dayPhase.accent }, !hasPrevious && styles.navDisabled]}
-            >
-              ‹
-            </Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: dayPhase.text }]} numberOfLines={1}>
+          />
+          <Text style={[styles.title, { color: dayPhase.text }]} numberOfLines={1}>
             {t('game.level', {
               difficulty: t(`difficulty.${level.difficulty}`),
               number: level.number,
             })}
           </Text>
-          <TouchableOpacity
+          <IconButton
+            name="chevronRight"
+            color={dayPhase.text}
             disabled={!nextUnlocked}
             onPress={() => goTo(levelId + 1)}
-            hitSlop={10}
-            accessibilityRole="button"
             accessibilityLabel={t('game.next')}
-          >
-            <Text
-              style={[styles.navArrow, { color: dayPhase.accent }, !nextUnlocked && styles.navDisabled]}
-            >
-              ›
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
 
-        <View style={styles.timerBadge}>
-          <Text style={[styles.timerText, { color: dayPhase.accent }]}>
-            {formatTime(elapsedSeconds)}
-          </Text>
-        </View>
+        <Text style={[styles.timer, { color: dayPhase.textMuted }]}>
+          {formatTime(elapsedSeconds)}
+        </Text>
       </View>
 
-      {/* ── Izgara ── */}
-      <View style={styles.gridWrapper}>
-        {ready && <GameGrid grid={grid} accentColor={dayPhase.accent} onTapCell={handleTapCell} />}
+      {/* ── Tahta ── */}
+      <View style={styles.boardArea}>
+        {ready && <GameGrid grid={grid} onTapCell={handleTapCell} />}
       </View>
 
-      {/* ── Hata bandı ── */}
-      <View style={[styles.errorBar, !hasActiveError && styles.errorBarHidden]}>
-        {hasActiveError && <Text style={styles.errorBarText}>⚠ {t('errors.anyRule')}</Text>}
-      </View>
+      {/* ── Hata satırı (yer hep ayrılı; tahta zıplamasın) ── */}
+      <Text
+        style={[styles.error, { color: errorColor }]}
+        accessibilityLiveRegion="polite"
+        numberOfLines={2}
+      >
+        {errorMessage}
+      </Text>
 
-      {/* ── Kontrol çubuğu ── */}
-      <View style={[styles.controlBar, { borderTopColor: dayPhase.accent + '30' }]}>
-        <TouchableOpacity
-          style={[styles.controlBtn, { backgroundColor: dayPhase.surface }]}
+      {/* ── Kontroller ── */}
+      <View style={styles.controls}>
+        <Button
+          title={t('game.reset')}
+          variant="secondary"
           onPress={handleReset}
-        >
-          <Text style={[styles.controlBtnEmoji, { color: dayPhase.text }]}>↺</Text>
-          <Text style={[styles.controlBtnLabel, { color: dayPhase.text }]}>{t('game.reset')}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.controlBtn, styles.hintBtn, { backgroundColor: dayPhase.accent }]}
+          leading={<Icon name="reset" size={20} color={dayPhase.text} />}
+          style={styles.control}
+        />
+        <Button
+          title={t('game.hint')}
           onPress={onHint}
-        >
-          <Text style={styles.hintBtnEmoji}>💡</Text>
-          <Text style={[styles.hintBtnLabel, { color: dayPhase.onAccent }]}>{t('game.hint')}</Text>
-          <View style={styles.hintBadge}>
-            <Text style={styles.hintBadgeText}>{availableHints}</Text>
-          </View>
-        </TouchableOpacity>
+          leading={<Icon name="hint" size={22} color={palette.ink} />}
+          trailing={
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{availableHints}</Text>
+            </View>
+          }
+          accessibilityLabel={`${t('game.hint')}, ${t('hints.available', { count: availableHints })}`}
+          style={styles.control}
+        />
       </View>
 
       {/* ── Tamamlama penceresi ── */}
@@ -194,162 +196,75 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
-    gap: 12,
+    gap: 20,
+    paddingHorizontal: 32,
   },
-
-  // Header
+  message: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.body,
+    textAlign: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 4,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backArrow: {
-    fontSize: 22,
-    fontWeight: '600',
+    paddingHorizontal: 10,
+    paddingTop: 6,
   },
   titleRow: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
   },
-  headerTitle: {
+  title: {
     flexShrink: 1,
     textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.heading,
   },
-  navArrow: {
-    fontSize: 30,
-    lineHeight: 32,
-    paddingHorizontal: 4,
-  },
-  navDisabled: {
-    opacity: 0.2,
-  },
-  timerBadge: {
-    width: 68,
-    alignItems: 'flex-end',
-  },
-  timerText: {
-    fontSize: 16,
-    fontWeight: '700',
+  timer: {
+    width: 58,
+    textAlign: 'right',
+    paddingRight: 8,
+    fontFamily: fonts.bold,
+    fontSize: fontSize.body,
     fontVariant: ['tabular-nums'],
   },
-
-  // Grid
-  gridWrapper: {
+  boardArea: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
   },
-
-  // Error bar
-  errorBar: {
-    minHeight: 30,
-    marginHorizontal: 16,
-    marginBottom: 4,
-    borderRadius: 8,
-    backgroundColor: '#FFEBEE',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  errorBarHidden: {
-    backgroundColor: 'transparent',
-  },
-  errorBarText: {
-    color: '#C62828',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-
-  // Control bar
-  controlBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
+  error: {
+    minHeight: 46,
     paddingHorizontal: 24,
-    paddingTop: 10,
-    paddingBottom: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  controlBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 14,
-    gap: 6,
-  },
-  resetBtn: {
-    backgroundColor: 'rgba(0,0,0,0.06)',
-  },
-  hintBtn: {
-    paddingRight: 28, // rozetine yer
-  },
-  controlBtnEmoji: {
-    fontSize: 18,
-  },
-  controlBtnLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
-  },
-  hintBtnEmoji: {
-    fontSize: 18,
-  },
-  hintBtnLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  hintBadge: {
-    position: 'absolute',
-    right: -2,
-    top: -6,
-    minWidth: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  hintBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#333',
-  },
-
-  // Misc
-  errorText: {
-    fontSize: 16,
-    color: '#C62828',
     textAlign: 'center',
-    paddingHorizontal: 32,
+    textAlignVertical: 'center',
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.small,
   },
-  linkText: {
-    fontSize: 16,
-    fontWeight: '700',
+  controls: {
+    flexDirection: 'row',
+    gap: 14,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  control: {
+    flex: 1,
+  },
+  badge: {
+    minWidth: 30,
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+    borderRadius: 12,
+    backgroundColor: 'rgba(46,42,36,0.16)',
+    alignItems: 'center',
+  },
+  badgeText: {
+    fontFamily: fonts.bold,
+    fontSize: fontSize.small,
+    color: palette.ink,
   },
 });

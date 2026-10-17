@@ -1,71 +1,57 @@
 /**
- * GameGrid — Ana Izgara Bileşeni
+ * Keçe tahta
  *
- * - useWindowDimensions ile ekran genişliğine göre hücre boyutunu hesaplar
- * - Nested View ile satır × sütun render eder (FlatList overhead'i yoktur)
- * - useMemo ile satır dizilerini stabilize eder, gereksiz re-render'ı önler
- * - Her GridCell'e onTapCell callback'i, boyut ve vurgu rengi iletilir
+ * Yeşil keçe zemin, kenarında dikiş çizgisi, altında koyu bir kalınlık.
+ * Hücre boyutu ekranın hem genişliğine hem yüksekliğine sığacak şekilde hesaplanır.
  */
-import React, { useMemo, memo } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { memo, useMemo } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GridCell } from './GridCell';
-import type { Grid } from '../../types/game';
+import { useDayPhase } from '../../hooks/useDayPhase';
+import { EDGE, palette, radius } from '../../theme';
 import { GRID_VERTICAL_RESERVE, MAX_APP_WIDTH, MAX_CELL_SIZE } from '../../constants/layout';
+import type { Grid } from '../../types/game';
 
 interface GameGridProps {
   grid: Grid;
-  accentColor: string;
   onTapCell: (row: number, col: number) => void;
-  /** Ekranın her iki yanında bırakılacak toplam yatay boşluk (px) */
-  horizontalPadding?: number;
 }
 
-const DEFAULT_PADDING = 32;
-/** Izgara çerçevesinin iç boşluğu (styles.grid.padding ile aynı) */
-const FRAME_PADDING = 4;
+/** Ekran kenarı ile tahta arasındaki boşluk (px, her yanda) */
+const SCREEN_PADDING = 20;
+/** Keçenin kenarı ile hücreler arasındaki boşluk (px) */
+const BOARD_PADDING = 10;
+/** Hücreler arası boşluk (px) */
+const GAP = 5;
 
-function GameGridComponent({
-  grid,
-  accentColor,
-  onTapCell,
-  horizontalPadding = DEFAULT_PADDING,
-}: GameGridProps) {
+function GameGridComponent({ grid, onTapCell }: GameGridProps) {
+  const dayPhase = useDayPhase();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-
   const gridSize = grid.length;
 
-  // Hücre boyutu: ızgara hem genişliğe hem yüksekliğe sığmalı, çok da büyümemeli
   const cellSize = useMemo(() => {
     if (gridSize === 0) return 48;
-    const width = Math.min(screenWidth, MAX_APP_WIDTH) - horizontalPadding * 2;
+    const width = Math.min(screenWidth, MAX_APP_WIDTH) - (SCREEN_PADDING + BOARD_PADDING) * 2;
     const height = screenHeight - GRID_VERTICAL_RESERVE;
     return Math.min(MAX_CELL_SIZE, Math.floor(Math.min(width, height) / gridSize));
-  }, [screenWidth, screenHeight, gridSize, horizontalPadding]);
-
-  const rows = useMemo(() => grid, [grid]);
+  }, [screenWidth, screenHeight, gridSize]);
 
   if (gridSize === 0) return null;
 
   return (
-    <View style={styles.container}>
-      <View
-        style={[
-          styles.grid,
-          {
-            // Hücreler + çerçevenin iki yandaki iç boşluğu
-            width: cellSize * gridSize + FRAME_PADDING * 2,
-            borderRadius: Math.max(10, cellSize * 0.18),
-          },
-        ]}
-      >
-        {rows.map((row, rowIdx) => (
+    <View style={styles.wrap}>
+      {/* Keçenin kalınlığı */}
+      <View style={[styles.edge, { backgroundColor: dayPhase.feltEdge }]} />
+      <View style={[styles.board, { backgroundColor: dayPhase.felt }]}>
+        <View style={styles.stitch} pointerEvents="none" />
+        {grid.map((row, rowIdx) => (
           <View key={rowIdx} style={styles.row}>
             {row.map((cell) => (
               <GridCell
                 key={`${cell.row}-${cell.col}`}
                 cell={cell}
                 cellSize={cellSize}
-                accentColor={accentColor}
+                gap={GAP}
                 onTap={onTapCell}
               />
             ))}
@@ -79,18 +65,31 @@ function GameGridComponent({
 export const GameGrid = memo(GameGridComponent);
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  wrap: {
+    paddingBottom: EDGE + 3,
   },
-  grid: {
-    backgroundColor: '#F5F5F5',
-    padding: FRAME_PADDING,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+  edge: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: EDGE + 3,
+    bottom: 0,
+    borderRadius: radius.board,
+  },
+  board: {
+    padding: BOARD_PADDING,
+    borderRadius: radius.board,
+  },
+  stitch: {
+    position: 'absolute',
+    top: 5,
+    left: 5,
+    right: 5,
+    bottom: 5,
+    borderRadius: radius.board - 5,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: palette.stitch,
   },
   row: {
     flexDirection: 'row',
