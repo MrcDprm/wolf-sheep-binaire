@@ -7,7 +7,7 @@
  * Kullanım:
  *   usePrecompute(currentLevel); // oyun ekranında çağrılır
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import type { GameLevel } from '../types/game';
 import { PrecomputeManager } from '../engine/precompute';
 import { useGameStore } from '../store/useGameStore';
@@ -16,18 +16,13 @@ import { getLevelById } from '../constants/levels';
 export function usePrecompute(currentLevel: GameLevel | null): void {
   const storePrecomputed = useGameStore((s) => s.storePrecomputed);
   const getPrecomputed = useGameStore((s) => s.getPrecomputed);
-  const managerRef = useRef<PrecomputeManager | null>(null);
-
-  if (!managerRef.current) {
-    managerRef.current = new PrecomputeManager((key, puzzle) => {
-      storePrecomputed(key, puzzle);
-    });
-  }
+  // Yönetici bileşen başına bir kez oluşturulur
+  const [manager] = useState(
+    () => new PrecomputeManager((key, puzzle) => storePrecomputed(key, puzzle))
+  );
 
   useEffect(() => {
     if (!currentLevel) return;
-
-    const manager = managerRef.current!;
 
     // Mevcut seviyenin +1 ve +2'sini önceden hesapla
     for (const offset of [1, 2]) {
@@ -48,7 +43,7 @@ export function usePrecompute(currentLevel: GameLevel | null): void {
   // Bileşen unmount olunca tüm aktif hesaplamaları iptal et
   useEffect(() => {
     return () => {
-      managerRef.current?.cancelAll();
+      manager.cancelAll();
     };
-  }, []);
+  }, [manager]);
 }

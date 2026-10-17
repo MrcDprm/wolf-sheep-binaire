@@ -12,7 +12,7 @@ export interface DayPhaseConfig {
   bgTo: string;
   /** Vurgu rengi (butonlar, başlıklar) */
   accent: string;
-  /** Ambiyans müzik tarzı (expo-av için asset key) */
+  /** Ambiyans müzik tarzı (şimdilik kullanılmıyor) */
   musicStyle: 'cheerful' | 'lively' | 'calm' | 'peaceful';
 }
 

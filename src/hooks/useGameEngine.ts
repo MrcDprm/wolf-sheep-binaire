@@ -4,7 +4,7 @@
  * Store + Engine + Haptics + Audio'yu tek bir arayüzde toplar.
  * Oyun ekranı (`level/[id].tsx`) bu hook'u kullanır.
  */
-import { Audio } from "expo-av";
+import { createAudioPlayer, type AudioPlayer } from "expo-audio";
 import { useCallback, useEffect, useRef } from "react";
 import { isBoardFilled } from "../engine/solver";
 import { rawFromGrid } from "../engine/validator";
@@ -42,7 +42,7 @@ export function useGameEngine() {
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const { trigger: haptic } = useHaptics();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playersRef = useRef<Partial<Record<keyof typeof SOUND_MAP, AudioPlayer>>>({});
 
   // --- Timer ---
   useEffect(() => {
@@ -55,6 +55,29 @@ export function useGameEngine() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isComplete, tickTimer]);
+
+  // --- Ses yardımcısı ---
+  // Her ses bir kez yüklenir, sonraki çalmalarda baştan sarılır
+  const playSound = useCallback((type: keyof typeof SOUND_MAP) => {
+    try {
+      let player = playersRef.current[type];
+      if (!player) {
+        player = createAudioPlayer(SOUND_MAP[type]);
+        playersRef.current[type] = player;
+      }
+      player.seekTo(0);
+      player.play();
+    } catch {
+      // Ses çalınamadıysa oyun sessizce devam eder
+    }
+  }, []);
+
+  useEffect(() => {
+    const players = playersRef.current;
+    return () => {
+      Object.values(players).forEach((p) => p?.remove());
+    };
+  }, []);
 
   // --- Hata Haptik & Ses ---
   const prevErrorRef = useRef(false);
@@ -76,26 +99,6 @@ export function useGameEngine() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isComplete]);
-
-  // --- Ses yardımcısı ---
-  const playSound = useCallback(async (type: keyof typeof SOUND_MAP) => {
-    try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-      }
-      const { sound } = await Audio.Sound.createAsync(SOUND_MAP[type]);
-      soundRef.current = sound;
-      await sound.playAsync();
-    } catch {
-      // Ses dosyası yüklenemediyse sessizce devam et
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      soundRef.current?.unloadAsync();
-    };
-  }, []);
 
   // --- Hücreye dokunma ---
   const handleTapCell = useCallback(
