@@ -84,11 +84,6 @@ npx eas-cli build -p android --profile apk
 - Respecting the system "reduce motion" setting and labeling every cell for screen readers.
 - Building an Android APK in the cloud with EAS Build.
 
-## Future Plans
-
-- Publishing on Google Play and the App Store.
-- Optional cloud backup of progress.
-
 ## License
 
 [MIT](LICENSE)
