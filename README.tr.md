@@ -84,11 +84,6 @@ npx eas-cli build -p android --profile apk
 - Sistemdeki "hareketi azalt" ayarına uymayı ve her hücreyi ekran okuyucu için etiketlemeyi öğrendim.
 - EAS Build ile Android APK'yı bulutta derledim.
 
-## Gelecek Planları
-
-- Google Play ve App Store'da yayınlamak.
-- İsteğe bağlı bulut yedeği.
-
 ## Lisans
 
 [MIT](LICENSE)
