@@ -65,7 +65,7 @@ export default function MainMenu() {
             <Piece kind="sheep" size={46} />
           </View>
           {/* İki satır ayrı yazılır: tek Text'te sıkı lineHeight, iOS'ta üst satırın tepesini kesiyordu */}
-          <View accessible accessibilityRole="header" accessibilityLabel={`${nameTop} ${nameBottom}`}>
+          <View accessible accessibilityLabel={`${nameTop} ${nameBottom}`}>
             <Text style={[styles.name, { color: dayPhase.text }]}>{nameTop}</Text>
             <Text style={[styles.name, styles.nameBottom, { color: dayPhase.text }]}>{nameBottom}</Text>
           </View>
