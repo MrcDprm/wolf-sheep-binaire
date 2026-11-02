@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-type Language = 'tr' | 'en';
+import { getLocales } from 'expo-localization';
+import { pickLanguage, type Language } from '../utils/language';
 
 interface SettingsState {
   language: Language;
@@ -20,7 +20,8 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      language: 'tr',
+      // Kayıtlı ayar yoksa (ilk açılış) cihaz dili kullanılır
+      language: pickLanguage(getLocales().map((l) => l.languageCode)),
       soundEnabled: true,
       hapticEnabled: true,
       tutorialCompleted: false,
