@@ -7,7 +7,7 @@
  * - Uygulama sürümü
  */
 import type { ReactNode } from 'react';
-import { View, Text, Switch, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ import { useTranslation } from '../src/i18n';
 import { useDayPhase } from '../src/hooks/useDayPhase';
 import { IconButton } from '../src/components/ui/IconButton';
 import { Icon } from '../src/components/ui/Icon';
+import { Toggle } from '../src/components/ui/Toggle';
 import { fontSize, fonts, palette, radius } from '../src/theme';
 
 const LANGUAGES = [
@@ -36,8 +37,9 @@ export default function SettingsScreen() {
     useSettingsStore();
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
-  const switchColors = {
-    trackColor: { false: dayPhase.surfaceEdge, true: palette.straw },
+  const toggleColors = {
+    onColor: palette.straw,
+    offColor: dayPhase.surfaceEdge,
     thumbColor: palette.wool,
   };
 
@@ -84,21 +86,21 @@ export default function SettingsScreen() {
 
         <Row background={dayPhase.surface}>
           <Text style={[styles.rowLabel, { color: dayPhase.text }]}>{t('settings.sound')}</Text>
-          <Switch
+          <Toggle
             value={soundEnabled}
             onValueChange={toggleSound}
             accessibilityLabel={t('settings.sound')}
-            {...switchColors}
+            {...toggleColors}
           />
         </Row>
 
         <Row background={dayPhase.surface}>
           <Text style={[styles.rowLabel, { color: dayPhase.text }]}>{t('settings.haptic')}</Text>
-          <Switch
+          <Toggle
             value={hapticEnabled}
             onValueChange={toggleHaptic}
             accessibilityLabel={t('settings.haptic')}
-            {...switchColors}
+            {...toggleColors}
           />
         </Row>
 

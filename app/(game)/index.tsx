@@ -64,11 +64,11 @@ export default function MainMenu() {
           >
             <Piece kind="sheep" size={46} />
           </View>
-          <Text style={[styles.name, { color: dayPhase.text }]}>
-            {nameTop}
-            {'\n'}
-            {nameBottom}
-          </Text>
+          {/* İki satır ayrı yazılır: tek Text'te sıkı lineHeight, iOS'ta üst satırın tepesini kesiyordu */}
+          <View accessible accessibilityRole="header" accessibilityLabel={`${nameTop} ${nameBottom}`}>
+            <Text style={[styles.name, { color: dayPhase.text }]}>{nameTop}</Text>
+            <Text style={[styles.name, styles.nameBottom, { color: dayPhase.text }]}>{nameBottom}</Text>
+          </View>
           <View
             style={[
               styles.patch,
@@ -166,8 +166,12 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: fonts.extrabold,
     fontSize: fontSize.display,
-    lineHeight: fontSize.display * 1.02,
     letterSpacing: -0.5,
+  },
+  // Baloo 2'nin doğal satır yüksekliği yazı boyutunun ~1.6 katı; alt satır yukarı çekilerek
+  // eski sıkı görünüm (satır aralığı ~1.02) korunur
+  nameBottom: {
+    marginTop: -fontSize.display * 0.58,
   },
   stats: {
     textAlign: 'center',
