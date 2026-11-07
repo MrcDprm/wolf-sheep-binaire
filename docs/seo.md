@@ -1,6 +1,7 @@
 # SEO: Koyun & Kurt
 
-Download: https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest
+- App Store: https://apps.apple.com/app/koyun-kurt-sheep-wolf/id6829908940
+- Android APK: https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest
 
 The aim is that someone searching for what this project does finds it. The text is written for people; no keyword lists in visible text.
 
@@ -13,9 +14,11 @@ The aim is that someone searching for what this project does finds it. The text 
 | binairo | binairo |
 | internetsiz bulmaca oyunu | offline puzzle game |
 | reklamsız bulmaca oyunu | no ads puzzle |
+| iPhone mantık oyunu | iPhone logic puzzle |
 
 ## Where they are used
 
+- App Store listing: name "Koyun & Kurt: Sheep & Wolf", subtitle, keywords field and description (App Store Connect, TR and EN)
 - GitHub description, topics and the first paragraph of the README
-- GitHub Release title and notes (the download page people land on)
-- Portfolio page https://www.miracdeprem.com/projects/koyun-kurt-mantik-bulmacasi: title with a search phrase and `SoftwareApplication` JSON-LD with the download link
+- GitHub Release title and notes (the APK download page)
+- Portfolio page https://www.miracdeprem.com/projects/koyun-kurt-mantik-bulmacasi: title with a search phrase ("Takuzu / Binairo") and `MobileApplication` JSON-LD with the App Store link as `installUrl`

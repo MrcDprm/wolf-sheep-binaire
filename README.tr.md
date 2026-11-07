@@ -4,7 +4,7 @@
 
 Telefon için sakin bir mantık bulmacası: 6×6'lık merayı koyun ve kurtlarla doldur; aynı hayvan yan yana üç kez gelmesin, her satır ve sütunda 3 koyun ve 3 kurt olsun. Hepsi kontrol edilmiş 300 seviye, tamamen internetsiz.
 
-**[APK'yı indir](https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest)** · Yakında App Store ve Google Play'de
+**[App Store'dan indir](https://apps.apple.com/app/koyun-kurt-sheep-wolf/id6829908940)** · Android: [APK'yı indir](https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest)
 
 ## Özellikler
 
@@ -35,9 +35,13 @@ Telefon için sakin bir mantık bulmacası: 6×6'lık merayı koyun ve kurtlarla
 - Zustand ve AsyncStorage (ilerleme telefonda kalır)
 - React Native Reanimated, react-native-svg, expo-audio, expo-haptics, expo-sharing
 - tsx ile Node.js test aracı
-- Android APK için EAS Build
+- App Store derlemesi ve Android APK için EAS Build ve EAS Submit
 
 ## Kurulum ve Çalıştırma
+
+### iPhone
+
+**Koyun & Kurt**'u [App Store'dan](https://apps.apple.com/app/koyun-kurt-sheep-wolf/id6829908940) yükle. Ücretsiz; reklam ve uygulama içi satın alma yok.
 
 ### Android
 
@@ -83,6 +87,7 @@ npx eas-cli build -p android --profile apk
 - Hata sürdükçe sesi döngüde çaldırmayı ve sesleri kayıt yerine kendim sentezlemeyi öğrendim.
 - Sistemdeki "hareketi azalt" ayarına uymayı ve her hücreyi ekran okuyucu için etiketlemeyi öğrendim.
 - EAS Build ile Android APK'yı bulutta derledim.
+- Windows'tan App Store'a çıktım: EAS ile bulutta iOS derlemesi, gizlilik bildirimi (privacy manifest) ve gizlilik politikası sayfası, istenen boyutlarda mağaza görselleri; App Review ek bilgi isteyince inceleme notları ve ekran kaydıyla ikinci gönderim.
 
 ## Lisans
 
