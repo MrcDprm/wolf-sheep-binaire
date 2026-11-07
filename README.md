@@ -4,7 +4,7 @@
 
 A calm logic puzzle for your phone: fill a 6×6 pasture with sheep and wolves so that no three of the same animal stand side by side and every row and column holds 3 of each. 300 hand-checked levels, fully offline.
 
-**[Download the APK](https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest)** · Coming soon to App Store and Google Play
+**[Download on the App Store](https://apps.apple.com/app/koyun-kurt-sheep-wolf/id6829908940)** · Android: [download the APK](https://github.com/MrcDprm/wolf-sheep-binaire/releases/latest)
 
 ## Features
 
@@ -35,9 +35,13 @@ A calm logic puzzle for your phone: fill a 6×6 pasture with sheep and wolves so
 - Zustand with AsyncStorage (progress stays on the device)
 - React Native Reanimated, react-native-svg, expo-audio, expo-haptics, expo-sharing
 - Node.js test runner with tsx
-- EAS Build for the Android APK
+- EAS Build and EAS Submit for the App Store build and the Android APK
 
 ## Installation
+
+### iPhone
+
+Install **Koyun & Kurt** from the [App Store](https://apps.apple.com/app/koyun-kurt-sheep-wolf/id6829908940). It is free, with no ads and no in-app purchases.
 
 ### Android
 
@@ -83,6 +87,7 @@ npx eas-cli build -p android --profile apk
 - Looping sounds while a mistake exists, and synthesizing the sounds myself instead of using recordings.
 - Respecting the system "reduce motion" setting and labeling every cell for screen readers.
 - Building an Android APK in the cloud with EAS Build.
+- Shipping to the App Store from Windows: cloud iOS builds with EAS, a privacy manifest and privacy policy page, store screenshots in the required sizes, and a second submission with review notes and a screen recording after App Review asked for more information.
 
 ## License
 
