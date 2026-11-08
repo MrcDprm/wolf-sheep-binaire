@@ -42,6 +42,7 @@ export default function LevelScreen() {
     ready,
     grid,
     elapsedSeconds,
+    isComplete,
     hasActiveError,
     triples,
     availableHints,
@@ -153,18 +154,20 @@ export default function LevelScreen() {
         {errorMessage}
       </Text>
 
-      {/* ── Kontroller ── */}
+      {/* ── Kontroller (bitmiş tahtada ikisi de pasif) ── */}
       <View style={styles.controls}>
         <Button
           title={t('game.reset')}
           variant="secondary"
           onPress={handleReset}
+          disabled={isComplete}
           leading={<Icon name="reset" size={20} color={dayPhase.text} />}
           style={styles.control}
         />
         <Button
           title={t('game.hint')}
           onPress={onHint}
+          disabled={isComplete}
           leading={<Icon name="hint" size={22} color={palette.ink} />}
           trailing={
             <View style={styles.badge}>

@@ -34,6 +34,20 @@ const EMPTY_GAME = {
   hasActiveError: false,
 };
 
+/**
+ * Tahtayı baştan değerlendirir: hangi hücreler kırmızı, hata var mı, bitti mi.
+ * Tahtayı değiştiren her eylem buradan geçer; kilitli hücreler dahil hiçbir
+ * hücrede eski bir hata işareti kalmaz.
+ */
+function evaluate(grid: Grid, solutionRaw: RawGrid) {
+  const { validatedGrid, hasError } = applyErrorsToGrid(grid);
+  return {
+    grid: validatedGrid,
+    hasActiveError: hasError,
+    isComplete: !hasError && isBoardComplete(rawFromGrid(validatedGrid), solutionRaw),
+  };
+}
+
 export const useGameStore = create<GameState>((set, get) => ({
   ...EMPTY_GAME,
 
@@ -58,15 +72,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     const nextValue = ((cell.value + 1) % 3) as 0 | 1 | 2;
 
     const updatedGrid: Grid = grid.map((r) =>
-      r.map((c) =>
-        c.row === row && c.col === col ? { ...c, value: nextValue, hasError: false } : c
-      )
+      r.map((c) => (c.row === row && c.col === col ? { ...c, value: nextValue } : c))
     );
 
-    const { validatedGrid, hasError } = applyErrorsToGrid(updatedGrid);
-    const complete = !hasError && isBoardComplete(rawFromGrid(validatedGrid), solutionRaw);
-
-    set({ grid: validatedGrid, hasActiveError: hasError, isComplete: complete });
+    set(evaluate(updatedGrid, solutionRaw));
   },
 
   applyHint: () => {
@@ -77,30 +86,21 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     const { row, col, value } = hintCell;
     const updatedGrid: Grid = grid.map((r) =>
-      r.map((c) =>
-        c.row === row && c.col === col
-          ? { ...c, value, isLocked: true, hasError: false }
-          : c
-      )
+      r.map((c) => (c.row === row && c.col === col ? { ...c, value, isLocked: true } : c))
     );
 
-    const { validatedGrid, hasError } = applyErrorsToGrid(updatedGrid);
-    const complete = !hasError && isBoardComplete(rawFromGrid(validatedGrid), solutionRaw);
-    set({
-      grid: validatedGrid,
-      hintsUsed: get().hintsUsed + 1,
-      hasActiveError: hasError,
-      isComplete: complete,
-    });
+    set({ ...evaluate(updatedGrid, solutionRaw), hintsUsed: get().hintsUsed + 1 });
     return true;
   },
 
   resetUserCells: () => {
-    const { grid } = get();
-    const resetGrid: Grid = grid.map((r) =>
-      r.map((c) => (c.isLocked ? c : { ...c, value: 0, hasError: false }))
-    );
-    set({ grid: resetGrid, hasActiveError: false });
+    const { grid, solutionRaw, isComplete } = get();
+    // Bitmiş tahta olduğu gibi kalır (önceden taşlar siliniyor, tahta donuyordu)
+    if (isComplete) return;
+    // Oyuncunun taşları silinir; başta verilen ve ipucuyla açılan taşlar kalır.
+    // Kalan taşların hata işareti de yeniden hesaplanır (önceden kırmızı kalıyordu).
+    const resetGrid: Grid = grid.map((r) => r.map((c) => (c.isLocked ? c : { ...c, value: 0 })));
+    set(evaluate(resetGrid, solutionRaw));
   },
 
   tickTimer: () => {
