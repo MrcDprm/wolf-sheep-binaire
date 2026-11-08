@@ -23,7 +23,7 @@
     "nextLevel": "Next level",
     "backToMenu": "Back to menu",
     "outOfHints": "You are out of hints. You get 5 more every day.",
-    "resetConfirm": "All the pieces you placed will be removed. Are you sure?",
+    "resetConfirm": "All the pieces you placed will be removed and the clock keeps running. Are you sure?",
     "resetYes": "Yes, reset",
     "resetNo": "Cancel",
     "level": "{{difficulty}} {{number}}",
@@ -34,7 +34,21 @@
     "back": "Back",
     "allDone": "You finished every level!",
     "close": "Close",
-    "time": "Time"
+    "time": "Time",
+    "timeLeft": "Time left: {{time}}",
+    "elapsed": "Time: {{time}}"
+  },
+  "timeUp": {
+    "title": "Time's up",
+    "body": "You had {{time}} to finish this level.",
+    "retry": "Try again",
+    "tip": "Rather play without a clock? Turn off the time limit in Settings."
+  },
+  "duration": {
+    "second": "{{count}} second",
+    "seconds": "{{count}} seconds",
+    "minute": "{{count}} minute",
+    "minutes": "{{count}} minutes"
   },
   "errors": {
     "tripleSheep": "No three sheep side by side.",
@@ -81,6 +95,7 @@
     "language": "Language",
     "sound": "Sound",
     "haptic": "Haptic",
+    "timeLimit": "Time limit",
     "version": "Version",
     "howToPlay": "How to play"
   },

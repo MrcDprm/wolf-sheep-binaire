@@ -2,11 +2,11 @@
  * Oyun ekranı — seviye [id]
  *
  * Düzen:
- *   Üst çubuk: kapat | ‹ "Kolay 12" › | süre
+ *   Üst çubuk: kapat | ‹ "Kolay 12" › | kalan süre (süre sınırı kapalıysa geçen süre)
  *   Keçe tahta (6x6)
  *   Hata satırı: ne yanlışsa onu söyler
  *   Kontroller: Sıfırla | İpucu (kalan sayı)
- *   Tamamlama penceresi
+ *   Tamamlama ve süre doldu pencereleri
  *
  * Kilitli bir seviyeye (ör. bağlantıyla) gelinirse oynatılmaz, uyarı gösterilir.
  */
@@ -22,6 +22,7 @@ import { formatTime } from '../../../src/utils/scoring';
 import { useTranslation } from '../../../src/i18n';
 import { GameGrid } from '../../../src/components/grid/GameGrid';
 import { LevelCompleteModal } from '../../../src/components/modals/LevelCompleteModal';
+import { TimeUpModal } from '../../../src/components/modals/TimeUpModal';
 import { Button } from '../../../src/components/ui/Button';
 import { Icon } from '../../../src/components/ui/Icon';
 import { IconButton } from '../../../src/components/ui/IconButton';
@@ -42,6 +43,10 @@ export default function LevelScreen() {
     ready,
     grid,
     elapsedSeconds,
+    timeLimit,
+    secondsLeft,
+    timeRunningOut,
+    isTimeUp,
     isComplete,
     hasActiveError,
     triples,
@@ -50,6 +55,7 @@ export default function LevelScreen() {
     handleTapCell,
     handleApplyHint,
     resetUserCells,
+    restartLevel,
   } = useGameEngine(level);
 
   // Pencere kapatılınca hangi seviye için kapatıldığı tutulur; yeni seviyede yeniden açılır
@@ -102,6 +108,17 @@ export default function LevelScreen() {
         ? t('errors.tripleWolf')
         : t('errors.balance');
 
+  const levelName = t('game.level', {
+    difficulty: t(`difficulty.${level.difficulty}`),
+    number: level.number,
+  });
+
+  // Süre sınırı açıkken geri sayar, kapalıyken ileri; sona yaklaşınca ve dolunca kırmızı
+  const clock = formatTime(secondsLeft ?? elapsedSeconds);
+  const clockLabel =
+    secondsLeft === null ? t('game.elapsed', { time: clock }) : t('game.timeLeft', { time: clock });
+  const boardOver = isComplete || isTimeUp;
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
       {/* ── Üst çubuk ── */}
@@ -122,10 +139,7 @@ export default function LevelScreen() {
             accessibilityLabel={t('game.previous')}
           />
           <Text style={[styles.title, { color: dayPhase.text }]} numberOfLines={1}>
-            {t('game.level', {
-              difficulty: t(`difficulty.${level.difficulty}`),
-              number: level.number,
-            })}
+            {levelName}
           </Text>
           <IconButton
             name="chevronRight"
@@ -136,8 +150,14 @@ export default function LevelScreen() {
           />
         </View>
 
-        <Text style={[styles.timer, { color: dayPhase.textMuted }]}>
-          {formatTime(elapsedSeconds)}
+        <Text
+          style={[
+            styles.timer,
+            { color: timeRunningOut || isTimeUp ? errorColor : dayPhase.textMuted },
+          ]}
+          accessibilityLabel={clockLabel}
+        >
+          {clock}
         </Text>
       </View>
 
@@ -155,20 +175,20 @@ export default function LevelScreen() {
         {errorMessage}
       </Text>
 
-      {/* ── Kontroller (bitmiş tahtada ikisi de pasif) ── */}
+      {/* ── Kontroller (bitmiş ya da süresi dolmuş tahtada ikisi de pasif) ── */}
       <View style={styles.controls}>
         <Button
           title={t('game.reset')}
           variant="secondary"
           onPress={handleReset}
-          disabled={isComplete}
+          disabled={boardOver}
           leading={<Icon name="reset" size={20} color={dayPhase.text} />}
           style={styles.control}
         />
         <Button
           title={t('game.hint')}
           onPress={onHint}
-          disabled={isComplete}
+          disabled={boardOver}
           leading={<Icon name="hint" size={22} color={palette.ink} />}
           trailing={
             <View style={styles.badge}>
@@ -187,6 +207,18 @@ export default function LevelScreen() {
           levelId={levelId}
           result={result}
           onClose={() => setDismissedLevel(levelId)}
+        />
+      )}
+
+      {/* ── Süre doldu penceresi (seçim yapılmadan kapanmaz) ── */}
+      {timeLimit !== null && (
+        <TimeUpModal
+          visible={ready && isTimeUp}
+          levelName={levelName}
+          timeLimit={timeLimit}
+          onRetry={restartLevel}
+          onLevels={() => router.dismissTo('/(game)/levels')}
+          onMenu={() => router.dismissTo('/(game)')}
         />
       )}
     </SafeAreaView>

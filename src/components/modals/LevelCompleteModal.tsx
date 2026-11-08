@@ -113,9 +113,11 @@ function LevelCompleteModalComponent({
     );
   };
 
+  // Yığındaki menüye geri döner (replace menüyü üstüne yeniden açıyordu; geri kaydırınca
+  // Seviyeler ekranı çıkıyordu)
   const goMenu = () => {
     onClose();
-    router.replace('/(game)');
+    router.dismissTo('/(game)');
   };
 
   const nameOf = (l: GameLevel) =>

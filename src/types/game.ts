@@ -28,6 +28,8 @@ export interface GameLevel {
   solution: RawGrid;
   /** 2 yıldız için izin verilen en fazla ipucu */
   maxHintsForPerfect: number;
+  /** Seviyeyi bitirmek için süre (saniye), zorluğa göre sabit */
+  timeLimit: number;
 }
 
 export interface LevelResult {

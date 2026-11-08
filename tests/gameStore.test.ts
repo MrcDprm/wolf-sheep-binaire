@@ -29,6 +29,7 @@ const TEST_LEVEL: GameLevel = {
   puzzle: parse(['K.....', '......', '......', '......', '......', '......']),
   solution: SOLUTION,
   maxHintsForPerfect: 3,
+  timeLimit: 30,
 };
 
 const game = () => useGameStore.getState();
@@ -43,6 +44,17 @@ const redCells = () =>
 function place(row: number, col: number, value: CellValue) {
   for (let i = 0; i < 3 && game().grid[row][col].value !== value; i++) game().tapCell(row, col);
 }
+
+/** Deneme seviyesini çözer */
+function solve() {
+  for (let r = 0; r < 6; r++) {
+    for (let c = 0; c < 6; c++) place(r, c, SOLUTION[r][c]);
+  }
+}
+
+const tick = (times: number) => {
+  for (let i = 0; i < times; i++) game().tickTimer();
+};
 
 beforeEach(() => game().initGame(TEST_LEVEL));
 
@@ -69,9 +81,7 @@ test('Hamle dokunarak geri alınınca kırmızı söner', () => {
 });
 
 test('Bitmiş seviyede Sıfırla tahtayı bozmaz', () => {
-  for (let r = 0; r < 6; r++) {
-    for (let c = 0; c < 6; c++) place(r, c, SOLUTION[r][c]);
-  }
+  solve();
   assert.equal(game().isComplete, true);
 
   game().resetUserCells();
@@ -102,6 +112,97 @@ test('Rastgele hamlelerde kırmızı hücreler, hata ve bitiş durumu hep tahtay
           !expected.hasError && isBoardComplete(rawFromGrid(grid), level.solution),
           where,
         );
+      }
+    }
+  } finally {
+    Math.random = realRandom;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Süre sınırı
+// ---------------------------------------------------------------------------
+
+test('Süre dolunca seviye kaybedilir ve tahta kilitlenir', () => {
+  game().initGame(TEST_LEVEL, 3);
+  place(0, 1, 1);
+  tick(2);
+  assert.equal(game().isTimeUp, false);
+  tick(1);
+  assert.equal(game().isTimeUp, true, 'son saniyede süre doldu');
+
+  const before = rawFromGrid(game().grid);
+  game().tapCell(0, 2);
+  assert.equal(game().applyHint(), false, 'ipucu verilmez');
+  game().resetUserCells();
+  tick(5);
+  assert.deepEqual(rawFromGrid(game().grid), before, 'taşlar değişmez');
+  assert.equal(game().elapsedSeconds, 3, 'süre durur');
+  assert.equal(game().hintsUsed, 0);
+  assert.equal(game().isComplete, false);
+});
+
+test('Sıfırla süreyi başa almaz', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 1, 1);
+  tick(10);
+  game().resetUserCells();
+  assert.equal(game().elapsedSeconds, 10);
+  assert.equal(game().grid[0][1].value, 0);
+});
+
+test('Tekrar dene: tahta ve süre baştan', () => {
+  game().initGame(TEST_LEVEL, 2);
+  place(0, 1, 1);
+  tick(2);
+  assert.equal(game().isTimeUp, true);
+
+  game().initGame(TEST_LEVEL, 2);
+  assert.equal(game().isTimeUp, false);
+  assert.equal(game().elapsedSeconds, 0);
+  assert.equal(game().grid[0][1].value, 0);
+});
+
+test('Süre sınırı kapalıyken süre ileri sayar ve hiç dolmaz', () => {
+  game().initGame(TEST_LEVEL, null);
+  tick(1000);
+  assert.equal(game().isTimeUp, false);
+  assert.equal(game().elapsedSeconds, 1000);
+  game().tapCell(0, 1);
+  assert.equal(game().grid[0][1].value, 1, 'oyun sürer');
+});
+
+test('Süresi içinde biten seviyede süre durur, sonradan dolmaz', () => {
+  game().initGame(TEST_LEVEL, 5);
+  tick(4);
+  solve();
+  assert.equal(game().isComplete, true);
+  tick(10);
+  assert.equal(game().isTimeUp, false);
+  assert.equal(game().elapsedSeconds, 4, 'çözüm süresi korunur');
+});
+
+test('Rastgele hamlelerde süre dolduktan sonra tahta hiç değişmez', () => {
+  const rng = createRng(11);
+  const realRandom = Math.random;
+  Math.random = rng;
+  try {
+    for (const level of LEVELS.filter((_, i) => i % 6 === 0)) {
+      game().initGame(level, 20);
+      let frozen: RawGrid | null = null;
+      for (let i = 0; i < 80; i++) {
+        const roll = rng();
+        if (roll < 0.6) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
+        else if (roll < 0.7) game().applyHint();
+        else if (roll < 0.75) game().resetUserCells();
+        else game().tickTimer();
+
+        const { grid, isTimeUp, elapsedSeconds } = game();
+        assert.ok(elapsedSeconds <= 20, `seviye ${level.id}: süre sınırı aşılmaz`);
+        if (isTimeUp) {
+          frozen ??= rawFromGrid(grid);
+          assert.deepEqual(rawFromGrid(grid), frozen, `seviye ${level.id}, hamle ${i + 1}`);
+        }
       }
     }
   } finally {

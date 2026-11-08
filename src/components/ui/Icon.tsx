@@ -6,7 +6,16 @@
  */
 import Svg, { Path } from 'react-native-svg';
 
-export type IconName = 'close' | 'back' | 'chevronLeft' | 'chevronRight' | 'reset' | 'hint' | 'lock' | 'star';
+export type IconName =
+  | 'close'
+  | 'back'
+  | 'chevronLeft'
+  | 'chevronRight'
+  | 'reset'
+  | 'hint'
+  | 'lock'
+  | 'star'
+  | 'clock';
 
 interface IconProps {
   name: IconName;
@@ -48,6 +57,12 @@ export function Icon({ name, size = 24, color }: IconProps) {
         <>
           <Path d="M8 10.5 V8 a4 4 0 0 1 8 0 V10.5" {...stroke} />
           <Path d="M6 10.5 h12 v9 h-12 Z" {...stroke} fill={color} />
+        </>
+      )}
+      {name === 'clock' && (
+        <>
+          <Path d="M3.5 12 A8.5 8.5 0 1 1 20.5 12 A8.5 8.5 0 1 1 3.5 12 Z" {...stroke} />
+          <Path d="M12 7.2 V12 L15.2 14" {...stroke} />
         </>
       )}
       {name === 'star' && (

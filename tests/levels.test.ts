@@ -11,7 +11,12 @@ import {
   nextLevelToPlay,
   TOTAL_LEVELS,
 } from '../src/constants/levels';
-import { DIFFICULTIES, LEVELS_PER_DIFFICULTY, cluesFor } from '../src/constants/difficulties';
+import {
+  DIFFICULTIES,
+  LEVELS_PER_DIFFICULTY,
+  cluesFor,
+  warningSecondsFor,
+} from '../src/constants/difficulties';
 import { countSolutions } from '../src/engine/generator';
 import { isRawGridValid } from '../src/engine/validator';
 import type { LevelResult } from '../src/types/game';
@@ -168,4 +173,29 @@ test('geçersiz seviye numarası bulunamaz', () => {
   assert.equal(getLevelById(1)?.number, 1);
   assert.equal(getLevelById(51)?.difficulty, 'easy');
   assert.equal(getLevelById(51)?.number, 1);
+});
+
+test('her zorluğun sabit süresi: 30 sn, 1, 2, 3, 5, 7 dk', () => {
+  assert.deepEqual(
+    DIFFICULTIES.map((d) => [d.id, d.timeLimitSeconds]),
+    [
+      ['easiest', 30],
+      ['easy', 60],
+      ['medium', 120],
+      ['hard', 180],
+      ['veryHard', 300],
+      ['impossible', 420],
+    ],
+  );
+  for (const level of LEVELS) {
+    const config = DIFFICULTIES.find((d) => d.id === level.difficulty);
+    assert.equal(level.timeLimit, config?.timeLimitSeconds, `seviye ${level.id}`);
+  }
+});
+
+test('sayaç sona yaklaşınca kırmızıya döner: sürenin dörtte biri, en fazla 30 sn', () => {
+  assert.equal(warningSecondsFor(30), 7);
+  assert.equal(warningSecondsFor(60), 15);
+  assert.equal(warningSecondsFor(120), 30);
+  assert.equal(warningSecondsFor(420), 30);
 });
