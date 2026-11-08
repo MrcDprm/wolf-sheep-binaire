@@ -23,7 +23,7 @@
     "nextLevel": "Sonraki seviye",
     "backToMenu": "Menüye dön",
     "outOfHints": "İpucun bitti. Her gün 5 ipucu daha kazanırsın.",
-    "resetConfirm": "Yerleştirdiğin bütün taşlar silinecek. Emin misin?",
+    "resetConfirm": "Yerleştirdiğin bütün taşlar silinecek, süre işlemeye devam edecek. Emin misin?",
     "resetYes": "Evet, sıfırla",
     "resetNo": "Vazgeç",
     "level": "{{difficulty}} {{number}}",
@@ -34,7 +34,21 @@
     "back": "Geri",
     "allDone": "Bütün seviyeleri bitirdin!",
     "close": "Kapat",
-    "time": "Süre"
+    "time": "Süre",
+    "timeLeft": "Kalan süre: {{time}}",
+    "elapsed": "Geçen süre: {{time}}"
+  },
+  "timeUp": {
+    "title": "Süre doldu",
+    "body": "Bu seviyeyi {{time}} içinde bitirmen gerekiyordu.",
+    "retry": "Tekrar dene",
+    "tip": "Süresiz oynamak istersen Ayarlar'dan süre sınırını kapatabilirsin."
+  },
+  "duration": {
+    "second": "{{count}} saniye",
+    "seconds": "{{count}} saniye",
+    "minute": "{{count}} dakika",
+    "minutes": "{{count}} dakika"
   },
   "errors": {
     "tripleSheep": "Yan yana 3 koyun olamaz.",
@@ -81,6 +95,7 @@
     "language": "Dil",
     "sound": "Ses",
     "haptic": "Titreşim",
+    "timeLimit": "Süre sınırı",
     "version": "Sürüm",
     "howToPlay": "Nasıl oynanır?"
   },

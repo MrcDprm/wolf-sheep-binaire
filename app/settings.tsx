@@ -3,6 +3,7 @@
  *
  * - Dil (Türkçe / English)
  * - Ses ve titreşim
+ * - Süre sınırı (kapalıysa süre sadece ileri sayar, seviye kaybedilmez)
  * - Nasıl oynanır? (eğitimi yeniden açar)
  * - Uygulama sürümü
  */
@@ -33,8 +34,16 @@ export default function SettingsScreen() {
   const t = useTranslation();
   const router = useRouter();
   const dayPhase = useDayPhase();
-  const { language, soundEnabled, hapticEnabled, setLanguage, toggleSound, toggleHaptic } =
-    useSettingsStore();
+  const {
+    language,
+    soundEnabled,
+    hapticEnabled,
+    timeLimitEnabled,
+    setLanguage,
+    toggleSound,
+    toggleHaptic,
+    toggleTimeLimit,
+  } = useSettingsStore();
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   const toggleColors = {
@@ -100,6 +109,18 @@ export default function SettingsScreen() {
             value={hapticEnabled}
             onValueChange={toggleHaptic}
             accessibilityLabel={t('settings.haptic')}
+            {...toggleColors}
+          />
+        </Row>
+
+        <Row background={dayPhase.surface}>
+          <Text style={[styles.rowLabel, { color: dayPhase.text }]}>
+            {t('settings.timeLimit')}
+          </Text>
+          <Toggle
+            value={timeLimitEnabled}
+            onValueChange={toggleTimeLimit}
+            accessibilityLabel={t('settings.timeLimit')}
             {...toggleColors}
           />
         </Row>

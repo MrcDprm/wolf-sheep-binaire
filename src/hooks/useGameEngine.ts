@@ -1,11 +1,13 @@
 /**
  * Oyun motoru hook'u
  *
- * Store, kural motoru, titreşim ve sesleri tek yerde toplar.
+ * Store, kural motoru, süre, titreşim ve sesleri tek yerde toplar.
  * Oyun ekranı (`level/[id].tsx`) bu hook'u kullanır.
  */
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
+import { warningSecondsFor } from '../constants/difficulties';
 import { findTripleAnimals } from '../engine/validator';
 import { useGameStore } from '../store/useGameStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -22,6 +24,13 @@ const SOUND_MAP = {
 
 type SoundName = keyof typeof SOUND_MAP;
 
+/** Uygulama ön planda mı? ("unknown" gibi ara durumlar ön plan sayılır, süre durmasın) */
+const isForeground = (state: AppStateStatus) => state !== 'background' && state !== 'inactive';
+
+/** Ayarlara göre seviyenin süre sınırı (kapalıysa null) */
+const timeLimitFor = (level: GameLevel) =>
+  useSettingsStore.getState().timeLimitEnabled ? level.timeLimit : null;
+
 export function useGameEngine(level: GameLevel | undefined) {
   const grid = useGameStore((s) => s.grid);
   const activeLevel = useGameStore((s) => s.level);
@@ -29,6 +38,8 @@ export function useGameEngine(level: GameLevel | undefined) {
   const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
   const isComplete = useGameStore((s) => s.isComplete);
   const hasActiveError = useGameStore((s) => s.hasActiveError);
+  const timeLimit = useGameStore((s) => s.timeLimit);
+  const isTimeUp = useGameStore((s) => s.isTimeUp);
   const { initGame, tapCell, applyHint, resetUserCells, tickTimer, resetGame } = useGameStore.getState();
 
   const availableHints = useUserStore((s) => s.availableHints);
@@ -44,17 +55,37 @@ export function useGameEngine(level: GameLevel | undefined) {
   // --- Seviyeyi başlat ("Devam et" bir dahaki sefere bu zorluktan devam etsin) ---
   useEffect(() => {
     if (!level) return;
-    initGame(level);
+    initGame(level, timeLimitFor(level));
     setLastLevel(level.id);
     return () => resetGame();
   }, [level, initGame, resetGame, setLastLevel]);
 
-  // --- Süre ---
+  /** Süre dolunca "Tekrar dene": tahta ve süre baştan */
+  const restartLevel = useCallback(() => {
+    if (level) initGame(level, timeLimitFor(level));
+  }, [level, initGame]);
+
+  // --- Süre (uygulama arka plandayken durur) ---
+  const [appActive, setAppActive] = useState(() => isForeground(AppState.currentState));
   useEffect(() => {
-    if (!ready || isComplete) return;
+    const sub = AppState.addEventListener('change', (state) => setAppActive(isForeground(state)));
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!ready || isComplete || isTimeUp || !appActive) return;
     const timer = setInterval(tickTimer, 1000);
     return () => clearInterval(timer);
-  }, [ready, isComplete, tickTimer]);
+  }, [ready, isComplete, isTimeUp, appActive, tickTimer]);
+
+  // Süre sınırı varsa kalan süre; sona yaklaşınca sayaç kırmızıya döner
+  const secondsLeft = timeLimit === null ? null : Math.max(0, timeLimit - elapsedSeconds);
+  const timeRunningOut =
+    timeLimit !== null &&
+    secondsLeft !== null &&
+    !isComplete &&
+    !isTimeUp &&
+    secondsLeft <= warningSecondsFor(timeLimit);
 
   // --- Bitince sonucu bir kez kaydet ---
   const result = useMemo(
@@ -124,10 +155,11 @@ export function useGameEngine(level: GameLevel | undefined) {
     };
   }, []);
 
-  // Üçlü düzeltilene kadar: 3 kurt → uluma, 3 koyun → meleme
+  // Üçlü düzeltilene kadar: 3 kurt → uluma, 3 koyun → meleme (süre dolunca susar)
   const triples = useMemo(() => findTripleAnimals(grid), [grid]);
-  const loopWolf = soundEnabled && ready && !isComplete && triples.wolf;
-  const loopSheep = soundEnabled && ready && !isComplete && triples.sheep;
+  const playing = soundEnabled && ready && !isComplete && !isTimeUp;
+  const loopWolf = playing && triples.wolf;
+  const loopSheep = playing && triples.sheep;
 
   useEffect(() => {
     setLooping('wolf', loopWolf);
@@ -144,6 +176,19 @@ export function useGameEngine(level: GameLevel | undefined) {
     prevErrorRef.current = hasActiveError;
   }, [hasActiveError, haptic]);
 
+  // --- Süre titreşimleri: sayaç kırmızıya dönünce uyarı, süre dolunca hata (birer kez) ---
+  const prevRunningOutRef = useRef(false);
+  useEffect(() => {
+    if (timeRunningOut && !prevRunningOutRef.current) haptic('warning');
+    prevRunningOutRef.current = timeRunningOut;
+  }, [timeRunningOut, haptic]);
+
+  const prevTimeUpRef = useRef(false);
+  useEffect(() => {
+    if (isTimeUp && !prevTimeUpRef.current) haptic('error');
+    prevTimeUpRef.current = isTimeUp;
+  }, [isTimeUp, haptic]);
+
   // --- Tamamlama titreşimi ve sesi ---
   useEffect(() => {
     if (!result) return;
@@ -153,9 +198,11 @@ export function useGameEngine(level: GameLevel | undefined) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
-  // --- Hücreye dokunma ---
+  // --- Hücreye dokunma (bitmiş ya da süresi dolmuş tahtada boşuna titremesin) ---
   const handleTapCell = useCallback(
     (row: number, col: number) => {
+      const { isComplete: done, isTimeUp: timeUp } = useGameStore.getState();
+      if (done || timeUp) return;
       tapCell(row, col);
       haptic('light');
     },
@@ -176,6 +223,10 @@ export function useGameEngine(level: GameLevel | undefined) {
     ready,
     grid,
     elapsedSeconds,
+    timeLimit,
+    secondsLeft,
+    timeRunningOut,
+    isTimeUp,
     isComplete,
     hasActiveError,
     triples,
@@ -184,5 +235,6 @@ export function useGameEngine(level: GameLevel | undefined) {
     handleTapCell,
     handleApplyHint,
     resetUserCells,
+    restartLevel,
   };
 }

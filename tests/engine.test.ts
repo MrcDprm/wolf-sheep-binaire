@@ -10,6 +10,7 @@ import {
 import { pickHintCell } from '../src/engine/hint';
 import { isBoardComplete } from '../src/engine/solver';
 import { calculateStars } from '../src/constants/scoring';
+import { formatDuration } from '../src/utils/scoring';
 import { createRng } from '../src/engine/random';
 import type { CellValue, RawGrid } from '../src/types/game';
 
@@ -95,4 +96,16 @@ test('aynı tohum aynı sayıları verir', () => {
   const a = createRng(42);
   const b = createRng(42);
   for (let i = 0; i < 5; i++) assert.equal(a(), b());
+});
+
+test('süre cümle içinde okunur yazılır, İngilizcede tekil ve çoğul ayrı', () => {
+  // Çeviri yerine anahtarın son parçasını yazan sahte t: "duration.minute" → "1 minute"
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    `${vars?.count} ${key.split('.')[1]}`;
+  assert.equal(formatDuration(30, t), '30 seconds');
+  assert.equal(formatDuration(60, t), '1 minute');
+  assert.equal(formatDuration(120, t), '2 minutes');
+  assert.equal(formatDuration(90, t), '1 minute 30 seconds');
+  assert.equal(formatDuration(1, t), '1 second');
+  assert.equal(formatDuration(0, t), '0 seconds');
 });

@@ -34,3 +34,22 @@ export function formatTime(seconds: number): string {
   const s = seconds % 60;
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
+
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+
+/**
+ * Süreyi cümle içinde okunur yazar: 30 → "30 saniye", 60 → "1 minute", 90 → "1 dakika 30 saniye".
+ * Tekil/çoğul ayrımı İngilizce için (`duration.minute` / `duration.minutes`).
+ */
+export function formatDuration(seconds: number, t: Translate): string {
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+  const parts: string[] = [];
+  if (minutes > 0) {
+    parts.push(t(minutes === 1 ? 'duration.minute' : 'duration.minutes', { count: minutes }));
+  }
+  if (rest > 0 || minutes === 0) {
+    parts.push(t(rest === 1 ? 'duration.second' : 'duration.seconds', { count: rest }));
+  }
+  return parts.join(' ');
+}

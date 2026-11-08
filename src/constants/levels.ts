@@ -24,6 +24,7 @@ export const LEVELS: GameLevel[] = LEVEL_DATA.map(([puzzle, solution], i) => {
     puzzle: parseGrid(puzzle),
     solution: parseGrid(solution),
     maxHintsForPerfect: config.maxHintsForPerfect,
+    timeLimit: config.timeLimitSeconds,
   };
 });
 

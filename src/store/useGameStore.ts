@@ -12,9 +12,14 @@ interface GameState {
   elapsedSeconds: number;
   isComplete: boolean;
   hasActiveError: boolean;
+  /** Süre sınırı (saniye); ayarlardan kapatıldıysa null ve süre ileri sayar */
+  timeLimit: number | null;
+  /** Süre doldu: seviye kaybedildi, tahta kilitli */
+  isTimeUp: boolean;
 
   // --- Actions ---
-  initGame: (level: GameLevel) => void;
+  /** Seviyeyi baştan başlatır; `timeLimit` verilmezse süre sınırı yoktur */
+  initGame: (level: GameLevel, timeLimit?: number | null) => void;
   tapCell: (row: number, col: number) => void;
   /** İpucu uygulandıysa true döner */
   applyHint: () => boolean;
@@ -32,6 +37,8 @@ const EMPTY_GAME = {
   elapsedSeconds: 0,
   isComplete: false,
   hasActiveError: false,
+  timeLimit: null,
+  isTimeUp: false,
 };
 
 /**
@@ -48,10 +55,13 @@ function evaluate(grid: Grid, solutionRaw: RawGrid) {
   };
 }
 
+/** Seviye bitti ya da süre doldu: tahtada artık hiçbir şey değişmez */
+const isOver = (s: { isComplete: boolean; isTimeUp: boolean }) => s.isComplete || s.isTimeUp;
+
 export const useGameStore = create<GameState>((set, get) => ({
   ...EMPTY_GAME,
 
-  initGame: (level) => {
+  initGame: (level, timeLimit = null) => {
     set({
       grid: buildGridFromRaw(level.puzzle),
       solutionRaw: level.solution,
@@ -60,13 +70,15 @@ export const useGameStore = create<GameState>((set, get) => ({
       elapsedSeconds: 0,
       isComplete: false,
       hasActiveError: false,
+      timeLimit,
+      isTimeUp: false,
     });
   },
 
   tapCell: (row, col) => {
-    const { grid, solutionRaw, isComplete } = get();
+    const { grid, solutionRaw } = get();
     const cell = grid[row]?.[col];
-    if (!cell || cell.isLocked || isComplete) return;
+    if (!cell || cell.isLocked || isOver(get())) return;
 
     // Dokunma döngüsü: boş → kurt → koyun → boş
     const nextValue = ((cell.value + 1) % 3) as 0 | 1 | 2;
@@ -79,8 +91,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   applyHint: () => {
-    const { grid, solutionRaw, isComplete } = get();
-    if (isComplete) return false;
+    const { grid, solutionRaw } = get();
+    if (isOver(get())) return false;
     const hintCell = pickHintCell(grid, solutionRaw);
     if (!hintCell) return false;
 
@@ -94,17 +106,21 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   resetUserCells: () => {
-    const { grid, solutionRaw, isComplete } = get();
-    // Bitmiş tahta olduğu gibi kalır (önceden taşlar siliniyor, tahta donuyordu)
-    if (isComplete) return;
+    const { grid, solutionRaw } = get();
+    // Bitmiş ya da süresi dolmuş tahta olduğu gibi kalır (önceden taşlar siliniyor, tahta donuyordu)
+    if (isOver(get())) return;
     // Oyuncunun taşları silinir; başta verilen ve ipucuyla açılan taşlar kalır.
     // Kalan taşların hata işareti de yeniden hesaplanır (önceden kırmızı kalıyordu).
+    // Süre işlemeye devam eder: Sıfırla yeni süre vermez.
     const resetGrid: Grid = grid.map((r) => r.map((c) => (c.isLocked ? c : { ...c, value: 0 })));
     set(evaluate(resetGrid, solutionRaw));
   },
 
   tickTimer: () => {
-    set((s) => ({ elapsedSeconds: s.elapsedSeconds + 1 }));
+    const { elapsedSeconds, timeLimit } = get();
+    if (isOver(get())) return;
+    const elapsed = elapsedSeconds + 1;
+    set({ elapsedSeconds: elapsed, isTimeUp: timeLimit !== null && elapsed >= timeLimit });
   },
 
   resetGame: () => set(EMPTY_GAME),
