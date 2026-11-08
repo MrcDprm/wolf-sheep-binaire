@@ -4,6 +4,7 @@
  * Tek kutlama anı: kart açılır, yıldızlar sırayla yerine oturur.
  * Hareketi azalt ayarı açıksa her şey doğrudan görünür.
  * Altında süre ve kazanılan puan; düğmeler: Sonraki seviye, Sonucu paylaş, Menüye dön.
+ * Sonraki seviye başka bir zorluktaysa (ör. Kolay 50 → Orta 1) düğmede adı yazar.
  */
 import { memo, useEffect } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -20,11 +21,12 @@ import { useRouter } from 'expo-router';
 import { formatTime } from '../../utils/scoring';
 import { useTranslation } from '../../i18n';
 import { useDayPhase } from '../../hooks/useDayPhase';
-import { getLevelById, TOTAL_LEVELS } from '../../constants/levels';
+import { getLevelById, levelAfter } from '../../constants/levels';
+import { useUserStore } from '../../store/useUserStore';
 import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { cardColors, fontSize, fonts, palette } from '../../theme';
-import type { LevelResult } from '../../types/game';
+import type { GameLevel, LevelResult } from '../../types/game';
 
 interface LevelCompleteModalProps {
   visible: boolean;
@@ -72,6 +74,10 @@ function LevelCompleteModalComponent({
   const reduceMotion = useReducedMotion();
   const card = cardColors(dayPhase.dark);
   const level = getLevelById(levelId);
+  const completedLevels = useUserStore((s) => s.completedLevels);
+  // Bu seviyenin sonucu kayda bir sonraki çizimde geçiyor; burada şimdiden bitmiş sayılır
+  const nextId = levelAfter(levelId, { ...completedLevels, [String(levelId)]: result });
+  const nextLevel = nextId === null ? undefined : getLevelById(nextId);
 
   const overlay = useSharedValue(1);
   const cardScale = useSharedValue(1);
@@ -95,8 +101,9 @@ function LevelCompleteModalComponent({
   const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: cardScale.value }] }));
 
   const goNext = () => {
+    if (nextId === null) return;
     onClose();
-    router.replace(`/(game)/level/${levelId + 1}`);
+    router.replace(`/(game)/level/${nextId}`);
   };
 
   const goShare = () => {
@@ -111,9 +118,12 @@ function LevelCompleteModalComponent({
     router.replace('/(game)');
   };
 
-  const levelName = level
-    ? t('game.level', { difficulty: t(`difficulty.${level.difficulty}`), number: level.number })
-    : '';
+  const nameOf = (l: GameLevel) =>
+    t('game.level', { difficulty: t(`difficulty.${l.difficulty}`), number: l.number });
+  const levelName = level ? nameOf(level) : '';
+  // Sonraki seviye başka zorluktaysa düğmede nereye gidileceği yazar
+  const nextSubtitle =
+    nextLevel && nextLevel.difficulty !== level?.difficulty ? nameOf(nextLevel) : undefined;
 
   return (
     <Modal
@@ -165,8 +175,8 @@ function LevelCompleteModalComponent({
           </View>
 
           <View style={styles.buttons}>
-            {levelId < TOTAL_LEVELS ? (
-              <Button title={t('game.nextLevel')} onPress={goNext} />
+            {nextId !== null ? (
+              <Button title={t('game.nextLevel')} subtitle={nextSubtitle} onPress={goNext} />
             ) : (
               <Text style={[styles.allDone, { color: card.text }]}>{t('game.allDone')}</Text>
             )}

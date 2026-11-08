@@ -1,9 +1,10 @@
 /**
  * Seviye seçme ekranı
  *
- * Üstte 6 zorluk sekmesi, altında o zorluğun 50 seviyesi.
+ * Üstte 6 zorluk sekmesi, altında o zorluğun 50 seviyesi. Her zorluğun 1. seviyesi
+ * açıktır; oyuncu istediği zorluktan başlar.
  * - Bitirilen seviye: keçe yeşili karo, kazanılan yıldızlar
- * - Sıradaki seviye: saman sarısı karo
+ * - Sıradaki seviye (her sekmede kendi zorluğunun): saman sarısı karo
  * - Kilitli seviye: soluk karo, kilit; dokunulamaz
  */
 import { useRef, useState } from 'react';
@@ -14,7 +15,13 @@ import { useDayPhase } from '../../src/hooks/useDayPhase';
 import { useTranslation } from '../../src/i18n';
 import { useUserStore } from '../../src/store/useUserStore';
 import { DIFFICULTIES, LEVELS_PER_DIFFICULTY } from '../../src/constants/difficulties';
-import { LEVELS, getLevelById, isLevelUnlocked, nextLevelToPlay } from '../../src/constants/levels';
+import {
+  LEVELS,
+  firstUnfinishedIn,
+  getLevelById,
+  isLevelUnlocked,
+  nextLevelToPlay,
+} from '../../src/constants/levels';
 import { IconButton } from '../../src/components/ui/IconButton';
 import { Icon } from '../../src/components/ui/Icon';
 import { fontSize, fonts, palette, radius } from '../../src/theme';
@@ -25,10 +32,12 @@ export default function LevelsScreen() {
   const t = useTranslation();
   const dayPhase = useDayPhase();
   const completedLevels = useUserStore((s) => s.completedLevels);
+  const lastLevelId = useUserStore((s) => s.lastLevelId);
 
-  const nextId = nextLevelToPlay(completedLevels);
-  // Açılışta oynanacak seviyenin zorluğu seçili gelir
-  const [tab, setTab] = useState<Difficulty>(() => getLevelById(nextId)?.difficulty ?? 'easiest');
+  // Açılışta "Devam et"in açacağı seviyenin zorluğu (son oynanan zorluk) seçili gelir
+  const [tab, setTab] = useState<Difficulty>(
+    () => getLevelById(nextLevelToPlay(completedLevels, lastLevelId))?.difficulty ?? 'easiest',
+  );
 
   // Seçili sekme ekran dışındaysa ilk çizimde görünür hale kaydır
   const tabsRef = useRef<ScrollView>(null);
@@ -36,6 +45,8 @@ export default function LevelsScreen() {
 
   const levels = LEVELS.filter((l) => l.difficulty === tab);
   const doneInTab = levels.filter((l) => completedLevels[String(l.id)]).length;
+  // Bu zorlukta sıradaki seviye (hepsi bittiyse yok)
+  const nextInTab = firstUnfinishedIn(tab, completedLevels);
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
@@ -97,7 +108,7 @@ export default function LevelsScreen() {
         {levels.map((level) => {
           const result = completedLevels[String(level.id)];
           const unlocked = isLevelUnlocked(level.id, completedLevels);
-          const isNext = level.id === nextId && !result;
+          const isNext = level.id === nextInTab;
           const name = t('game.level', {
             difficulty: t(`difficulty.${tab}`),
             number: level.number,

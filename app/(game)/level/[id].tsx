@@ -89,7 +89,8 @@ export default function LevelScreen() {
     );
   }
 
-  const hasPrevious = levelId > 1;
+  // Oklar sadece açık seviyelere gider (ör. Orta 1'den, kilitliyse Kolay 50'ye geçilmez)
+  const previousUnlocked = isLevelUnlocked(levelId - 1, completedLevels);
   const nextUnlocked = isLevelUnlocked(levelId + 1, completedLevels);
 
   // Hata satırı: önce üçlü (hangi hayvan), yoksa satır/sütun dengesi
@@ -116,7 +117,7 @@ export default function LevelScreen() {
           <IconButton
             name="chevronLeft"
             color={dayPhase.text}
-            disabled={!hasPrevious}
+            disabled={!previousUnlocked}
             onPress={() => goTo(levelId - 1)}
             accessibilityLabel={t('game.previous')}
           />

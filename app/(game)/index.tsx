@@ -3,7 +3,7 @@
  *
  * Gökyüzü gün dilimine göre değişir; altta mera tepeleri.
  * Başlığın iki yanında koyun ve kurt taşı durur.
- * "Devam et" bitirilmemiş ilk seviyeyi açar.
+ * "Devam et" en son oynanan zorlukta bitirilmemiş ilk seviyeyi açar.
  */
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,14 +27,15 @@ export default function MainMenu() {
   const totalPoints = useUserStore((s) => s.totalPoints);
   const availableHints = useUserStore((s) => s.availableHints);
   const completedLevels = useUserStore((s) => s.completedLevels);
+  const lastLevelId = useUserStore((s) => s.lastLevelId);
   const language = useSettingsStore((s) => s.language);
   const tutorialCompleted = useSettingsStore((s) => s.tutorialCompleted);
   const settingsReady = useSettingsHydrated();
 
   const title = getTitleForPoints(totalPoints);
-  const nextId = nextLevelToPlay(completedLevels);
+  const nextId = nextLevelToPlay(completedLevels, lastLevelId);
   const nextLevel = getLevelById(nextId);
-  const started = Object.keys(completedLevels).length > 0;
+  const started = lastLevelId !== null || Object.keys(completedLevels).length > 0;
   // "Koyun & Kurt" iki satıra bölünür, iki yanında taşlar
   const [nameTop, nameBottom] = t('app.name').split(' & ');
 

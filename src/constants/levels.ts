@@ -2,9 +2,10 @@
  * 300 seviye: 6 zorluk x 50 seviye, hepsi 6x6.
  *
  * Bulmacalar levelData.ts içinde sabittir; her seviye her açılışta aynıdır.
- * Seviyeler kilitlidir: bir seviyeyi açmak için öncekini bitirmek gerekir.
+ * Oyuncu istediği zorluktan başlar: her zorluğun 1. seviyesi açıktır,
+ * zorluk içindeki seviyeler ise sırayla, bir öncekini bitirince açılır.
  */
-import type { CellValue, GameLevel, LevelResult, RawGrid } from '../types/game';
+import type { CellValue, Difficulty, GameLevel, LevelResult, RawGrid } from '../types/game';
 import { DIFFICULTIES, GRID_SIZE, LEVELS_PER_DIFFICULTY } from './difficulties';
 import { LEVEL_DATA } from './levelData';
 
@@ -34,16 +35,45 @@ export function getLevelById(id: number): GameLevel | undefined {
 
 type Completed = Record<string, LevelResult>;
 
-/** İlk seviye hep açık; diğerleri bir öncekini bitirince açılır. */
+/**
+ * Her zorluğun 1. seviyesi hep açık; diğerleri aynı zorluktaki bir öncekini bitirince açılır.
+ * (Bir zorluğun seviyeleri art arda numaralı olduğu için "bir önceki" id - 1'dir.)
+ */
 export function isLevelUnlocked(id: number, completed: Completed): boolean {
-  if (id < 1 || id > TOTAL_LEVELS) return false;
-  return id === 1 || completed[String(id - 1)] !== undefined;
+  const level = getLevelById(id);
+  if (!level) return false;
+  return level.number === 1 || completed[String(id - 1)] !== undefined;
 }
 
-/** "Oyna" düğmesinin açacağı seviye: bitirilmemiş ilk seviye (hepsi bittiyse sonuncusu). */
-export function nextLevelToPlay(completed: Completed): number {
-  for (let id = 1; id <= TOTAL_LEVELS; id++) {
-    if (completed[String(id)] === undefined) return id;
+/** Zorluktaki bitirilmemiş ilk seviye; hepsi bittiyse undefined */
+export function firstUnfinishedIn(difficulty: Difficulty, completed: Completed): number | undefined {
+  return LEVELS.find((l) => l.difficulty === difficulty && completed[String(l.id)] === undefined)?.id;
+}
+
+/**
+ * "Devam et" düğmesinin açacağı seviye.
+ * Son oynanan zorlukta bitirilmemiş ilk seviye; o zorluk bittiyse sonraki zorluklarda
+ * (sona gelince baştan) bitirilmemiş ilk seviye. Hiç oynanmadıysa ya da kayıtlı numara
+ * geçersizse En Kolay'dan aranır. Hepsi bittiyse son oynanan (yoksa en son) seviye.
+ */
+export function nextLevelToPlay(completed: Completed, lastLevelId: number | null = null): number {
+  const last = lastLevelId === null ? undefined : getLevelById(lastLevelId);
+  const start = last ? DIFFICULTIES.findIndex((d) => d.id === last.difficulty) : 0;
+
+  for (let i = 0; i < DIFFICULTIES.length; i++) {
+    const difficulty = DIFFICULTIES[(start + i) % DIFFICULTIES.length].id;
+    const next = firstUnfinishedIn(difficulty, completed);
+    if (next !== undefined) return next;
   }
-  return TOTAL_LEVELS;
+  return last?.id ?? TOTAL_LEVELS;
+}
+
+/**
+ * Seviye bitince "Sonraki seviye" düğmesinin açacağı seviye: sıradaki numara; son seviyeden
+ * sonra "Devam et" kuralıyla bitirilmemiş ilk seviye. Bütün seviyeler bittiyse null.
+ * `completed` az önce bitirilen seviyeyi de içermeli.
+ */
+export function levelAfter(levelId: number, completed: Completed): number | null {
+  if (LEVELS.every((l) => completed[String(l.id)] !== undefined)) return null;
+  return levelId < TOTAL_LEVELS ? levelId + 1 : nextLevelToPlay(completed, levelId);
 }
