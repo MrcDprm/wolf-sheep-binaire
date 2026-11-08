@@ -34,18 +34,20 @@ export function useGameEngine(level: GameLevel | undefined) {
   const availableHints = useUserStore((s) => s.availableHints);
   const consumeHint = useUserStore((s) => s.consumeHint);
   const recordLevelResult = useUserStore((s) => s.recordLevelResult);
+  const setLastLevel = useUserStore((s) => s.setLastLevel);
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const { trigger: haptic } = useHaptics();
 
   // Ekrandaki seviye store'dakiyle aynı mı? (seviye değişirken eski tahta görünmesin)
   const ready = level !== undefined && activeLevel?.id === level.id;
 
-  // --- Seviyeyi başlat ---
+  // --- Seviyeyi başlat ("Devam et" bir dahaki sefere bu zorluktan devam etsin) ---
   useEffect(() => {
     if (!level) return;
     initGame(level);
+    setLastLevel(level.id);
     return () => resetGame();
-  }, [level, initGame, resetGame]);
+  }, [level, initGame, resetGame, setLastLevel]);
 
   // --- Süre ---
   useEffect(() => {

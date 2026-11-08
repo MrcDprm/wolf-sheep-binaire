@@ -11,13 +11,18 @@ interface UserState extends UserProfile {
   /** Seviye sonucunu kaydeder; puana sadece önceki en iyi sonuçtan fazlası eklenir. */
   recordLevelResult: (levelId: number, result: LevelResult) => void;
   claimDailyBonus: () => void;
+  /** Açılan seviyeyi "son oynanan" olarak kaydeder */
+  setLastLevel: (levelId: number) => void;
 }
 
+// Yeni alanlar burada varsayılanla başlar; kayıtlı eski profilde olmayan alan
+// (ör. lastLevelId) yüklenirken bu varsayılanla tamamlanır, sürüm artırmak gerekmez.
 const DEFAULT_PROFILE: UserProfile = {
   totalPoints: 0,
   availableHints: BASE_HINT_POOL,
   lastLoginDate: null,
   completedLevels: {},
+  lastLevelId: null,
 };
 
 export const useUserStore = create<UserState>()(
@@ -49,6 +54,10 @@ export const useUserStore = create<UserState>()(
           availableHints: s.availableHints + DAILY_LOGIN_HINT_BONUS,
           lastLoginDate: Date.now(),
         }));
+      },
+
+      setLastLevel: (levelId) => {
+        if (get().lastLevelId !== levelId) set({ lastLevelId: levelId });
       },
     }),
     {
