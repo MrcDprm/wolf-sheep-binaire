@@ -6,6 +6,7 @@ import { LEVELS } from '../src/constants/levels';
 import { applyErrorsToGrid, rawFromGrid } from '../src/engine/validator';
 import { isBoardComplete } from '../src/engine/solver';
 import { createRng } from '../src/engine/random';
+import { createSnapshot, restoreSnapshot, type SavedGame } from '../src/engine/savedGame';
 import type { CellValue, GameLevel, Grid, RawGrid } from '../src/types/game';
 
 // . = boş, K = kurt (1), O = koyun (2)
@@ -208,4 +209,129 @@ test('Rastgele hamlelerde süre dolduktan sonra tahta hiç değişmez', () => {
   } finally {
     Math.random = realRandom;
   }
+});
+
+// ---------------------------------------------------------------------------
+// Kaldığı yerden devam (çık-gir yapınca tahta ve süre sıfırlanmaz)
+// ---------------------------------------------------------------------------
+
+/** Kaydı telefona yazılıp okunmuş gibi JSON'dan geçirir */
+const throughStorage = (saved: SavedGame): SavedGame => JSON.parse(JSON.stringify(saved));
+const locks = (grid: Grid) => grid.flat().map((c) => c.isLocked);
+
+/** İpucunun seçtiği hücre her çalıştırmada aynı olsun */
+function withSeed<T>(seed: number, run: () => T): T {
+  const realRandom = Math.random;
+  Math.random = createRng(seed);
+  try {
+    return run();
+  } finally {
+    Math.random = realRandom;
+  }
+}
+
+test('Çıkıp girince taşlar, ipucu hücreleri, kırmızılar ve süre kaldığı yerden sürer', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 1, 1);
+  place(0, 2, 1); // yan yana üç kurt: kırmızı
+  withSeed(3, () => game().applyHint());
+  tick(7);
+  const before = game();
+  const saved = throughStorage(createSnapshot(TEST_LEVEL, before.grid, before.elapsedSeconds));
+
+  game().resetGame(); // ekrandan çıkış
+  game().initGame(TEST_LEVEL, 30, saved);
+
+  const after = game();
+  assert.deepEqual(rawFromGrid(after.grid), rawFromGrid(before.grid), 'taşlar');
+  assert.deepEqual(locks(after.grid), locks(before.grid), 'ipucuyla açılan hücre kilitli kalır');
+  assert.deepEqual(flags(after.grid), flags(before.grid), 'kırmızı hücreler');
+  assert.equal(after.hasActiveError, true);
+  assert.equal(after.hintsUsed, 1);
+  assert.equal(after.elapsedSeconds, 7, 'süre baştan başlamaz');
+  assert.equal(after.isTimeUp, false);
+});
+
+test('Bozuk ya da seviyeye uymayan kayıt yok sayılır, seviye baştan açılır', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 1, 1);
+  withSeed(5, () => game().applyHint());
+  tick(4);
+  const good = throughStorage(createSnapshot(TEST_LEVEL, game().grid, game().elapsedSeconds));
+  assert.notEqual(restoreSnapshot(TEST_LEVEL, good), null, 'sağlam kayıt okunur');
+
+  const hintedIndex = good.hinted[0];
+  const withValue = (index: number, value: string) =>
+    good.values.slice(0, index) + value + good.values.slice(index + 1);
+  const wrongForHint = SOLUTION.flat()[hintedIndex] === 1 ? '2' : '1';
+
+  const broken: [string, unknown][] = [
+    ['boş kayıt', null],
+    ['yazı', 'kayıt'],
+    ['alanlar eksik', {}],
+    ['kısa tahta', { ...good, values: good.values.slice(1) }],
+    ['geçersiz karakter', { ...good, values: withValue(5, '3') }],
+    ['verilen taş değişmiş', { ...good, values: withValue(0, '2') }],
+    ['ipucu tahta dışında', { ...good, hinted: [36] }],
+    ['ipucu eksi', { ...good, hinted: [-1] }],
+    ['ipucu sayı değil', { ...good, hinted: ['3'] }],
+    ['ipucu kesirli', { ...good, hinted: [1.5] }],
+    ['aynı ipucu iki kez', { ...good, hinted: [hintedIndex, hintedIndex] }],
+    ['verilen taş ipucu sayılmış', { ...good, hinted: [0] }],
+    ['ipucu hücresinde yanlış değer', { ...good, values: withValue(hintedIndex, wrongForHint) }],
+    ['süre eksi', { ...good, elapsed: -1 }],
+    ['süre kesirli', { ...good, elapsed: 1.5 }],
+    ['süre sayı değil', { ...good, elapsed: '4' }],
+    ['süre çok uzun', { ...good, elapsed: 400_000 }],
+  ];
+  for (const [name, saved] of broken) {
+    assert.equal(restoreSnapshot(TEST_LEVEL, saved), null, name);
+    game().initGame(TEST_LEVEL, 30, saved as SavedGame);
+    assert.equal(game().elapsedSeconds, 0, `${name}: süre baştan`);
+    assert.deepEqual(rawFromGrid(game().grid), TEST_LEVEL.puzzle, `${name}: tahta baştan`);
+    assert.equal(game().hintsUsed, 0, name);
+  }
+});
+
+test('Çözülmüş tahtanın kaydı yarım sayılmaz', () => {
+  solve();
+  const saved = createSnapshot(TEST_LEVEL, game().grid, 12);
+  assert.equal(restoreSnapshot(TEST_LEVEL, saved), null);
+});
+
+test('Süre sınırı sonradan açıldıysa ve kayıttaki süre aşılmışsa süre dolmuş açılır', () => {
+  game().initGame(TEST_LEVEL, null); // süre sınırı kapalı
+  place(0, 1, 1);
+  tick(50);
+  const saved = createSnapshot(TEST_LEVEL, game().grid, game().elapsedSeconds);
+
+  game().initGame(TEST_LEVEL, 30, saved); // şimdi açık, sınır 30 sn
+  assert.equal(game().isTimeUp, true);
+  assert.equal(game().elapsedSeconds, 50);
+});
+
+test('Gerçek seviyelerde rastgele hamlelerden sonra kayıt tahtayı birebir geri kurar', () => {
+  const rng = createRng(21);
+  withSeed(22, () => {
+    for (const level of LEVELS.filter((_, i) => i % 25 === 0)) {
+      game().initGame(level, level.timeLimit);
+      for (let i = 0; i < 40; i++) {
+        if (rng() < 0.9) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
+        else game().applyHint();
+      }
+      tick(3);
+      const before = game();
+      if (before.isComplete) continue; // nadiren rastgele çözülürse kayıt tutulmaz
+      const saved = throughStorage(createSnapshot(level, before.grid, before.elapsedSeconds));
+
+      game().initGame(level, level.timeLimit, saved);
+      const after = game();
+      const where = `seviye ${level.id}`;
+      assert.deepEqual(rawFromGrid(after.grid), rawFromGrid(before.grid), where);
+      assert.deepEqual(locks(after.grid), locks(before.grid), where);
+      assert.deepEqual(flags(after.grid), flags(before.grid), where);
+      assert.equal(after.hintsUsed, before.hintsUsed, where);
+      assert.equal(after.elapsedSeconds, before.elapsedSeconds, where);
+    }
+  });
 });

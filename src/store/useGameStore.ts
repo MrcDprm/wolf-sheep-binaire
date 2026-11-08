@@ -3,6 +3,7 @@ import type { Grid, GameLevel, RawGrid } from '../types/game';
 import { buildGridFromRaw, rawFromGrid, applyErrorsToGrid } from '../engine/validator';
 import { pickHintCell } from '../engine/hint';
 import { isBoardComplete } from '../engine/solver';
+import { restoreSnapshot, type SavedGame } from '../engine/savedGame';
 
 interface GameState {
   grid: Grid;
@@ -18,8 +19,12 @@ interface GameState {
   isTimeUp: boolean;
 
   // --- Actions ---
-  /** Seviyeyi baştan başlatır; `timeLimit` verilmezse süre sınırı yoktur */
-  initGame: (level: GameLevel, timeLimit?: number | null) => void;
+  /**
+   * Seviyeyi başlatır. `timeLimit` verilmezse süre sınırı yoktur.
+   * Geçerli bir `saved` kaydı verilirse kaldığı yerden (taşlar, ipuçları, süre) sürer;
+   * kayıt geçersizse seviye baştan açılır.
+   */
+  initGame: (level: GameLevel, timeLimit?: number | null, saved?: SavedGame) => void;
   tapCell: (row: number, col: number) => void;
   /** İpucu uygulandıysa true döner */
   applyHint: () => boolean;
@@ -61,17 +66,19 @@ const isOver = (s: { isComplete: boolean; isTimeUp: boolean }) => s.isComplete |
 export const useGameStore = create<GameState>((set, get) => ({
   ...EMPTY_GAME,
 
-  initGame: (level, timeLimit = null) => {
+  initGame: (level, timeLimit = null, saved) => {
+    const restored = saved === undefined ? null : restoreSnapshot(level, saved);
+    const elapsedSeconds = restored?.elapsedSeconds ?? 0;
     set({
-      grid: buildGridFromRaw(level.puzzle),
+      // Kayıttan gelen tahtanın kırmızı hücreleri de yeniden hesaplanır
+      ...evaluate(restored?.grid ?? buildGridFromRaw(level.puzzle), level.solution),
       solutionRaw: level.solution,
       level,
-      hintsUsed: 0,
-      elapsedSeconds: 0,
-      isComplete: false,
-      hasActiveError: false,
+      hintsUsed: restored?.hintsUsed ?? 0,
+      elapsedSeconds,
       timeLimit,
-      isTimeUp: false,
+      // Süre sınırı sonradan açıldıysa kayıttaki süre sınırı aşmış olabilir
+      isTimeUp: timeLimit !== null && elapsedSeconds >= timeLimit,
     });
   },
 

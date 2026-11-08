@@ -1,20 +1,23 @@
 /**
  * Oyun motoru hook'u
  *
- * Store, kural motoru, süre, titreşim ve sesleri tek yerde toplar.
+ * Store, kural motoru, süre, kayıt, titreşim ve sesleri tek yerde toplar.
  * Oyun ekranı (`level/[id].tsx`) bu hook'u kullanır.
  */
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { warningSecondsFor } from '../constants/difficulties';
+import { createSnapshot } from '../engine/savedGame';
 import { findTripleAnimals } from '../engine/validator';
 import { useGameStore } from '../store/useGameStore';
+import { useSavedGamesStore } from '../store/useSavedGamesStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserStore } from '../store/useUserStore';
 import { computeLevelScore } from '../utils/scoring';
 import type { GameLevel } from '../types/game';
 import { useHaptics } from './useHaptics';
+import { useSavedGamesHydrated } from './useSavedGamesHydrated';
 
 const SOUND_MAP = {
   wolf: require('../../assets/sounds/wolf.mp3'),
@@ -30,6 +33,29 @@ const isForeground = (state: AppStateStatus) => state !== 'background' && state 
 /** Ayarlara göre seviyenin süre sınırı (kapalıysa null) */
 const timeLimitFor = (level: GameLevel) =>
   useSettingsStore.getState().timeLimitEnabled ? level.timeLimit : null;
+
+/**
+ * Oynanan seviyenin anlık hâlini telefona yazar ("gir çık" yapınca süre ve tahta sıfırlanmasın).
+ * Seviye bittiyse ya da süresi dolduysa kaydı siler. Hiç dokunulmamış tahta kaydedilmez.
+ */
+function saveProgress() {
+  const { level, grid, elapsedSeconds, hintsUsed, isComplete, isTimeUp } = useGameStore.getState();
+  if (!level || grid.length === 0) return;
+
+  const savedGames = useSavedGamesStore.getState();
+  if (isComplete || isTimeUp) {
+    savedGames.clearGame(level.id);
+    return;
+  }
+
+  const snapshot = createSnapshot(level, grid, elapsedSeconds);
+  // İlk saniyede alınan ipucu da kaydedilsin (ipucu hücresi kilitli olduğu için tahtadan anlaşılmaz)
+  const untouched =
+    elapsedSeconds === 0 &&
+    hintsUsed === 0 &&
+    grid.every((row) => row.every((cell) => cell.isLocked || cell.value === 0));
+  if (!untouched) savedGames.saveGame(level.id, snapshot);
+}
 
 export function useGameEngine(level: GameLevel | undefined) {
   const grid = useGameStore((s) => s.grid);
@@ -51,24 +77,43 @@ export function useGameEngine(level: GameLevel | undefined) {
 
   // Ekrandaki seviye store'dakiyle aynı mı? (seviye değişirken eski tahta görünmesin)
   const ready = level !== undefined && activeLevel?.id === level.id;
+  // Yarım kalan seviyeler telefondan yüklenmeden seviye başlatılmaz
+  const savesReady = useSavedGamesHydrated();
 
-  // --- Seviyeyi başlat ("Devam et" bir dahaki sefere bu zorluktan devam etsin) ---
+  // --- Seviyeyi başlat: yarım kaldıysa kaldığı yerden ---
+  // ("Devam et" de bir dahaki sefere bu zorluktan devam etsin)
   useEffect(() => {
-    if (!level) return;
-    initGame(level, timeLimitFor(level));
+    if (!level || !savesReady) return;
+    initGame(level, timeLimitFor(level), useSavedGamesStore.getState().games[String(level.id)]);
     setLastLevel(level.id);
-    return () => resetGame();
-  }, [level, initGame, resetGame, setLastLevel]);
+    return () => {
+      // Çıkarken (kapat, oklar, Sonraki seviye) kaldığı yer kaydedilir
+      saveProgress();
+      resetGame();
+    };
+  }, [level, savesReady, initGame, resetGame, setLastLevel]);
+
+  // Tahta değişince kaydet; bitince ya da süre dolunca kaydı sil
+  useEffect(() => {
+    if (ready) saveProgress();
+  }, [ready, grid, isComplete, isTimeUp]);
 
   /** Süre dolunca "Tekrar dene": tahta ve süre baştan */
   const restartLevel = useCallback(() => {
-    if (level) initGame(level, timeLimitFor(level));
+    if (!level) return;
+    useSavedGamesStore.getState().clearGame(level.id);
+    initGame(level, timeLimitFor(level));
   }, [level, initGame]);
 
   // --- Süre (uygulama arka plandayken durur) ---
   const [appActive, setAppActive] = useState(() => isForeground(AppState.currentState));
   useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => setAppActive(isForeground(state)));
+    const sub = AppState.addEventListener('change', (state) => {
+      const foreground = isForeground(state);
+      setAppActive(foreground);
+      // Arka plana geçerken de kaydet: telefon uygulamayı kapatsa da kaldığı yer kalır
+      if (!foreground) saveProgress();
+    });
     return () => sub.remove();
   }, []);
 
