@@ -3,6 +3,7 @@
  *
  * Gökyüzü gün dilimine göre değişir; altta mera tepeleri.
  * Başlığın iki yanında koyun ve kurt taşı durur.
+ * Düğmelerin üstünde günün bulmacası kartı (takvim yaprağı ve seri).
  * "Devam et" en son oynanan zorlukta bitirilmemiş ilk seviyeyi açar.
  */
 import { View, Text, StyleSheet } from 'react-native';
@@ -14,9 +15,15 @@ import { useTranslation } from '../../src/i18n';
 import { useUserStore } from '../../src/store/useUserStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { useSettingsHydrated } from '../../src/hooks/useSettingsHydrated';
+import { useDailyHydrated } from '../../src/hooks/useDailyHydrated';
+import { useToday } from '../../src/hooks/useToday';
+import { useDailyStore } from '../../src/store/useDailyStore';
+import { dailyDifficulty, parseDayKey } from '../../src/engine/daily';
+import { currentStreak } from '../../src/engine/dailyResults';
 import { getLevelById, nextLevelToPlay } from '../../src/constants/levels';
 import { getTitleForPoints, titleName } from '../../src/constants/titles';
 import { Piece } from '../../src/components/pieces/Piece';
+import { DailyCard } from '../../src/components/daily/DailyCard';
 import { Button } from '../../src/components/ui/Button';
 import { fontSize, fonts } from '../../src/theme';
 
@@ -31,6 +38,10 @@ export default function MainMenu() {
   const language = useSettingsStore((s) => s.language);
   const tutorialCompleted = useSettingsStore((s) => s.tutorialCompleted);
   const settingsReady = useSettingsHydrated();
+  const today = useToday();
+  const dailyResults = useDailyStore((s) => s.results);
+  // Sonuçlar yüklenmeden seri ve "çözüldü" gösterilmez (bir an 0 görünüp değişmesin)
+  const dailyReady = useDailyHydrated();
 
   const title = getTitleForPoints(totalPoints);
   const nextId = nextLevelToPlay(completedLevels, lastLevelId);
@@ -86,6 +97,13 @@ export default function MainMenu() {
         </Text>
 
         <View style={styles.buttons}>
+          <DailyCard
+            date={today}
+            difficulty={dailyDifficulty(parseDayKey(today) ?? 0)}
+            solved={dailyReady ? dailyResults[today] : undefined}
+            streak={dailyReady ? currentStreak(dailyResults, today) : 0}
+            onPress={() => router.push('/(game)/daily')}
+          />
           <Button
             title={started ? t('menu.continueLevel') : t('menu.play')}
             subtitle={

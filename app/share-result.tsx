@@ -2,7 +2,8 @@
  * Sonuç paylaşım ekranı
  *
  * Bitirilen seviyenin bilgisini (seviye, yıldız, süre, puan) bir kart
- * hâlinde gösterir; "Paylaş" kartın görüntüsünü paylaşır.
+ * hâlinde gösterir; "Paylaş" kartın görüntüsünü paylaşır. Günün bulmacasında
+ * (`daily` parametresi) seviye yerine tarih, puan yerine seri yazar.
  * Bilgiler bağlantı parametresinden geldiği için sınırlar içinde okunur.
  */
 import { useRef } from 'react';
@@ -14,6 +15,8 @@ import { useDayPhase } from '../src/hooks/useDayPhase';
 import { formatTime } from '../src/utils/scoring';
 import { shareCard } from '../src/utils/shareImage';
 import { getLevelById, TOTAL_LEVELS } from '../src/constants/levels';
+import { parseDayKey } from '../src/engine/daily';
+import { formatDayKey, formatDays } from '../src/utils/dailyText';
 import { Piece } from '../src/components/pieces/Piece';
 import { Button } from '../src/components/ui/Button';
 import { Icon } from '../src/components/ui/Icon';
@@ -35,6 +38,8 @@ export default function ShareResultScreen() {
     stars: string;
     time: string;
     score: string;
+    daily: string;
+    streak: string;
   }>();
   const cardRef = useRef<View>(null);
 
@@ -42,18 +47,36 @@ export default function ShareResultScreen() {
   const stars = readInt(params.stars, 0, 3);
   const time = readInt(params.time, 0, 359999);
   const score = readInt(params.score, 0, 12);
+  // Günün bulmacası: tarih geçerliyse
+  const dailyDate = parseDayKey(params.daily) !== null ? params.daily : null;
+  const streak = readInt(params.streak, 0, 99_999);
 
   const levelName = t('game.level', {
     difficulty: t(`difficulty.${level.difficulty}`),
     number: level.number,
   });
+  const dateText = dailyDate ? formatDayKey(dailyDate, t) : '';
+  const heading = dailyDate ? t('daily.title') : levelName;
+  const second = dailyDate
+    ? { value: formatDays(streak, t), label: t('daily.streak') }
+    : { value: String(score), label: t('scoring.totalScore') };
 
   const handleShare = () =>
-    shareCard(
-      cardRef,
-      t('share.message', { level: levelName, time: formatTime(time) }),
-      t('share.title', { level: levelName }),
-    );
+    dailyDate
+      ? shareCard(
+          cardRef,
+          t('daily.shareMessage', {
+            date: dateText,
+            time: formatTime(time),
+            streak: formatDays(streak, t),
+          }),
+          t('daily.shareTitle'),
+        )
+      : shareCard(
+          cardRef,
+          t('share.message', { level: levelName, time: formatTime(time) }),
+          t('share.title', { level: levelName }),
+        );
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
@@ -69,7 +92,8 @@ export default function ShareResultScreen() {
           <Piece kind="wolf" size={44} />
         </View>
 
-        <Text style={[styles.level, { color: card.text }]}>{levelName}</Text>
+        <Text style={[styles.level, { color: card.text }]}>{heading}</Text>
+        {dailyDate ? <Text style={[styles.date, { color: card.muted }]}>{dateText}</Text> : null}
 
         <View style={styles.stars}>
           {[1, 2, 3].map((i) => (
@@ -83,8 +107,8 @@ export default function ShareResultScreen() {
             <Text style={[styles.factLabel, { color: card.muted }]}>{t('game.time')}</Text>
           </View>
           <View style={styles.fact}>
-            <Text style={[styles.factValue, { color: card.text }]}>{score}</Text>
-            <Text style={[styles.factLabel, { color: card.muted }]}>{t('scoring.totalScore')}</Text>
+            <Text style={[styles.factValue, { color: card.text }]}>{second.value}</Text>
+            <Text style={[styles.factLabel, { color: card.muted }]}>{second.label}</Text>
           </View>
         </View>
       </View>
@@ -127,6 +151,11 @@ const styles = StyleSheet.create({
   level: {
     fontFamily: fonts.extrabold,
     fontSize: fontSize.title,
+  },
+  date: {
+    marginTop: -4,
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.small,
   },
   stars: {
     flexDirection: 'row',

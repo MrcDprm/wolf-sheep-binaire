@@ -18,7 +18,9 @@ export type IconName =
   | 'clock'
   | 'undo'
   | 'pause'
-  | 'play';
+  | 'play'
+  | 'flame'
+  | 'check';
 
 interface IconProps {
   name: IconName;
@@ -64,6 +66,24 @@ export function Icon({ name, size = 24, color }: IconProps) {
       )}
       {name === 'pause' && <Path d="M9 6 V18 M15 6 V18" {...stroke} />}
       {name === 'play' && <Path d="M8 5.5 L18 12 L8 18.5 Z" {...stroke} fill={color} />}
+      {name === 'check' && <Path d="M5.5 12.5 L10 17 L18.5 7.5" {...stroke} />}
+      {name === 'flame' && (
+        <>
+          <Path
+            d="M13.2 2.4 C13.4 6 18.6 8.4 18.6 14.4 C18.6 18.6 15.7 21.6 12 21.6 C8.3 21.6 5.4 18.7 5.4 15.2 C5.4 12.6 6.6 10.4 7.6 7.6 C8.6 9.8 9.4 10.8 10.4 11.4 C10.4 7.8 11.2 4.8 13.2 2.4 Z"
+            fill={color}
+            stroke={color}
+            strokeWidth={1.2}
+            strokeLinejoin="round"
+          />
+          {/* Açık renkli iç alev: damladan ayırır */}
+          <Path
+            d="M12 20.6 C10.3 20.6 9.2 19.4 9.2 17.8 C9.2 16.4 10.2 15.2 11.2 13.6 C11.6 14.8 12.2 15.4 13 15.8 C13.2 15 13.2 14.4 13 13.6 C14.2 14.8 14.8 16.2 14.8 17.8 C14.8 19.4 13.7 20.6 12 20.6 Z"
+            fill="#FFFFFF"
+            opacity={0.5}
+          />
+        </>
+      )}
       {name === 'undo' && (
         <>
           <Path d="M8.5 5.5 L4 10 L8.5 14.5" {...stroke} />
