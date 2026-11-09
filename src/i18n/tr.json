@@ -30,13 +30,13 @@
     "longest": "En uzun serin: {{count}} gün",
     "date": "{{day}} {{month}} {{weekday}}",
     "subtitle": "{{date}} · {{difficulty}}",
-    "shareMessage": "Koyun & Kurt'ta günün bulmacasını ({{date}}) {{time}} sürede çözdüm, serim {{streak}}. Sen de dene!",
+    "shareMessage": "Koyun & Kurt'ta {{date}} bulmacasını {{time}} sürede çözdüm, serim {{streak}}. Sen de dene!",
     "shareTitle": "Koyun & Kurt: günün bulmacası"
   },
   "reminder": {
     "title": "Günün bulmacası",
-    "streak": "Serin {{days}}, bozulmasın! Bugünkü bulmaca ({{difficulty}}) seni bekliyor.",
-    "plain": "Bugünkü bulmaca ({{difficulty}}) seni bekliyor."
+    "streak": "Serin {{days}}, bozulmasın. Bugün {{difficulty}} bir bulmaca seni bekliyor.",
+    "plain": "Bugün {{difficulty}} bir bulmaca seni bekliyor."
   },
   "calendar": {
     "weekdays": [
@@ -95,7 +95,7 @@
     "calendarHint": "Günün bulmacasını çözdüğün her güne bir koyun gelir.",
     "calendarLabel": "Son {{weeks}} haftada çözülen gün: {{count}}",
     "rank": "Unvan",
-    "nextTitle": "Sonraki unvan: {{title}} ({{points}} puan)",
+    "nextTitle": "Sonraki unvan: {{title}}, {{points}} puanda",
     "topTitle": "En yüksek unvana ulaştın!",
     "completed": "Tamamlanan",
     "stars": "Yıldız",
@@ -157,7 +157,7 @@
     "medium": "Orta",
     "hard": "Zor",
     "veryHard": "Çok Zor",
-    "impossible": "İmkânsız"
+    "impossible": "İmkansız"
   },
   "stars": {
     "perfect": "Kusursuz!",
