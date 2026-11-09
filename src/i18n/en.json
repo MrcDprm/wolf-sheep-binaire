@@ -10,6 +10,7 @@
   },
   "menu": {
     "play": "Play",
+    "stats": "Statistics",
     "settings": "Settings",
     "continueLevel": "Continue",
     "levels": "Levels",
@@ -69,7 +70,34 @@
       "OCT",
       "NOV",
       "DEC"
+    ],
+    "weekHeader": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
     ]
+  },
+  "stats": {
+    "title": "Statistics",
+    "streakUnit": "day streak",
+    "longest": "Longest streak",
+    "solvedDays": "Days solved",
+    "solveToday": "Solve today's puzzle",
+    "calendarHint": "Every day you solve the daily puzzle brings a sheep.",
+    "calendarLabel": "Days solved in the last {{weeks}} weeks: {{count}}",
+    "rank": "Title",
+    "nextTitle": "Next title: {{title}} ({{points}} points)",
+    "topTitle": "You reached the highest title!",
+    "completed": "Completed",
+    "stars": "Stars",
+    "perfect": "Perfect",
+    "best": "Best",
+    "average": "Average",
+    "noTime": "No levels finished yet"
   },
   "game": {
     "hint": "Hint",

@@ -5,6 +5,7 @@
  * Başlığın iki yanında koyun ve kurt taşı durur.
  * Düğmelerin üstünde günün bulmacası kartı (takvim yaprağı ve seri).
  * "Devam et" en son oynanan zorlukta bitirilmemiş ilk seviyeyi açar.
+ * En altta İstatistikler ve Ayarlar yan yana.
  */
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -121,11 +122,21 @@ export default function MainMenu() {
             variant="secondary"
             onPress={() => router.push('/(game)/levels')}
           />
-          <Button
-            title={t('menu.settings')}
-            variant="secondary"
-            onPress={() => router.push('/settings')}
-          />
+          {/* İstatistikler ve Ayarlar yan yana: menü küçük telefonlarda da sığsın */}
+          <View style={styles.pair}>
+            <Button
+              title={t('menu.stats')}
+              variant="secondary"
+              onPress={() => router.push('/(game)/stats')}
+              style={styles.half}
+            />
+            <Button
+              title={t('menu.settings')}
+              variant="secondary"
+              onPress={() => router.push('/settings')}
+              style={styles.half}
+            />
+          </View>
         </View>
       </SafeAreaView>
     </View>
@@ -200,5 +211,12 @@ const styles = StyleSheet.create({
   },
   buttons: {
     gap: 10,
+  },
+  pair: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  half: {
+    flex: 1,
   },
 });
