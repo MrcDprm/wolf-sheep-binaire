@@ -41,7 +41,7 @@ const timeLimitFor = (level: GameLevel) =>
   useSettingsStore.getState().timeLimitEnabled ? level.timeLimit : null;
 
 /**
- * Oynanan seviyenin anlık hâlini telefona yazar ("gir çık" yapınca süre ve tahta sıfırlanmasın).
+ * Oynanan seviyenin anlık halini telefona yazar ("gir çık" yapınca süre ve tahta sıfırlanmasın).
  * Seviye bittiyse ya da süresi dolduysa kaydı siler. Hiç dokunulmamış tahta kaydedilmez.
  */
 function saveProgress() {

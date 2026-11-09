@@ -1,7 +1,7 @@
 /**
  * Yarım kalan seviyeler (telefonda, AsyncStorage)
  *
- * Her seviyenin en son yarım kalan hâli seviye numarasıyla tutulur. Seviye bitince
+ * Her seviyenin en son yarım kalan hali seviye numarasıyla tutulur. Seviye bitince
  * ya da süresi dolunca kaydı silinir; bir sonraki giriş baştan başlar. Günün bulmacası
  * da günün numarasıyla burada tutulur; gün geçince eski kaydı silinir.
  * Kayıtlar okunurken engine/savedGame.ts içinde denetlenir.

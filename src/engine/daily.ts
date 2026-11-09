@@ -3,7 +3,7 @@
  *
  * Bulmaca sunucudan gelmez, telefonda o günün tarihinden üretilir: tarih tohum olur,
  * aynı gün herkes aynı bulmacayı alır. Zorluk haftanın gününe bağlı: hafta Pazartesi
- * Kolay ile başlar, Pazar İmkânsız ile biter. Günün bulmacasında süre sınırı yoktur;
+ * Kolay ile başlar, Pazar İmkansız ile biter. Günün bulmacasında süre sınırı yoktur;
  * seri süre yüzünden bozulmasın, süre yalnızca kaydedilir.
  *
  * Üretilen bulmaca tek çözümlüdür ve cevap açmadan, yalnızca ipucu motorunun mantık
