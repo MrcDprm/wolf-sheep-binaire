@@ -134,8 +134,9 @@ test('Rastgele hamlelerde kırmızı hücreler, hata ve bitiş durumu hep tahtay
       game().initGame(level);
       for (let i = 0; i < 80; i++) {
         const roll = rng();
-        if (roll < 0.85) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
-        else if (roll < 0.97) game().applyHint();
+        if (roll < 0.8) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
+        else if (roll < 0.92) game().applyHint();
+        else if (roll < 0.97) game().undo();
         else game().resetUserCells();
 
         const { grid, hasActiveError, isComplete } = game();
@@ -394,4 +395,89 @@ test('Gerçek seviyelerde rastgele hamlelerden sonra kayıt tahtayı birebir ger
       assert.equal(after.elapsedSeconds, before.elapsedSeconds, where);
     }
   });
+});
+
+// ---------------------------------------------------------------------------
+// Geri al
+// ---------------------------------------------------------------------------
+
+test('Geri al dokunuşları sondan başa geri alır', () => {
+  game().initGame(TEST_LEVEL);
+  place(0, 1, 2); // boş → kurt → koyun (iki dokunuş)
+  place(0, 2, 1);
+  assert.equal(game().undo(), true);
+  assert.equal(game().grid[0][2].value, 0);
+  assert.equal(game().undo(), true);
+  assert.equal(game().grid[0][1].value, 1, 'koyundan bir önceki hâl: kurt');
+  game().undo();
+  assert.equal(game().grid[0][1].value, 0);
+  assert.equal(game().undo(), false, 'geri alınacak hamle kalmadı');
+});
+
+test('Sıfırla geri alınınca taşlar ve kırmızılar geri gelir', () => {
+  game().initGame(TEST_LEVEL);
+  fill(WRONG_WOLF);
+  const before = rawFromGrid(game().grid);
+  game().resetUserCells();
+  assert.equal(game().grid[0][1].value, 0);
+  game().undo();
+  assert.deepEqual(rawFromGrid(game().grid), before);
+  assert.equal(game().hasActiveError, true, 'hatalı dolu tahta kırmızılarıyla geri gelir');
+});
+
+test('İpucunun kilitlediği hücrenin eski hamlesi atlanır, ipucu yerinde kalır', () => {
+  game().initGame(TEST_LEVEL);
+  place(0, 1, 1);
+  place(0, 2, 1);
+  // İpucu (0,2)'yi doğru değeriyle (koyun) kilitlemiş olsun
+  useGameStore.setState((s) => ({
+    grid: s.grid.map((r) =>
+      r.map((c) => (c.row === 0 && c.col === 2 ? { ...c, value: 2 as CellValue, isLocked: true } : c)),
+    ),
+  }));
+  assert.equal(game().undo(), true);
+  assert.equal(game().grid[0][2].value, 2, 'ipucu geri alınmaz');
+  assert.equal(game().grid[0][1].value, 0, 'bir önceki hamle geri alındı');
+});
+
+test('Bitmiş ya da süresi dolmuş tahtada geri al çalışmaz', () => {
+  game().initGame(TEST_LEVEL);
+  solve();
+  assert.equal(game().undo(), false);
+  assert.deepEqual(rawFromGrid(game().grid), SOLUTION);
+
+  game().initGame(TEST_LEVEL, 1);
+  place(0, 1, 1);
+  tick(1);
+  assert.equal(game().isTimeUp, true);
+  assert.equal(game().undo(), false);
+  assert.equal(game().grid[0][1].value, 1);
+});
+
+test('Seviye yeniden başlayınca ya da kayıttan açılınca geri al geçmişi boşalır', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 1, 1);
+  const saved = createSnapshot(TEST_LEVEL, game().grid, 3);
+  game().initGame(TEST_LEVEL, 30, saved);
+  assert.equal(game().grid[0][1].value, 1, 'taş kayıttan geldi');
+  assert.equal(game().undo(), false, 'eski oturumun hamleleri geri alınmaz');
+});
+
+test('Rastgele hamleler kadar geri al, tahtayı başlangıç hâline döndürür', () => {
+  for (const level of LEVELS.filter((_, i) => i % 30 === 0)) {
+    game().initGame(level);
+    const start = rawFromGrid(game().grid);
+    const rng = createRng(level.id);
+    let moves = 0;
+    for (let i = 0; i < 40 && !game().isComplete; i++) {
+      const before = game().history.length;
+      if (rng() < 0.9) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
+      else game().resetUserCells();
+      if (game().history.length > before) moves++;
+    }
+    if (game().isComplete) continue; // nadiren rastgele çözülürse geri al kapanır
+    for (let i = 0; i < moves; i++) assert.equal(game().undo(), true, `seviye ${level.id}`);
+    assert.deepEqual(rawFromGrid(game().grid), start, `seviye ${level.id}`);
+    assert.equal(game().undo(), false);
+  }
 });
