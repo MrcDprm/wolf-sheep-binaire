@@ -17,10 +17,10 @@ export type RawGrid = CellValue[][];
 export type Difficulty = 'easiest' | 'easy' | 'medium' | 'hard' | 'veryHard' | 'impossible';
 
 export interface GameLevel {
-  /** 1-300 arası genel seviye numarası */
+  /** 1-300 arası genel seviye numarası; günün bulmacasında 100000 + gün numarası */
   id: number;
   difficulty: Difficulty;
-  /** Zorluk içindeki sıra (1-50) */
+  /** Zorluk içindeki sıra (1-50); günün bulmacasında 0 */
   number: number;
   /** Başlangıç tahtası */
   puzzle: RawGrid;
@@ -30,6 +30,8 @@ export interface GameLevel {
   maxHintsForPerfect: number;
   /** Seviyeyi bitirmek için süre (saniye), zorluğa göre sabit; ısınma seviyelerinde null */
   timeLimit: number | null;
+  /** Günün bulmacasıysa tarihi ("2026-11-09"); seviyelerde yok */
+  dailyDate?: string;
 }
 
 export interface LevelResult {

@@ -2,19 +2,23 @@
  * Yarım kalan seviyeler (telefonda, AsyncStorage)
  *
  * Her seviyenin en son yarım kalan hâli seviye numarasıyla tutulur. Seviye bitince
- * ya da süresi dolunca kaydı silinir; bir sonraki giriş baştan başlar.
+ * ya da süresi dolunca kaydı silinir; bir sonraki giriş baştan başlar. Günün bulmacası
+ * da günün numarasıyla burada tutulur; gün geçince eski kaydı silinir.
  * Kayıtlar okunurken engine/savedGame.ts içinde denetlenir.
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { savedGamesFrom, type SavedGame } from '../engine/savedGame';
+import { isDailyLevelId } from '../engine/daily';
 import { safeJSONStorage } from './safeStorage';
 
 interface SavedGamesState {
   games: Record<string, SavedGame>;
   saveGame: (levelId: number, game: SavedGame) => void;
   clearGame: (levelId: number) => void;
+  /** Geçmiş günlerin yarım kalmış günlük bulmacalarını siler (o günler bir daha açılmaz) */
+  clearOldDailyGames: (todayLevelId: number) => void;
 }
 
 const sameGame = (a: SavedGame | undefined, b: SavedGame) =>
@@ -43,6 +47,17 @@ export const useSavedGamesStore = create<SavedGamesState>()(
           if (!(key in s.games)) return s;
           const games = { ...s.games };
           delete games[key];
+          return { games };
+        }),
+
+      clearOldDailyGames: (todayLevelId) =>
+        set((s) => {
+          const stale = Object.keys(s.games).filter(
+            (key) => isDailyLevelId(Number(key)) && Number(key) !== todayLevelId,
+          );
+          if (stale.length === 0) return s;
+          const games = { ...s.games };
+          for (const key of stale) delete games[key];
           return { games };
         }),
     }),

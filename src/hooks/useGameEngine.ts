@@ -2,7 +2,8 @@
  * Oyun motoru hook'u
  *
  * Store, kural motoru, süre, kayıt, titreşim ve sesleri tek yerde toplar.
- * Oyun ekranı (`level/[id].tsx`) bu hook'u kullanır.
+ * Seviye ekranı (`level/[id].tsx`) ve günün bulmacası ekranı (`daily.tsx`) bu hook'u kullanır;
+ * günün bulmacasının sonucu seviye ilerlemesine değil günlük kayda yazılır.
  */
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,6 +11,7 @@ import { AppState, type AppStateStatus } from 'react-native';
 import { warningSecondsFor } from '../constants/difficulties';
 import { createSnapshot } from '../engine/savedGame';
 import { findTripleAnimals } from '../engine/validator';
+import { useDailyStore } from '../store/useDailyStore';
 import { useGameStore } from '../store/useGameStore';
 import { useSavedGamesStore } from '../store/useSavedGamesStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -80,6 +82,7 @@ export function useGameEngine(level: GameLevel | undefined) {
   const consumeHint = useUserStore((s) => s.consumeHint);
   const recordLevelResult = useUserStore((s) => s.recordLevelResult);
   const setLastLevel = useUserStore((s) => s.setLastLevel);
+  const recordDailyResult = useDailyStore((s) => s.recordResult);
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const { trigger: haptic } = useHaptics();
 
@@ -89,11 +92,11 @@ export function useGameEngine(level: GameLevel | undefined) {
   const savesReady = useSavedGamesHydrated();
 
   // --- Seviyeyi başlat: yarım kaldıysa kaldığı yerden ---
-  // ("Devam et" de bir dahaki sefere bu zorluktan devam etsin)
+  // ("Devam et" de bir dahaki sefere bu zorluktan devam etsin; günün bulmacası bunu değiştirmez)
   useEffect(() => {
     if (!level || !savesReady) return;
     initGame(level, timeLimitFor(level), useSavedGamesStore.getState().games[String(level.id)]);
-    setLastLevel(level.id);
+    if (level.dailyDate === undefined) setLastLevel(level.id);
     return () => {
       // Çıkarken (kapat, oklar, Sonraki seviye) kaldığı yer kaydedilir
       saveProgress();
@@ -153,8 +156,10 @@ export function useGameEngine(level: GameLevel | undefined) {
   );
 
   useEffect(() => {
-    if (result && level) recordLevelResult(level.id, result);
-  }, [result, level, recordLevelResult]);
+    if (!result || !level) return;
+    if (level.dailyDate !== undefined) recordDailyResult(level.dailyDate, result);
+    else recordLevelResult(level.id, result);
+  }, [result, level, recordLevelResult, recordDailyResult]);
 
   // --- Sesler ---
   // Her ses bir kez yüklenir ve tekrar kullanılır
