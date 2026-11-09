@@ -33,6 +33,11 @@
     "shareMessage": "I solved the Sheep & Wolf daily puzzle ({{date}}) in {{time}}, my streak is {{streak}}. Give it a try!",
     "shareTitle": "Sheep & Wolf: daily puzzle"
   },
+  "reminder": {
+    "title": "Daily puzzle",
+    "streak": "Your streak is {{days}}. Keep it going: today's puzzle ({{difficulty}}) is waiting.",
+    "plain": "Today's puzzle ({{difficulty}}) is waiting for you."
+  },
   "calendar": {
     "weekdays": [
       "Sunday",
@@ -201,6 +206,16 @@
     "sound": "Sound",
     "haptic": "Haptic",
     "timeLimit": "Time limit",
+    "reminder": "Daily reminder",
+    "reminderTime": "Reminder time",
+    "reminderHint": "Reminds you at the time you pick on days you haven't solved the daily puzzle.",
+    "earlier": "Earlier",
+    "later": "Later",
+    "reminderDenied": "Notifications are off",
+    "reminderDeniedBody": "To get reminders, allow notifications for Sheep & Wolf in your phone's Settings.",
+    "reminderBlocked": "Notifications are off, so reminders can't arrive.",
+    "openSettings": "Open Settings",
+    "notNow": "Not now",
     "version": "Version",
     "howToPlay": "How to play"
   },
