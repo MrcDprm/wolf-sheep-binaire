@@ -1,9 +1,10 @@
 /**
  * Günlük hatırlatma bildirimleri
  *
- * Telefonun kendi yerel bildirimleri kullanılır: sunucu, push (APNs) ve hesap yok; hiçbir
- * veri telefondan çıkmaz. Bu yüzden app.json'a expo-notifications eklentisi eklenmedi:
- * eklenti uygulamaya gereksiz yere push yetkisi (aps-environment) ekliyordu.
+ * Telefonun kendi yerel bildirimleri kullanılır: sunucu, push ve hesap yok; hiçbir veri
+ * telefondan çıkmaz. expo-notifications'ın derleme eklentisi app.json'da yazmasa da Expo
+ * tarafından kendiliğinden uygulanır ve uygulamaya push yetkisi, yani aps-environment
+ * ekler; EAS de App ID'de Push Notifications'ı açar. Bu yetenek açık durur ama kullanılmaz.
  *
  * İzin yalnızca oyuncu Ayarlar'da hatırlatmayı açınca istenir. Web önizlemesinde
  * zamanlama desteklenmediği için hatırlatmalar orada kapalıdır.
