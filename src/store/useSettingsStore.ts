@@ -1,9 +1,11 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import { pickLanguage, type Language } from '../utils/language';
 import { DEFAULT_REMINDER_HOUR, reminderHourOf } from '../utils/reminders';
+import { settingsFrom } from './persistedData';
+import { safeJSONStorage } from './safeStorage';
 
 interface SettingsState {
   language: Language;
@@ -51,7 +53,10 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'koyun-kurt-settings',
-      storage: createJSONStorage(() => AsyncStorage),
+      // Bozuk dosya yüklemeyi kilitlemesin (eğitim yönlendirmesi ve hatırlatmalar bu yüklemeyi
+      // bekliyor); okunan ayarlar alan alan denetlenir (persistedData.ts)
+      storage: safeJSONStorage<SettingsState>(() => AsyncStorage),
+      merge: (persisted, current) => ({ ...current, ...settingsFrom(persisted) }),
     }
   )
 );
