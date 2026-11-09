@@ -134,9 +134,14 @@ test('Rastgele hamlelerde kırmızı hücreler, hata ve bitiş durumu hep tahtay
       game().initGame(level);
       for (let i = 0; i < 80; i++) {
         const roll = rng();
-        if (roll < 0.8) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
-        else if (roll < 0.92) game().applyHint();
-        else if (roll < 0.97) game().undo();
+        const emptyCells = game().grid.flat().filter((c) => c.value === 0);
+        if (roll < 0.45) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
+        else if (roll < 0.8 && emptyCells.length > 0) {
+          // Boş bir hücreye kurt ya da koyun koy (tahta dolmaya yaklaşsın)
+          const cell = emptyCells[Math.floor(rng() * emptyCells.length)];
+          place(cell.row, cell.col, (rng() < 0.5 ? 1 : 2) as CellValue);
+        } else if (roll < 0.9) game().applyHint();
+        else if (roll < 0.95) game().undo();
         else game().resetUserCells();
 
         const { grid, hasActiveError, isComplete } = game();
@@ -284,7 +289,9 @@ test('Çıkıp girince taşlar, ipucu hücreleri ve süre kaldığı yerden sür
   withSeed(3, () => game().applyHint());
   tick(7);
   const before = game();
-  const saved = throughStorage(createSnapshot(TEST_LEVEL, before.grid, before.elapsedSeconds));
+  const saved = throughStorage(
+    createSnapshot(TEST_LEVEL, before.grid, before.elapsedSeconds, before.hintsUsed),
+  );
 
   game().resetGame(); // ekrandan çıkış
   game().initGame(TEST_LEVEL, 30, saved);
@@ -305,7 +312,9 @@ test('Hatalı dolu tahta kayıttan kırmızılarıyla geri gelir', () => {
   tick(5);
   const before = game();
   assert.equal(before.hasActiveError, true);
-  const saved = throughStorage(createSnapshot(TEST_LEVEL, before.grid, before.elapsedSeconds));
+  const saved = throughStorage(
+    createSnapshot(TEST_LEVEL, before.grid, before.elapsedSeconds, before.hintsUsed),
+  );
 
   game().resetGame();
   game().initGame(TEST_LEVEL, 30, saved);
@@ -383,7 +392,9 @@ test('Gerçek seviyelerde rastgele hamlelerden sonra kayıt tahtayı birebir ger
       tick(3);
       const before = game();
       if (before.isComplete) continue; // nadiren rastgele çözülürse kayıt tutulmaz
-      const saved = throughStorage(createSnapshot(level, before.grid, before.elapsedSeconds));
+      const saved = throughStorage(
+        createSnapshot(level, before.grid, before.elapsedSeconds, before.hintsUsed),
+      );
 
       game().initGame(level, level.timeLimit, saved);
       const after = game();
@@ -480,4 +491,45 @@ test('Rastgele hamleler kadar geri al, tahtayı başlangıç hâline döndürür
     assert.deepEqual(rawFromGrid(game().grid), start, `seviye ${level.id}`);
     assert.equal(game().undo(), false);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Nedenini söyleyen ipucu (store)
+// ---------------------------------------------------------------------------
+
+test('İpucu önce yanlış taşı kaldırır, ipucu sayılır ve son ipucu olarak kalır', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 2, 1); // (0,2) koyun olmalı
+  assert.equal(game().applyHint(), true);
+  assert.equal(game().grid[0][2].value, 0, 'yanlış taş kaldırıldı');
+  assert.equal(game().grid[0][2].isLocked, false);
+  assert.equal(game().hintsUsed, 1);
+  assert.deepEqual(game().lastHint, { kind: 'wrong', row: 0, col: 2 });
+
+  game().tapCell(5, 5);
+  assert.equal(game().lastHint, null, 'sonraki hamlede vurgu kalkar');
+});
+
+test('Kural ipucu doğru değeri koyup kilitler', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 1, 1); // K K: yanları koyun olmalı
+  game().applyHint();
+  const hint = game().lastHint;
+  assert.ok(hint && hint.kind !== 'wrong');
+  assert.equal(game().grid[hint.row][hint.col].value, SOLUTION[hint.row][hint.col]);
+  assert.equal(game().grid[hint.row][hint.col].isLocked, true);
+});
+
+test('Yanlış taş ipucu kayıttan sonra da ipucu sayısında kalır; geçersiz sayı reddedilir', () => {
+  game().initGame(TEST_LEVEL, 30);
+  place(0, 2, 1);
+  game().applyHint(); // taşı kaldırır, hücre kilitlemez
+  const saved = throughStorage(createSnapshot(TEST_LEVEL, game().grid, 4, game().hintsUsed));
+  game().initGame(TEST_LEVEL, 30, saved);
+  assert.equal(game().hintsUsed, 1);
+
+  assert.equal(restoreSnapshot(TEST_LEVEL, { ...saved, hintsUsed: -1 }), null);
+  assert.equal(restoreSnapshot(TEST_LEVEL, { ...saved, hintsUsed: 'iki' }), null);
+  const { hintsUsed: _old, ...withoutCount } = saved;
+  assert.equal(restoreSnapshot(TEST_LEVEL, withoutCount)?.hintsUsed, 0, 'eski kayıt: kilitli ipucu sayısı');
 });

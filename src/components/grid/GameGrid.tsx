@@ -11,10 +11,20 @@ import { useDayPhase } from '../../hooks/useDayPhase';
 import { EDGE, palette, radius } from '../../theme';
 import { GRID_VERTICAL_RESERVE, MAX_APP_WIDTH, MAX_CELL_SIZE } from '../../constants/layout';
 import type { Grid } from '../../types/game';
+import type { Hint } from '../../engine/hint';
 
 interface GameGridProps {
   grid: Grid;
   onTapCell: (row: number, col: number) => void;
+  /** Son ipucu: hedef hücre ve gerekçe taşları vurgulanır */
+  hint?: Hint | null;
+}
+
+function highlightOf(hint: Hint | null | undefined, row: number, col: number) {
+  if (!hint) return undefined;
+  if (hint.row === row && hint.col === col) return 'target' as const;
+  if ('reasons' in hint && hint.reasons.some(([r, c]) => r === row && c === col)) return 'reason' as const;
+  return undefined;
 }
 
 /** Ekran kenarı ile tahta arasındaki boşluk (px, her yanda) */
@@ -24,7 +34,7 @@ const BOARD_PADDING = 10;
 /** Hücreler arası boşluk (px) */
 const GAP = 5;
 
-function GameGridComponent({ grid, onTapCell }: GameGridProps) {
+function GameGridComponent({ grid, onTapCell, hint }: GameGridProps) {
   const dayPhase = useDayPhase();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gridSize = grid.length;
@@ -53,6 +63,7 @@ function GameGridComponent({ grid, onTapCell }: GameGridProps) {
                 cellSize={cellSize}
                 gap={GAP}
                 onTap={onTapCell}
+                highlight={highlightOf(hint, cell.row, cell.col)}
               />
             ))}
           </View>

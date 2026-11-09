@@ -7,7 +7,6 @@ import {
   findTripleAnimals,
   rawFromGrid,
 } from '../src/engine/validator';
-import { pickHintCell } from '../src/engine/hint';
 import { isBoardComplete } from '../src/engine/solver';
 import { calculateStars } from '../src/constants/scoring';
 import { formatDuration } from '../src/utils/scoring';
@@ -69,21 +68,6 @@ test('çözüm hatasız ve tamamlanmış sayılır', () => {
   const grid = buildGridFromRaw(SOLUTION);
   assert.equal(applyErrorsToGrid(grid).hasError, false);
   assert.equal(isBoardComplete(rawFromGrid(grid), SOLUTION), true);
-});
-
-test('ipucu yanlış hücreyi de düzeltir', () => {
-  // Tahta dolu ama bir hücre yanlış: tek aday o hücre
-  const wrong = SOLUTION.map((r) => [...r]) as RawGrid;
-  wrong[0][0] = 2;
-  const grid = buildGridFromRaw(wrong).map((row) =>
-    row.map((cell) => ({ ...cell, isLocked: !(cell.row === 0 && cell.col === 0) })),
-  );
-  assert.deepEqual(pickHintCell(grid, SOLUTION), { row: 0, col: 0, value: 1 });
-});
-
-test('tahta çözümle aynıysa ipucu yok', () => {
-  const grid = buildGridFromRaw(SOLUTION).map((row) => row.map((c) => ({ ...c, isLocked: false })));
-  assert.equal(pickHintCell(grid, SOLUTION), null);
 });
 
 test('yıldızlar ipucu sayısına göre', () => {

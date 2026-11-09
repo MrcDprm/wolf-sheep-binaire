@@ -19,6 +19,7 @@ import { useDayPhase } from '../../../src/hooks/useDayPhase';
 import { useUserStore } from '../../../src/store/useUserStore';
 import { getLevelById, isLevelUnlocked } from '../../../src/constants/levels';
 import { formatTime } from '../../../src/utils/scoring';
+import { describeHint } from '../../../src/utils/hintText';
 import { useTranslation } from '../../../src/i18n';
 import { GameGrid } from '../../../src/components/grid/GameGrid';
 import { LevelCompleteModal } from '../../../src/components/modals/LevelCompleteModal';
@@ -55,6 +56,7 @@ export default function LevelScreen() {
     handleTapCell,
     handleApplyHint,
     canUndo,
+    lastHint,
     handleUndo,
     resetUserCells,
     restartLevel,
@@ -109,6 +111,8 @@ export default function LevelScreen() {
       : triples.wolf
         ? t('errors.tripleWolf')
         : t('errors.balance');
+  // Aynı satırda son ipucunun gerekçesi öne geçer (bir sonraki hamlede kalkar)
+  const hintMessage = lastHint ? describeHint(lastHint, t) : '';
 
   const levelName = t('game.level', {
     difficulty: t(`difficulty.${level.difficulty}`),
@@ -165,16 +169,16 @@ export default function LevelScreen() {
 
       {/* ── Tahta ── */}
       <View style={styles.boardArea}>
-        {ready && <GameGrid grid={grid} onTapCell={handleTapCell} />}
+        {ready && <GameGrid grid={grid} onTapCell={handleTapCell} hint={lastHint} />}
       </View>
 
-      {/* ── Hata satırı (yer hep ayrılı; tahta zıplamasın) ── */}
+      {/* ── Hata ya da ipucu satırı (yer hep ayrılı; tahta zıplamasın) ── */}
       <Text
-        style={[styles.error, { color: errorColor }]}
+        style={[styles.error, { color: hintMessage ? dayPhase.text : errorColor }]}
         accessibilityLiveRegion="polite"
         numberOfLines={2}
       >
-        {errorMessage}
+        {hintMessage || errorMessage}
       </Text>
 
       {/* ── Kontroller (bitmiş ya da süresi dolmuş tahtada hepsi pasif) ── */}

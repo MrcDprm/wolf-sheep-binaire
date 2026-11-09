@@ -52,7 +52,7 @@ function saveProgress() {
     return;
   }
 
-  const snapshot = createSnapshot(level, grid, elapsedSeconds);
+  const snapshot = createSnapshot(level, grid, elapsedSeconds, hintsUsed);
   // İlk saniyede alınan ipucu da kaydedilsin (ipucu hücresi kilitli olduğu için tahtadan anlaşılmaz)
   const untouched =
     elapsedSeconds === 0 &&
@@ -71,6 +71,7 @@ export function useGameEngine(level: GameLevel | undefined) {
   const timeLimit = useGameStore((s) => s.timeLimit);
   const isTimeUp = useGameStore((s) => s.isTimeUp);
   const canUndo = useGameStore((s) => s.history.length > 0);
+  const lastHint = useGameStore((s) => s.lastHint);
   const { initGame, tapCell, applyHint, resetUserCells, undo, tickTimer, resetGame } =
     useGameStore.getState();
 
@@ -284,6 +285,7 @@ export function useGameEngine(level: GameLevel | undefined) {
     availableHints,
     result,
     canUndo,
+    lastHint,
     handleTapCell,
     handleUndo,
     handleApplyHint,
