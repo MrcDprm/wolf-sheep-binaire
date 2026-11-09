@@ -20,6 +20,11 @@ export interface SavedGame {
   hinted: number[];
   /** O ana kadar geçen süre (saniye) */
   elapsed: number;
+  /**
+   * Kullanılan ipucu sayısı. Yanlış taşı kaldıran ipucu hücre kilitlemediği için ayrıca tutulur;
+   * bu alan olmayan eski kayıtta kilitli ipucu hücresi sayısı kullanılır.
+   */
+  hintsUsed?: number;
 }
 
 export interface RestoredGame {
@@ -30,6 +35,8 @@ export interface RestoredGame {
 
 /** Kabul edilen en uzun süre: 99:59:59 (paylaşım ekranındaki sınırla aynı) */
 const MAX_ELAPSED = 359_999;
+/** Bir seviyede kabul edilen en fazla ipucu (36 hücre için bol bol yeter) */
+const MAX_HINTS = 999;
 
 /**
  * Telefondan okunan kayıt listesi düz bir nesne değilse (bozuk dosya) boş liste.
@@ -42,7 +49,12 @@ export function savedGamesFrom(value: unknown): Record<string, SavedGame> {
 }
 
 /** Tahtanın anlık kaydı */
-export function createSnapshot(level: GameLevel, grid: Grid, elapsedSeconds: number): SavedGame {
+export function createSnapshot(
+  level: GameLevel,
+  grid: Grid,
+  elapsedSeconds: number,
+  hintsUsed?: number,
+): SavedGame {
   const size = level.puzzle.length;
   const hinted: number[] = [];
   for (const cell of grid.flat()) {
@@ -54,16 +66,17 @@ export function createSnapshot(level: GameLevel, grid: Grid, elapsedSeconds: num
     values: grid.flat().map((cell) => cell.value).join(''),
     hinted,
     elapsed: elapsedSeconds,
+    hintsUsed: hintsUsed ?? hinted.length,
   };
 }
 
 /**
  * Kaydı denetleyip tahtayı geri kurar. Kayıt geçersizse ya da tahta zaten çözülmüşse null.
- * Her ipucu tam bir hücre açtığı için kullanılan ipucu sayısı açılan hücre sayısıdır.
+ * Kullanılan ipucu sayısı kayıttan gelir (en az kilitli ipucu hücresi kadar olmalı).
  */
 export function restoreSnapshot(level: GameLevel, saved: unknown): RestoredGame | null {
   if (typeof saved !== 'object' || saved === null) return null;
-  const { values, hinted, elapsed } = saved as Partial<Record<keyof SavedGame, unknown>>;
+  const { values, hinted, elapsed, hintsUsed } = saved as Partial<Record<keyof SavedGame, unknown>>;
 
   const size = level.puzzle.length;
   const cellCount = size * size;
@@ -100,5 +113,10 @@ export function restoreSnapshot(level: GameLevel, saved: unknown): RestoredGame 
   // Çözülmüş tahta yarım kalmış sayılmaz (bitince kayıt silinir; buraya gelmemeli)
   if (isBoardComplete(rawFromGrid(grid), level.solution)) return null;
 
-  return { grid, elapsedSeconds: elapsed as number, hintsUsed: hinted.length };
+  // Eski kayıtta alan yok: kilitli ipucu hücresi kadar; varsa en az o kadar olmalı
+  if (hintsUsed === undefined) return { grid, elapsedSeconds: elapsed as number, hintsUsed: hinted.length };
+  if (!Number.isInteger(hintsUsed) || (hintsUsed as number) < hinted.length || (hintsUsed as number) > MAX_HINTS) {
+    return null;
+  }
+  return { grid, elapsedSeconds: elapsed as number, hintsUsed: hintsUsed as number };
 }

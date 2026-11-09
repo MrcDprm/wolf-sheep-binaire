@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { CellValue, Grid, GameLevel, RawGrid } from '../types/game';
 import { buildGridFromRaw, rawFromGrid, applyErrorsToGrid } from '../engine/validator';
-import { pickHintCell } from '../engine/hint';
+import { findHint, type Hint } from '../engine/hint';
 import { isBoardComplete } from '../engine/solver';
 import { restoreSnapshot, type SavedGame } from '../engine/savedGame';
 
@@ -30,6 +30,8 @@ interface GameState {
   isTimeUp: boolean;
   /** Geri al için yapılan hamleler (en yenisi sonda); seviyeden çıkınca saklanmaz */
   history: Move[];
+  /** Son ipucu (ekranda vurgulanır, gerekçesi yazılır); sonraki hamlede silinir */
+  lastHint: Hint | null;
 
   // --- Actions ---
   /**
@@ -60,6 +62,7 @@ const EMPTY_GAME = {
   timeLimit: null,
   isTimeUp: false,
   history: [] as Move[],
+  lastHint: null as Hint | null,
 };
 
 const withMove = (history: Move[], move: Move) => [...history, move].slice(-MAX_HISTORY);
@@ -107,6 +110,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       // Süre sınırı sonradan açıldıysa kayıttaki süre sınırı aşmış olabilir
       isTimeUp: timeLimit !== null && elapsedSeconds >= timeLimit,
       history: [],
+      lastHint: null,
     });
   },
 
@@ -125,21 +129,36 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       ...evaluate(updatedGrid, solutionRaw),
       history: withMove(history, { type: 'tap', row, col, prev: cell.value }),
+      lastHint: null,
     });
   },
 
   applyHint: () => {
-    const { grid, solutionRaw } = get();
+    const { grid, solutionRaw, history, hintsUsed } = get();
     if (isOver(get())) return false;
-    const hintCell = pickHintCell(grid, solutionRaw);
-    if (!hintCell) return false;
+    const hint = findHint(grid, solutionRaw);
+    if (!hint) return false;
 
-    const { row, col, value } = hintCell;
+    const { row, col } = hint;
+    if (hint.kind === 'wrong') {
+      // Yanlış taş kaldırılır; o hücreye ait eski hamleler geri alınınca geri gelmesin
+      const updatedGrid: Grid = grid.map((r) =>
+        r.map((c) => (c.row === row && c.col === col ? { ...c, value: 0 } : c))
+      );
+      set({
+        ...evaluate(updatedGrid, solutionRaw),
+        hintsUsed: hintsUsed + 1,
+        lastHint: hint,
+        history: history.filter((m) => !(m.type === 'tap' && m.row === row && m.col === col)),
+      });
+      return true;
+    }
+
+    // Kural kesinleştirdi: değer konur ve kilitlenir
     const updatedGrid: Grid = grid.map((r) =>
-      r.map((c) => (c.row === row && c.col === col ? { ...c, value, isLocked: true } : c))
+      r.map((c) => (c.row === row && c.col === col ? { ...c, value: hint.value, isLocked: true } : c))
     );
-
-    set({ ...evaluate(updatedGrid, solutionRaw), hintsUsed: get().hintsUsed + 1 });
+    set({ ...evaluate(updatedGrid, solutionRaw), hintsUsed: hintsUsed + 1, lastHint: hint });
     return true;
   },
 
@@ -156,6 +175,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       ...evaluate(resetGrid, solutionRaw),
       history: withMove(history, { type: 'reset', prev: rawFromGrid(grid) }),
+      lastHint: null,
     });
   },
 
@@ -172,14 +192,14 @@ export const useGameStore = create<GameState>((set, get) => ({
         const updated: Grid = grid.map((r) =>
           r.map((c) => (c.row === move.row && c.col === move.col ? { ...c, value: move.prev } : c))
         );
-        set({ ...evaluate(updated, solutionRaw), history });
+        set({ ...evaluate(updated, solutionRaw), history, lastHint: null });
         return true;
       }
       // Sıfırla geri alınınca oyuncunun taşları geri gelir; kilitli hücreler olduğu gibi kalır
       const updated: Grid = grid.map((r) =>
         r.map((c) => (c.isLocked ? c : { ...c, value: move.prev[c.row][c.col] }))
       );
-      set({ ...evaluate(updated, solutionRaw), history });
+      set({ ...evaluate(updated, solutionRaw), history, lastHint: null });
       return true;
     }
 
