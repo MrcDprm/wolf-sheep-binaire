@@ -107,7 +107,7 @@ test('Dolu tahtada yanlış taş düzeltilince kırmızı söner ve seviye biter
 
 test('Hatalı dolu tahtadan bir taş boşaltılınca hatalar yeniden gizlenir', () => {
   fill(WRONG_WOLF);
-  game().tapCell(5, 5); // kurt → koyun: tahta hâlâ dolu ve hatalı
+  game().tapCell(5, 5); // kurt → koyun: tahta hala dolu ve hatalı
   assert.equal(game().hasActiveError, true);
   game().tapCell(5, 5); // koyun → boş
   assert.deepEqual(redCells(), []);
@@ -419,7 +419,7 @@ test('Geri al dokunuşları sondan başa geri alır', () => {
   assert.equal(game().undo(), true);
   assert.equal(game().grid[0][2].value, 0);
   assert.equal(game().undo(), true);
-  assert.equal(game().grid[0][1].value, 1, 'koyundan bir önceki hâl: kurt');
+  assert.equal(game().grid[0][1].value, 1, 'koyundan bir önceki hal: kurt');
   game().undo();
   assert.equal(game().grid[0][1].value, 0);
   assert.equal(game().undo(), false, 'geri alınacak hamle kalmadı');
@@ -474,7 +474,7 @@ test('Seviye yeniden başlayınca ya da kayıttan açılınca geri al geçmişi 
   assert.equal(game().undo(), false, 'eski oturumun hamleleri geri alınmaz');
 });
 
-test('Rastgele hamleler kadar geri al, tahtayı başlangıç hâline döndürür', () => {
+test('Rastgele hamleler kadar geri al, tahtayı başlangıç haline döndürür', () => {
   for (const level of LEVELS.filter((_, i) => i % 30 === 0)) {
     game().initGame(level);
     const start = rawFromGrid(game().grid);

@@ -2,7 +2,7 @@
  * Zorluk kademeleri
  *
  * Tahta her zaman 6x6. Zorluk sadece başta açık verilen simge sayısına bağlı:
- * En Kolay'da çok simge açık, İmkânsız'da en az. Her kademe 50 seviye;
+ * En Kolay'da çok simge açık, İmkansız'da en az. Her kademe 50 seviye;
  * kademe içinde açık simge sayısı `clues` listesindeki sırayla azalır.
  * Her kademenin sabit bir süresi var; süre sınırı ayarlardan kapatılabilir.
  */

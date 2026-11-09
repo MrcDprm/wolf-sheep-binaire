@@ -1,7 +1,7 @@
 /**
  * Seri takvimi
  *
- * Son 5 hafta keçe tahtadaki gibi yuvalar hâlinde, haftalar Pazartesi başlar.
+ * Son 5 hafta keçe tahtadaki gibi yuvalar halinde, haftalar Pazartesi başlar.
  * Günün bulmacasının çözüldüğü güne bir koyun oturur: seri uzadıkça sürü büyür.
  * Çözülmeyen günde ayın günü yazar; bugün saman sarısı çerçeveli, gelecek günler soluk.
  * Ekran okuyucu 35 yuvayı tek tek okumaz, takvimi tek cümleyle özetler.

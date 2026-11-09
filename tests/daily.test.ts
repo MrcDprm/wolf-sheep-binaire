@@ -48,7 +48,7 @@ test('bozuk ya da takvimde olmayan tarih reddedilir', () => {
   }
 });
 
-test('zorluk haftanın gününe bağlı: Pazartesi Kolay, Pazar İmkânsız', () => {
+test('zorluk haftanın gününe bağlı: Pazartesi Kolay, Pazar İmkansız', () => {
   const monday = parseDayKey(MONDAY)!;
   const week = Array.from({ length: 7 }, (_, i) => dailyDifficulty(monday + i));
   assert.deepEqual(week, ['easy', 'medium', 'medium', 'hard', 'hard', 'veryHard', 'impossible']);

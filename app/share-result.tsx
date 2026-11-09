@@ -2,7 +2,7 @@
  * Sonuç paylaşım ekranı
  *
  * Bitirilen seviyenin bilgisini (seviye, yıldız, süre, puan) bir kart
- * hâlinde gösterir; "Paylaş" kartın görüntüsünü paylaşır. Günün bulmacasında
+ * halinde gösterir; "Paylaş" kartın görüntüsünü paylaşır. Günün bulmacasında
  * (`daily` parametresi) seviye yerine tarih, puan yerine seri yazar.
  * Bilgiler bağlantı parametresinden geldiği için sınırlar içinde okunur.
  */

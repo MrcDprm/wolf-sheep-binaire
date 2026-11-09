@@ -92,14 +92,14 @@ test('bildirim metni: seri sürüyorsa seriyi, sürmüyorsa yalnızca bulmacayı
   const [withStreak, plain] = planReminders({ now: at(10), hour: 20, results: solved('2026-11-08') });
   assert.deepEqual(reminderText(withStreak, translator('tr')), {
     title: 'Günün bulmacası',
-    body: 'Serin 1 gün, bozulmasın! Bugünkü bulmaca (Kolay) seni bekliyor.',
+    body: 'Serin 1 gün, bozulmasın. Bugün Kolay bir bulmaca seni bekliyor.',
   });
-  assert.deepEqual(reminderText(plain, translator('tr')).body, 'Bugünkü bulmaca (Orta) seni bekliyor.');
+  assert.deepEqual(reminderText(plain, translator('tr')).body, 'Bugün Orta bir bulmaca seni bekliyor.');
   assert.equal(
     reminderText(withStreak, translator('en')).body,
-    "Your streak is 1 day. Keep it going: today's puzzle (Easy) is waiting.",
+    "Your streak is 1 day. Keep it going with today's Easy puzzle.",
   );
-  assert.equal(reminderText(plain, translator('en')).body, "Today's puzzle (Medium) is waiting for you.");
+  assert.equal(reminderText(plain, translator('en')).body, "Today's Medium puzzle is waiting for you.");
 });
 
 test('hatırlatmaya dokununca: günlükteyse kal, seviyedeyse yerine geç, oyun dışındaysa menüden aç', async () => {

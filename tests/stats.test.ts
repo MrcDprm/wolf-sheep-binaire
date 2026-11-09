@@ -27,7 +27,7 @@ test('seviye sonuçları zorluklara dağılır; en iyi süre yoksa çözüm sür
     '1': result(3, 40, 25), // En Kolay
     '2': result(2, 30), // En Kolay, eski kayıt (bestTime yok)
     '51': result(3, 70, 70), // Kolay
-    '300': result(1, 400, 380), // İmkânsız 50
+    '300': result(1, 400, 380), // İmkansız 50
   });
   const [easiest, easy, , , , impossible] = stats.byDifficulty;
   assert.deepEqual([easiest.completed, easiest.stars, easiest.bestTime, easiest.averageTime], [2, 5, 25, 28]);

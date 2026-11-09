@@ -142,7 +142,7 @@ test('Devam et son oynanan zorlukta kalır', () => {
 test('Devam et: zorluk bitince sonrakine, sondan sonra başa geçer', () => {
   // Orta'nın hepsi bitti → Zor 1
   assert.equal(nextLevelToPlay(completedOf(range(101, 150)), 150), 151);
-  // İmkânsız'ın hepsi bitti → En Kolay 1
+  // İmkansız'ın hepsi bitti → En Kolay 1
   assert.equal(nextLevelToPlay(completedOf(range(251, 300)), 300), 1);
 });
 
@@ -157,8 +157,8 @@ test('Sonraki seviye: sıradaki numara, zorluk sınırında sonraki zorluk', () 
   assert.equal(levelAfter(50, completedOf(range(1, 50))), 51, 'En Kolay 50 → Kolay 1');
 });
 
-test('İmkânsız 50 bitince her şey bitmediyse "hepsini bitirdin" denmez', () => {
-  // Doğrudan İmkânsız'dan başlayıp bitiren oyuncu: En Kolay 1'e yönlenir
+test('İmkansız 50 bitince her şey bitmediyse "hepsini bitirdin" denmez', () => {
+  // Doğrudan İmkansız'dan başlayıp bitiren oyuncu: En Kolay 1'e yönlenir
   assert.equal(levelAfter(300, completedOf(range(251, 300))), 1);
   // Bütün seviyeler bitince sonraki yok
   assert.equal(levelAfter(300, completedOf(range(1, TOTAL_LEVELS))), null);

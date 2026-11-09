@@ -6,7 +6,7 @@
  * Uygulama her açılışta, bulmaca çözülünce ve ayar değişince planı yeniden kurar;
  * oyuncu bir hafta hiç açmazsa hatırlatmalar kendiliğinden biter, ısrar edilmez.
  *
- * Bildirim metni, bildirim geldiğinde serinin hâlâ sürüp sürmeyeceğine göre seçilir:
+ * Bildirim metni, bildirim geldiğinde serinin hala sürüp sürmeyeceğine göre seçilir:
  * seri yalnızca ilk hatırlatmada anılır (bugün çözülmediyse bugünkü, çözüldüyse yarınki);
  * daha ileri bir günde oyuncu arada girmediyse seri zaten bozulmuş olur.
  */
@@ -68,7 +68,7 @@ export function planReminders({
     const at = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset, hour, 0, 0, 0);
     if (at.getTime() <= now.getTime()) continue;
     const day = dayKey(at);
-    // Seri bu anda hâlâ sürüyor mu: bugün (çözülmediyse dünden süren seri) ya da bugün çözüldüyse yarın
+    // Seri bu anda hala sürüyor mu: bugün (çözülmediyse dünden süren seri) ya da bugün çözüldüyse yarın
     const alive = solvedToday ? offset === 1 : offset === 0;
     plan.push({
       day,

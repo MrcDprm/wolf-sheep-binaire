@@ -4,7 +4,7 @@ Oyun seslerini sentezler (kayıt kullanılmaz).
 Çalıştırma: python scripts/make-sounds.py  (numpy, scipy ve ffmpeg gerekir)
 
 Sesler oyunun çizimi gibidir: yuvarlak, sıcak ve kısa. Gerçek meleme ya da uluma
-değil, onların sevimli ve sade hâli. Hepsinde güçlü bir alt gövde ("tok" ses) var,
+değil, onların sevimli ve sade hali. Hepsinde güçlü bir alt gövde ("tok" ses) var,
 sert tizler kısılır, ses seviyeleri birbirine eşitlenir; hiçbiri döngüde çalmaz.
 
 - sheep.mp3: zıplayan küçük "mee" (tahta dolu, yan yana üç koyun var)

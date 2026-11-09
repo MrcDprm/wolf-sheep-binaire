@@ -93,7 +93,7 @@ export function canCompleteLine(line: CellValue[]): boolean {
   return false;
 }
 
-/** (row, col)'a `banned` konunca satırı ya da sütunu doldurulamaz hâle geliyorsa gerekçesi */
+/** (row, col)'a `banned` konunca satırı ya da sütunu doldurulamaz hale geliyorsa gerekçesi */
 function lineReason(raw: RawGrid, row: number, col: number, banned: 1 | 2): Reason | null {
   const size = raw.length;
   for (const line of [{ axis: 'row', index: row }, { axis: 'col', index: col }] as HintLine[]) {

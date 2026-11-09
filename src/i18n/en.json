@@ -30,13 +30,13 @@
     "longest": "Longest streak: {{count}} days",
     "date": "{{weekday}}, {{month}} {{day}}",
     "subtitle": "{{date}} · {{difficulty}}",
-    "shareMessage": "I solved the Sheep & Wolf daily puzzle ({{date}}) in {{time}}, my streak is {{streak}}. Give it a try!",
+    "shareMessage": "I solved the Sheep & Wolf daily puzzle for {{date}} in {{time}}, my streak is {{streak}}. Give it a try!",
     "shareTitle": "Sheep & Wolf: daily puzzle"
   },
   "reminder": {
     "title": "Daily puzzle",
-    "streak": "Your streak is {{days}}. Keep it going: today's puzzle ({{difficulty}}) is waiting.",
-    "plain": "Today's puzzle ({{difficulty}}) is waiting for you."
+    "streak": "Your streak is {{days}}. Keep it going with today's {{difficulty}} puzzle.",
+    "plain": "Today's {{difficulty}} puzzle is waiting for you."
   },
   "calendar": {
     "weekdays": [
@@ -95,7 +95,7 @@
     "calendarHint": "Every day you solve the daily puzzle brings a sheep.",
     "calendarLabel": "Days solved in the last {{weeks}} weeks: {{count}}",
     "rank": "Title",
-    "nextTitle": "Next title: {{title}} ({{points}} points)",
+    "nextTitle": "Next title: {{title}} at {{points}} points",
     "topTitle": "You reached the highest title!",
     "completed": "Completed",
     "stars": "Stars",
