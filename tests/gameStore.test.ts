@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { beforeEach, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { useGameStore } from '../src/store/useGameStore';
+import { isBoardFull, useGameStore } from '../src/store/useGameStore';
 import { LEVELS } from '../src/constants/levels';
 import { applyErrorsToGrid, rawFromGrid } from '../src/engine/validator';
 import { isBoardComplete } from '../src/engine/solver';
@@ -53,16 +53,43 @@ function solve() {
   }
 }
 
+/** Tahtayı doldurur: `wrong` listesindeki hücrelere verilen değeri, kalanlara çözümü koyar */
+function fill(wrong: [number, number, CellValue][]) {
+  for (let r = 0; r < 6; r++) {
+    for (let c = 0; c < 6; c++) {
+      const override = wrong.find(([wr, wc]) => wr === r && wc === c);
+      place(r, c, override ? override[2] : SOLUTION[r][c]);
+    }
+  }
+}
+
+/** (0,2) koyun olmalıyken kurt: verilen kurtla yan yana üç kurt, satır ve sütun dengesiz */
+const WRONG_WOLF: [number, number, CellValue][] = [[0, 2, 1]];
+
 const tick = (times: number) => {
   for (let i = 0; i < times; i++) game().tickTimer();
 };
 
 beforeEach(() => game().initGame(TEST_LEVEL));
 
-test('Sıfırla sonrası başta verilen taş kırmızı kalmaz', () => {
+test('Tahta dolmadan hiçbir hata gösterilmez (dokunup kırmızıya bakarak çözülemez)', () => {
   place(0, 1, 1);
-  place(0, 2, 1); // verilen kurtla birlikte yan yana üç kurt
-  assert.deepEqual(redCells(), ['0,0', '0,1', '0,2']);
+  place(0, 2, 1); // verilen kurtla yan yana üç kurt, ama tahtanın geri kalanı boş
+  assert.deepEqual(redCells(), []);
+  assert.equal(game().hasActiveError, false);
+});
+
+test('Tahta dolunca kurala uymayan hücreler kırmızı yanar', () => {
+  fill(WRONG_WOLF);
+  assert.equal(game().hasActiveError, true);
+  assert.equal(game().isComplete, false);
+  assert.ok(redCells().includes('0,0'), 'verilen kurt da üçlünün parçası');
+  assert.deepEqual(flags(game().grid), flags(applyErrorsToGrid(game().grid).validatedGrid));
+});
+
+test('Sıfırla sonrası başta verilen taş kırmızı kalmaz', () => {
+  fill(WRONG_WOLF);
+  assert.ok(redCells().includes('0,0'));
 
   game().resetUserCells();
   assert.deepEqual(redCells(), []);
@@ -71,12 +98,18 @@ test('Sıfırla sonrası başta verilen taş kırmızı kalmaz', () => {
   assert.equal(game().grid[0][1].value, 0, 'oyuncunun taşı silinir');
 });
 
-test('Hamle dokunarak geri alınınca kırmızı söner', () => {
-  place(0, 1, 1);
-  place(0, 2, 1);
-  game().tapCell(0, 2); // kurt → koyun
+test('Dolu tahtada yanlış taş düzeltilince kırmızı söner ve seviye biter', () => {
+  fill(WRONG_WOLF);
+  game().tapCell(0, 2); // kurt → koyun (doğrusu)
   assert.deepEqual(redCells(), []);
-  game().tapCell(0, 2); // koyun → boş
+  assert.equal(game().isComplete, true);
+});
+
+test('Hatalı dolu tahtadan bir taş boşaltılınca hatalar yeniden gizlenir', () => {
+  fill(WRONG_WOLF);
+  game().tapCell(5, 5); // kurt → koyun: tahta hâlâ dolu ve hatalı
+  assert.equal(game().hasActiveError, true);
+  game().tapCell(5, 5); // koyun → boş
   assert.deepEqual(redCells(), []);
   assert.equal(game().hasActiveError, false);
 });
@@ -94,30 +127,43 @@ test('Rastgele hamlelerde kırmızı hücreler, hata ve bitiş durumu hep tahtay
   const rng = createRng(2026);
   const realRandom = Math.random;
   Math.random = rng; // ipucunun seçtiği hücre de her çalıştırmada aynı olsun
+  let fullBoards = 0;
+  let wrongFullBoards = 0;
   try {
     for (const level of LEVELS) {
       game().initGame(level);
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 80; i++) {
         const roll = rng();
         if (roll < 0.85) game().tapCell(Math.floor(rng() * 6), Math.floor(rng() * 6));
-        else if (roll < 0.95) game().applyHint();
+        else if (roll < 0.97) game().applyHint();
         else game().resetUserCells();
 
         const { grid, hasActiveError, isComplete } = game();
         const expected = applyErrorsToGrid(grid);
+        const full = isBoardFull(grid);
         const where = `seviye ${level.id}, hamle ${i + 1}`;
-        assert.deepEqual(flags(grid), flags(expected.validatedGrid), where);
-        assert.equal(hasActiveError, expected.hasError, where);
-        assert.equal(
-          isComplete,
-          !expected.hasError && isBoardComplete(rawFromGrid(grid), level.solution),
+        // Dolu tahtada kurallara göre kırmızılar; dolmamış tahtada hiç kırmızı yok
+        assert.deepEqual(
+          flags(grid),
+          full ? flags(expected.validatedGrid) : flags(grid).map(() => false),
           where,
         );
+        assert.equal(hasActiveError, full && expected.hasError, where);
+        assert.equal(
+          isComplete,
+          full && !expected.hasError && isBoardComplete(rawFromGrid(grid), level.solution),
+          where,
+        );
+        if (full) fullBoards++;
+        if (full && expected.hasError) wrongFullBoards++;
       }
     }
   } finally {
     Math.random = realRandom;
   }
+  // İki durum da gerçekten denenmiş olsun
+  assert.ok(fullBoards > 100, `dolu tahta sayısı: ${fullBoards}`);
+  assert.ok(wrongFullBoards > 50, `hatalı dolu tahta sayısı: ${wrongFullBoards}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -230,10 +276,10 @@ function withSeed<T>(seed: number, run: () => T): T {
   }
 }
 
-test('Çıkıp girince taşlar, ipucu hücreleri, kırmızılar ve süre kaldığı yerden sürer', () => {
+test('Çıkıp girince taşlar, ipucu hücreleri ve süre kaldığı yerden sürer', () => {
   game().initGame(TEST_LEVEL, 30);
   place(0, 1, 1);
-  place(0, 2, 1); // yan yana üç kurt: kırmızı
+  place(0, 2, 1); // yan yana üç kurt (tahta dolmadığı için kırmızı yok)
   withSeed(3, () => game().applyHint());
   tick(7);
   const before = game();
@@ -246,10 +292,24 @@ test('Çıkıp girince taşlar, ipucu hücreleri, kırmızılar ve süre kaldı�
   assert.deepEqual(rawFromGrid(after.grid), rawFromGrid(before.grid), 'taşlar');
   assert.deepEqual(locks(after.grid), locks(before.grid), 'ipucuyla açılan hücre kilitli kalır');
   assert.deepEqual(flags(after.grid), flags(before.grid), 'kırmızı hücreler');
-  assert.equal(after.hasActiveError, true);
+  assert.equal(after.hasActiveError, before.hasActiveError);
   assert.equal(after.hintsUsed, 1);
   assert.equal(after.elapsedSeconds, 7, 'süre baştan başlamaz');
   assert.equal(after.isTimeUp, false);
+});
+
+test('Hatalı dolu tahta kayıttan kırmızılarıyla geri gelir', () => {
+  game().initGame(TEST_LEVEL, 30);
+  fill(WRONG_WOLF);
+  tick(5);
+  const before = game();
+  assert.equal(before.hasActiveError, true);
+  const saved = throughStorage(createSnapshot(TEST_LEVEL, before.grid, before.elapsedSeconds));
+
+  game().resetGame();
+  game().initGame(TEST_LEVEL, 30, saved);
+  assert.equal(game().hasActiveError, true);
+  assert.deepEqual(flags(game().grid), flags(before.grid));
 });
 
 test('Bozuk ya da seviyeye uymayan kayıt yok sayılır, seviye baştan açılır', () => {
