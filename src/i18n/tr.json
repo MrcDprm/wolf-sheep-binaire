@@ -33,6 +33,11 @@
     "shareMessage": "Koyun & Kurt'ta günün bulmacasını ({{date}}) {{time}} sürede çözdüm, serim {{streak}}. Sen de dene!",
     "shareTitle": "Koyun & Kurt: günün bulmacası"
   },
+  "reminder": {
+    "title": "Günün bulmacası",
+    "streak": "Serin {{days}}, bozulmasın! Bugünkü bulmaca ({{difficulty}}) seni bekliyor.",
+    "plain": "Bugünkü bulmaca ({{difficulty}}) seni bekliyor."
+  },
   "calendar": {
     "weekdays": [
       "Pazar",
@@ -201,6 +206,16 @@
     "sound": "Ses",
     "haptic": "Titreşim",
     "timeLimit": "Süre sınırı",
+    "reminder": "Günlük hatırlatma",
+    "reminderTime": "Hatırlatma saati",
+    "reminderHint": "Günün bulmacasını çözmediğin günlerde seçtiğin saatte hatırlatır.",
+    "earlier": "Daha erken",
+    "later": "Daha geç",
+    "reminderDenied": "Bildirim izni kapalı",
+    "reminderDeniedBody": "Hatırlatma için telefonunun Ayarlar'ından Koyun & Kurt bildirimlerine izin ver.",
+    "reminderBlocked": "Bildirim izni kapalı olduğu için hatırlatma gelmez.",
+    "openSettings": "Ayarları aç",
+    "notNow": "Şimdi değil",
     "version": "Sürüm",
     "howToPlay": "Nasıl oynanır?"
   },
