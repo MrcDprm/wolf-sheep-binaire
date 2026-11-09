@@ -40,6 +40,8 @@
     "allDone": "Bütün seviyeleri bitirdin!",
     "close": "Kapat",
     "time": "Süre",
+    "newRecord": "Yeni rekor!",
+    "best": "En iyi süren: {{time}}",
     "timeLeft": "Kalan süre: {{time}}",
     "elapsed": "Geçen süre: {{time}}"
   },

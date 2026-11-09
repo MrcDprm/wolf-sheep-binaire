@@ -40,6 +40,8 @@
     "allDone": "You finished every level!",
     "close": "Close",
     "time": "Time",
+    "newRecord": "New record!",
+    "best": "Your best: {{time}}",
     "timeLeft": "Time left: {{time}}",
     "elapsed": "Time: {{time}}"
   },
