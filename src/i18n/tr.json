@@ -10,6 +10,7 @@
   },
   "menu": {
     "play": "Oyna",
+    "stats": "İstatistikler",
     "settings": "Ayarlar",
     "continueLevel": "Devam et",
     "levels": "Seviyeler",
@@ -69,7 +70,34 @@
       "EKİ",
       "KAS",
       "ARA"
+    ],
+    "weekHeader": [
+      "Pzt",
+      "Sal",
+      "Çar",
+      "Per",
+      "Cum",
+      "Cmt",
+      "Paz"
     ]
+  },
+  "stats": {
+    "title": "İstatistikler",
+    "streakUnit": "günlük seri",
+    "longest": "En uzun seri",
+    "solvedDays": "Çözülen gün",
+    "solveToday": "Bugünkü bulmacayı çöz",
+    "calendarHint": "Günün bulmacasını çözdüğün her güne bir koyun gelir.",
+    "calendarLabel": "Son {{weeks}} haftada çözülen gün: {{count}}",
+    "rank": "Unvan",
+    "nextTitle": "Sonraki unvan: {{title}} ({{points}} puan)",
+    "topTitle": "En yüksek unvana ulaştın!",
+    "completed": "Tamamlanan",
+    "stars": "Yıldız",
+    "perfect": "Kusursuz",
+    "best": "En iyi",
+    "average": "Ortalama",
+    "noTime": "Henüz bitirilen seviye yok"
   },
   "game": {
     "hint": "İpucu",
