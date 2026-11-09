@@ -1,9 +1,20 @@
 import { create } from 'zustand';
-import type { Grid, GameLevel, RawGrid } from '../types/game';
+import type { CellValue, Grid, GameLevel, RawGrid } from '../types/game';
 import { buildGridFromRaw, rawFromGrid, applyErrorsToGrid } from '../engine/validator';
 import { pickHintCell } from '../engine/hint';
 import { isBoardComplete } from '../engine/solver';
 import { restoreSnapshot, type SavedGame } from '../engine/savedGame';
+
+/**
+ * Geri alınabilir hamle: tek hücreye dokunuş ya da Sıfırla (öncesindeki bütün değerler).
+ * İpucu geri alınmaz: harcanmış bir ipucudur ve hücreyi kilitler.
+ */
+export type Move =
+  | { type: 'tap'; row: number; col: number; prev: CellValue }
+  | { type: 'reset'; prev: RawGrid };
+
+/** Geri al geçmişinde en fazla bu kadar hamle tutulur */
+const MAX_HISTORY = 300;
 
 interface GameState {
   grid: Grid;
@@ -17,6 +28,8 @@ interface GameState {
   timeLimit: number | null;
   /** Süre doldu: seviye kaybedildi, tahta kilitli */
   isTimeUp: boolean;
+  /** Geri al için yapılan hamleler (en yenisi sonda); seviyeden çıkınca saklanmaz */
+  history: Move[];
 
   // --- Actions ---
   /**
@@ -29,6 +42,8 @@ interface GameState {
   /** İpucu uygulandıysa true döner */
   applyHint: () => boolean;
   resetUserCells: () => void;
+  /** Son hamleyi (dokunuş ya da Sıfırla) geri alır; geri alınacak bir şey yoksa false */
+  undo: () => boolean;
   tickTimer: () => void;
   /** Ekrandan çıkınca oyunu temizler */
   resetGame: () => void;
@@ -44,7 +59,10 @@ const EMPTY_GAME = {
   hasActiveError: false,
   timeLimit: null,
   isTimeUp: false,
+  history: [] as Move[],
 };
+
+const withMove = (history: Move[], move: Move) => [...history, move].slice(-MAX_HISTORY);
 
 /** Tahtada boş hücre kalmadı mı? */
 export const isBoardFull = (grid: Grid) => grid.every((row) => row.every((cell) => cell.value !== 0));
@@ -88,11 +106,12 @@ export const useGameStore = create<GameState>((set, get) => ({
       timeLimit,
       // Süre sınırı sonradan açıldıysa kayıttaki süre sınırı aşmış olabilir
       isTimeUp: timeLimit !== null && elapsedSeconds >= timeLimit,
+      history: [],
     });
   },
 
   tapCell: (row, col) => {
-    const { grid, solutionRaw } = get();
+    const { grid, solutionRaw, history } = get();
     const cell = grid[row]?.[col];
     if (!cell || cell.isLocked || isOver(get())) return;
 
@@ -103,7 +122,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       r.map((c) => (c.row === row && c.col === col ? { ...c, value: nextValue } : c))
     );
 
-    set(evaluate(updatedGrid, solutionRaw));
+    set({
+      ...evaluate(updatedGrid, solutionRaw),
+      history: withMove(history, { type: 'tap', row, col, prev: cell.value }),
+    });
   },
 
   applyHint: () => {
@@ -122,14 +144,47 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   resetUserCells: () => {
-    const { grid, solutionRaw } = get();
+    const { grid, solutionRaw, history } = get();
     // Bitmiş ya da süresi dolmuş tahta olduğu gibi kalır (önceden taşlar siliniyor, tahta donuyordu)
     if (isOver(get())) return;
+    // Silinecek oyuncu taşı yoksa geçmişe boş bir Sıfırla yazılmaz
+    if (grid.every((r) => r.every((c) => c.isLocked || c.value === 0))) return;
     // Oyuncunun taşları silinir; başta verilen ve ipucuyla açılan taşlar kalır.
     // Kalan taşların hata işareti de yeniden hesaplanır (önceden kırmızı kalıyordu).
-    // Süre işlemeye devam eder: Sıfırla yeni süre vermez.
+    // Süre işlemeye devam eder: Sıfırla yeni süre vermez. Geri al ile taşlar geri gelir.
     const resetGrid: Grid = grid.map((r) => r.map((c) => (c.isLocked ? c : { ...c, value: 0 })));
-    set(evaluate(resetGrid, solutionRaw));
+    set({
+      ...evaluate(resetGrid, solutionRaw),
+      history: withMove(history, { type: 'reset', prev: rawFromGrid(grid) }),
+    });
+  },
+
+  undo: () => {
+    if (isOver(get())) return false;
+    const { grid, solutionRaw } = get();
+    const history = [...get().history];
+
+    while (history.length > 0) {
+      const move = history.pop()!;
+      if (move.type === 'tap') {
+        // Sonradan ipucuyla kilitlenen hücrenin eski hamlesi atlanır
+        if (grid[move.row]?.[move.col]?.isLocked !== false) continue;
+        const updated: Grid = grid.map((r) =>
+          r.map((c) => (c.row === move.row && c.col === move.col ? { ...c, value: move.prev } : c))
+        );
+        set({ ...evaluate(updated, solutionRaw), history });
+        return true;
+      }
+      // Sıfırla geri alınınca oyuncunun taşları geri gelir; kilitli hücreler olduğu gibi kalır
+      const updated: Grid = grid.map((r) =>
+        r.map((c) => (c.isLocked ? c : { ...c, value: move.prev[c.row][c.col] }))
+      );
+      set({ ...evaluate(updated, solutionRaw), history });
+      return true;
+    }
+
+    set({ history });
+    return false;
   },
 
   tickTimer: () => {
