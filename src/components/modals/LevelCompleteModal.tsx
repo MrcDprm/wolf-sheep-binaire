@@ -75,6 +75,9 @@ function LevelCompleteModalComponent({
   const card = cardColors(dayPhase.dark);
   const level = getLevelById(levelId);
   const completedLevels = useUserStore((s) => s.completedLevels);
+  // Rekor bilgisi sonuç kaydedilince gelir; bu seviyeye aitse gösterilir
+  const lastRecord = useUserStore((s) => s.lastRecord);
+  const record = lastRecord?.levelId === levelId ? lastRecord : null;
   // Bu seviyenin sonucu kayda bir sonraki çizimde geçiyor; burada şimdiden bitmiş sayılır
   const nextId = levelAfter(levelId, { ...completedLevels, [String(levelId)]: result });
   const nextLevel = nextId === null ? undefined : getLevelById(nextId);
@@ -176,6 +179,17 @@ function LevelCompleteModalComponent({
             </View>
           </View>
 
+          {/* Önceki en iyi süre geçildiyse rekor; geçilmediyse en iyi süre (ilk çözümde ikisi de yok) */}
+          {record?.isNew ? (
+            <Text style={styles.record} accessibilityLiveRegion="polite">
+              {t('game.newRecord')}
+            </Text>
+          ) : record && record.best < result.time ? (
+            <Text style={[styles.best, { color: card.muted }]}>
+              {t('game.best', { time: formatTime(record.best) })}
+            </Text>
+          ) : null}
+
           <View style={styles.buttons}>
             {nextId !== null ? (
               <Button title={t('game.nextLevel')} subtitle={nextSubtitle} onPress={goNext} />
@@ -239,6 +253,24 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: fontSize.body,
     marginTop: 4,
+  },
+  record: {
+    marginTop: -6,
+    marginBottom: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 2,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: palette.straw,
+    color: palette.ink,
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.small,
+  },
+  best: {
+    marginTop: -8,
+    marginBottom: 14,
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.caption,
   },
   facts: {
     flexDirection: 'row',

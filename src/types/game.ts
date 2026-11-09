@@ -37,6 +37,8 @@ export interface LevelResult {
   time: number;       // saniye cinsinden süre
   score: number;      // yıldıza göre puan
   hintsUsed: number;
+  /** Bu seviyedeki en iyi (en kısa) çözüm süresi; eski kayıtlarda yok, `time` kullanılır */
+  bestTime?: number;
 }
 
 export type DayPhase = 'morning' | 'afternoon' | 'evening' | 'night';

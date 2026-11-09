@@ -35,6 +35,34 @@ export function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+export interface MergedResult {
+  /** Saklanacak sonuç: yıldız ve puan en iyi sonuçtan, en iyi süre ayrıca */
+  next: LevelResult;
+  /** Toplam puana eklenecek fark (yalnızca daha iyi puanda) */
+  scoreGain: number;
+  /** Önceki en iyi süre geçildi mi (ilk çözüm rekor sayılmaz) */
+  isNewRecord: boolean;
+  /** Yeni en iyi süre */
+  best: number;
+}
+
+/**
+ * Bir seviyenin yeni sonucunu eskisiyle birleştirir. Önceden yalnız puan artınca
+ * kaydediliyordu; aynı yıldızla daha hızlı çözmenin karşılığı yoktu.
+ */
+export function mergeLevelResult(previous: LevelResult | undefined, result: LevelResult): MergedResult {
+  const previousBest = previous ? (previous.bestTime ?? previous.time) : undefined;
+  const best = previousBest === undefined ? result.time : Math.min(previousBest, result.time);
+  const better = !previous || result.score > previous.score;
+  const base = better ? result : previous;
+  return {
+    next: { ...base, bestTime: best },
+    scoreGain: better ? result.score - (previous?.score ?? 0) : 0,
+    isNewRecord: previousBest !== undefined && result.time < previousBest,
+    best,
+  };
+}
+
 type Translate = (key: string, vars?: Record<string, string | number>) => string;
 
 /**
