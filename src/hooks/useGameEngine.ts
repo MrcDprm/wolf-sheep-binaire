@@ -152,40 +152,21 @@ export function useGameEngine(level: GameLevel | undefined) {
     let player = playersRef.current[type];
     if (!player) {
       player = createAudioPlayer(SOUND_MAP[type]);
-      // Kurt ve koyun üçlü düzelene kadar döngüde çalar
-      player.loop = type !== 'complete';
       playersRef.current[type] = player;
     }
     return player;
   }, []);
 
+  /** Sesi baştan bir kez çalar; başka bir ses çalıyorsa önce onu susturur (sesler üst üste binmez) */
   const playOnce = useCallback(
     (type: SoundName) => {
       try {
+        for (const [name, other] of Object.entries(playersRef.current)) {
+          if (name !== type && other?.playing) other.pause();
+        }
         const player = getPlayer(type);
         player.seekTo(0);
         player.play();
-      } catch {
-        // Ses çalınamadıysa oyun sessizce devam eder
-      }
-    },
-    [getPlayer],
-  );
-
-  /** Döngüdeki sesi başlatır ya da durdurup başa sarar. */
-  const setLooping = useCallback(
-    (type: SoundName, on: boolean) => {
-      try {
-        const existing = playersRef.current[type];
-        if (!on) {
-          if (existing?.playing) {
-            existing.pause();
-            existing.seekTo(0);
-          }
-          return;
-        }
-        const player = existing ?? getPlayer(type);
-        if (!player.playing) player.play();
       } catch {
         // Ses çalınamadıysa oyun sessizce devam eder
       }
@@ -200,26 +181,28 @@ export function useGameEngine(level: GameLevel | undefined) {
     };
   }, []);
 
-  // Üçlü düzeltilene kadar: 3 kurt → uluma, 3 koyun → meleme (süre dolunca susar)
+  // Hata satırı için hangi hayvanın üçlüsü var (hatalar yalnızca tahta doluyken gösterilir)
   const triples = useMemo(() => findTripleAnimals(grid), [grid]);
-  const playing = soundEnabled && ready && !isComplete && !isTimeUp;
-  const loopWolf = playing && triples.wolf;
-  const loopSheep = playing && triples.sheep;
 
-  useEffect(() => {
-    setLooping('wolf', loopWolf);
-  }, [loopWolf, setLooping]);
-
-  useEffect(() => {
-    setLooping('sheep', loopSheep);
-  }, [loopSheep, setLooping]);
-
-  // --- Hata titreşimi (her yeni hatada bir kez) ---
-  const prevErrorRef = useRef(false);
-  useEffect(() => {
-    if (hasActiveError && !prevErrorRef.current) haptic('error');
-    prevErrorRef.current = hasActiveError;
-  }, [hasActiveError, haptic]);
+  /**
+   * Bir hamleden (dokunma, ipucu) sonra tahta yeni dolup hatalı çıktıysa bir kez titreşim ve
+   * tek kısa ses: koyun üçlüsü → meleme, kurt üçlüsü → uluma (hata satırıyla aynı sıra).
+   * Hatalı dolu tahtada düzeltirken her dokunuşta tekrarlamaz. Hata bildirildiyse true.
+   */
+  const announceMistake = useCallback(
+    (wasWrong: boolean): boolean => {
+      const { hasActiveError: wrong, grid: board } = useGameStore.getState();
+      if (!wrong || wasWrong) return false;
+      haptic('error');
+      if (soundEnabled) {
+        const animals = findTripleAnimals(board);
+        if (animals.sheep) playOnce('sheep');
+        else if (animals.wolf) playOnce('wolf');
+      }
+      return true;
+    },
+    [haptic, soundEnabled, playOnce],
+  );
 
   // --- Süre titreşimleri: sayaç kırmızıya dönünce uyarı, süre dolunca hata (birer kez) ---
   const prevRunningOutRef = useRef(false);
@@ -246,23 +229,24 @@ export function useGameEngine(level: GameLevel | undefined) {
   // --- Hücreye dokunma (bitmiş ya da süresi dolmuş tahtada boşuna titremesin) ---
   const handleTapCell = useCallback(
     (row: number, col: number) => {
-      const { isComplete: done, isTimeUp: timeUp } = useGameStore.getState();
-      if (done || timeUp) return;
+      const before = useGameStore.getState();
+      if (before.isComplete || before.isTimeUp) return;
       tapCell(row, col);
-      haptic('light');
+      if (!announceMistake(before.hasActiveError)) haptic('light');
     },
-    [tapCell, haptic],
+    [tapCell, haptic, announceMistake],
   );
 
   /** İpucu uygular. İpucu hakkı yoksa false döner (ekran uyarı gösterir). */
   const handleApplyHint = useCallback((): boolean => {
     if (availableHints <= 0) return false;
+    const wasWrong = useGameStore.getState().hasActiveError;
     if (applyHint()) {
       consumeHint();
-      haptic('medium');
+      if (!announceMistake(wasWrong)) haptic('medium');
     }
     return true;
-  }, [availableHints, applyHint, consumeHint, haptic]);
+  }, [availableHints, applyHint, consumeHint, haptic, announceMistake]);
 
   return {
     ready,

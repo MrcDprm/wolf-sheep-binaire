@@ -46,17 +46,26 @@ const EMPTY_GAME = {
   isTimeUp: false,
 };
 
+/** Tahtada boş hücre kalmadı mı? */
+export const isBoardFull = (grid: Grid) => grid.every((row) => row.every((cell) => cell.value !== 0));
+
 /**
  * Tahtayı baştan değerlendirir: hangi hücreler kırmızı, hata var mı, bitti mi.
  * Tahtayı değiştiren her eylem buradan geçer; kilitli hücreler dahil hiçbir
  * hücrede eski bir hata işareti kalmaz.
+ *
+ * Hatalar ancak tahta tamamen dolunca gösterilir: oyuncu taş koyup kırmızı yanıp
+ * yanmadığına bakarak, mantık yürütmeden çözemesin.
  */
 function evaluate(grid: Grid, solutionRaw: RawGrid) {
   const { validatedGrid, hasError } = applyErrorsToGrid(grid);
+  const full = isBoardFull(grid);
   return {
-    grid: validatedGrid,
-    hasActiveError: hasError,
-    isComplete: !hasError && isBoardComplete(rawFromGrid(validatedGrid), solutionRaw),
+    grid: full
+      ? validatedGrid
+      : validatedGrid.map((row) => row.map((cell) => (cell.hasError ? { ...cell, hasError: false } : cell))),
+    hasActiveError: full && hasError,
+    isComplete: full && !hasError && isBoardComplete(rawFromGrid(validatedGrid), solutionRaw),
   };
 }
 
