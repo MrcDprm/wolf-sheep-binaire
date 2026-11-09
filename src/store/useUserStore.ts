@@ -1,10 +1,12 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { LevelResult } from '../types/game';
 import type { UserProfile } from '../types/user';
 import { BASE_HINT_POOL, DAILY_LOGIN_HINT_BONUS } from '../constants/scoring';
 import { mergeLevelResult } from '../utils/scoring';
+import { userProfileFrom } from './persistedData';
+import { safeJSONStorage } from './safeStorage';
 
 interface UserState extends UserProfile {
   // Actions
@@ -68,7 +70,8 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'koyun-kurt-user',
-      storage: createJSONStorage(() => AsyncStorage),
+      // Bozuk dosya yüklemeyi kilitlemesin; okunan profil alan alan denetlenir (persistedData.ts)
+      storage: safeJSONStorage<UserProfile>(() => AsyncStorage),
       // Sürüm 2: 300 sabit seviye. Eski rastgele seviyelerin ilerlemesi sıfırlanır, ipuçları kalır.
       version: 2,
       // Rekor bilgisi yalnızca o anki pencere için; kalıcı profile girmez
@@ -84,6 +87,7 @@ export const useUserStore = create<UserState>()(
         }
         return old as UserProfile;
       },
+      merge: (persisted, current) => ({ ...current, ...userProfileFrom(persisted) }),
     }
   )
 );
