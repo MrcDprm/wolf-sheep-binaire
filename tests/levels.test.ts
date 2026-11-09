@@ -189,8 +189,17 @@ test('her zorluğun sabit süresi: 30 sn, 1, 2, 3, 5, 7 dk', () => {
   );
   for (const level of LEVELS) {
     const config = DIFFICULTIES.find((d) => d.id === level.difficulty);
-    assert.equal(level.timeLimit, config?.timeLimitSeconds, `seviye ${level.id}`);
+    const warmup = level.difficulty === 'easiest' && level.number <= 5;
+    assert.equal(level.timeLimit, warmup ? null : config?.timeLimitSeconds, `seviye ${level.id}`);
   }
+});
+
+test('En Kolay 1-5 ısınma: süresiz; En Kolay 6 ve sonrası süreli', () => {
+  assert.deepEqual(
+    LEVELS.slice(0, 7).map((l) => l.timeLimit),
+    [null, null, null, null, null, 30, 30],
+  );
+  assert.equal(getLevelById(51)?.timeLimit, 60, 'Kolay 1 süreli');
 });
 
 test('sayaç sona yaklaşınca kırmızıya döner: sürenin dörtte biri, en fazla 30 sn', () => {

@@ -533,3 +533,38 @@ test('Yanlış taş ipucu kayıttan sonra da ipucu sayısında kalır; geçersiz
   const { hintsUsed: _old, ...withoutCount } = saved;
   assert.equal(restoreSnapshot(TEST_LEVEL, withoutCount)?.hintsUsed, 0, 'eski kayıt: kilitli ipucu sayısı');
 });
+
+// ---------------------------------------------------------------------------
+// Duraklat
+// ---------------------------------------------------------------------------
+
+test('Duraklatılınca süre durur, tahtaya ve ipucuna dokunulamaz; devam edince sürer', () => {
+  game().initGame(TEST_LEVEL, 30);
+  tick(3);
+  game().pause();
+  tick(5);
+  assert.equal(game().elapsedSeconds, 3, 'süre durdu');
+  game().tapCell(0, 1);
+  assert.equal(game().grid[0][1].value, 0, 'dokunuş işlemedi');
+  assert.equal(game().applyHint(), false);
+  assert.equal(game().undo(), false);
+
+  game().resume();
+  tick(2);
+  assert.equal(game().elapsedSeconds, 5);
+  game().tapCell(0, 1);
+  assert.equal(game().grid[0][1].value, 1);
+});
+
+test('Bitmiş seviyede duraklat bir şey yapmaz; yeni seviye duraklatılmamış başlar', () => {
+  game().initGame(TEST_LEVEL, 30);
+  solve();
+  game().pause();
+  assert.equal(game().isPaused, false);
+
+  game().initGame(TEST_LEVEL, 30);
+  game().pause();
+  assert.equal(game().isPaused, true);
+  game().initGame(TEST_LEVEL, 30);
+  assert.equal(game().isPaused, false, 'yeniden başlayınca duraklatma kalkar');
+});

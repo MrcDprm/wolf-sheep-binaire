@@ -32,6 +32,8 @@ interface GameState {
   history: Move[];
   /** Son ipucu (ekranda vurgulanır, gerekçesi yazılır); sonraki hamlede silinir */
   lastHint: Hint | null;
+  /** Duraklatıldı: süre durur, tahta gizlenir, hamle yapılamaz */
+  isPaused: boolean;
 
   // --- Actions ---
   /**
@@ -46,6 +48,9 @@ interface GameState {
   resetUserCells: () => void;
   /** Son hamleyi (dokunuş ya da Sıfırla) geri alır; geri alınacak bir şey yoksa false */
   undo: () => boolean;
+  /** Oyunu duraklatır (bitmiş ya da süresi dolmuş seviyede bir şey yapmaz) */
+  pause: () => void;
+  resume: () => void;
   tickTimer: () => void;
   /** Ekrandan çıkınca oyunu temizler */
   resetGame: () => void;
@@ -63,6 +68,7 @@ const EMPTY_GAME = {
   isTimeUp: false,
   history: [] as Move[],
   lastHint: null as Hint | null,
+  isPaused: false,
 };
 
 const withMove = (history: Move[], move: Move) => [...history, move].slice(-MAX_HISTORY);
@@ -93,6 +99,10 @@ function evaluate(grid: Grid, solutionRaw: RawGrid) {
 /** Seviye bitti ya da süre doldu: tahtada artık hiçbir şey değişmez */
 const isOver = (s: { isComplete: boolean; isTimeUp: boolean }) => s.isComplete || s.isTimeUp;
 
+/** Tahtaya şu an hamle yapılamaz: seviye bitti, süre doldu ya da duraklatıldı */
+const isFrozen = (s: { isComplete: boolean; isTimeUp: boolean; isPaused: boolean }) =>
+  isOver(s) || s.isPaused;
+
 export const useGameStore = create<GameState>((set, get) => ({
   ...EMPTY_GAME,
 
@@ -111,13 +121,14 @@ export const useGameStore = create<GameState>((set, get) => ({
       isTimeUp: timeLimit !== null && elapsedSeconds >= timeLimit,
       history: [],
       lastHint: null,
+      isPaused: false,
     });
   },
 
   tapCell: (row, col) => {
     const { grid, solutionRaw, history } = get();
     const cell = grid[row]?.[col];
-    if (!cell || cell.isLocked || isOver(get())) return;
+    if (!cell || cell.isLocked || isFrozen(get())) return;
 
     // Dokunma döngüsü: boş → kurt → koyun → boş
     const nextValue = ((cell.value + 1) % 3) as 0 | 1 | 2;
@@ -135,7 +146,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   applyHint: () => {
     const { grid, solutionRaw, history, hintsUsed } = get();
-    if (isOver(get())) return false;
+    if (isFrozen(get())) return false;
     const hint = findHint(grid, solutionRaw);
     if (!hint) return false;
 
@@ -165,7 +176,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   resetUserCells: () => {
     const { grid, solutionRaw, history } = get();
     // Bitmiş ya da süresi dolmuş tahta olduğu gibi kalır (önceden taşlar siliniyor, tahta donuyordu)
-    if (isOver(get())) return;
+    if (isFrozen(get())) return;
     // Silinecek oyuncu taşı yoksa geçmişe boş bir Sıfırla yazılmaz
     if (grid.every((r) => r.every((c) => c.isLocked || c.value === 0))) return;
     // Oyuncunun taşları silinir; başta verilen ve ipucuyla açılan taşlar kalır.
@@ -180,7 +191,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   undo: () => {
-    if (isOver(get())) return false;
+    if (isFrozen(get())) return false;
     const { grid, solutionRaw } = get();
     const history = [...get().history];
 
@@ -207,9 +218,15 @@ export const useGameStore = create<GameState>((set, get) => ({
     return false;
   },
 
+  pause: () => {
+    if (!isOver(get())) set({ isPaused: true });
+  },
+
+  resume: () => set({ isPaused: false }),
+
   tickTimer: () => {
     const { elapsedSeconds, timeLimit } = get();
-    if (isOver(get())) return;
+    if (isFrozen(get())) return;
     const elapsed = elapsedSeconds + 1;
     set({ elapsedSeconds: elapsed, isTimeUp: timeLimit !== null && elapsed >= timeLimit });
   },

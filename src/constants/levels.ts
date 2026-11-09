@@ -6,7 +6,7 @@
  * zorluk içindeki seviyeler ise sırayla, bir öncekini bitirince açılır.
  */
 import type { CellValue, Difficulty, GameLevel, LevelResult, RawGrid } from '../types/game';
-import { DIFFICULTIES, GRID_SIZE, LEVELS_PER_DIFFICULTY } from './difficulties';
+import { DIFFICULTIES, GRID_SIZE, LEVELS_PER_DIFFICULTY, WARMUP_LEVELS } from './difficulties';
 import { LEVEL_DATA } from './levelData';
 
 function parseGrid(text: string): RawGrid {
@@ -17,14 +17,16 @@ function parseGrid(text: string): RawGrid {
 
 export const LEVELS: GameLevel[] = LEVEL_DATA.map(([puzzle, solution], i) => {
   const config = DIFFICULTIES[Math.floor(i / LEVELS_PER_DIFFICULTY)];
+  const number = (i % LEVELS_PER_DIFFICULTY) + 1;
   return {
     id: i + 1,
     difficulty: config.id,
-    number: (i % LEVELS_PER_DIFFICULTY) + 1,
+    number,
     puzzle: parseGrid(puzzle),
     solution: parseGrid(solution),
     maxHintsForPerfect: config.maxHintsForPerfect,
-    timeLimit: config.timeLimitSeconds,
+    // Isınma seviyeleri süresiz, diğerleri zorluğun sabit süresiyle
+    timeLimit: config.id === 'easiest' && number <= WARMUP_LEVELS ? null : config.timeLimitSeconds,
   };
 });
 

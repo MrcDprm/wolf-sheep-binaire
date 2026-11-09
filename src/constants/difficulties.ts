@@ -11,6 +11,9 @@ import type { Difficulty } from '../types/game';
 export const GRID_SIZE = 6;
 export const LEVELS_PER_DIFFICULTY = 50;
 
+/** En Kolay'ın ilk bu kadar seviyesi süresiz: yeni oyuncu kuralları süreyle yarışmadan öğrensin */
+export const WARMUP_LEVELS = 5;
+
 export interface DifficultyConfig {
   id: Difficulty;
   /** Kademe içindeki seviyelerin açık simge sayıları, kolaydan zora (eşit paylaştırılır) */

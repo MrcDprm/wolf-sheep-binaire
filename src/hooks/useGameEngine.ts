@@ -72,7 +72,8 @@ export function useGameEngine(level: GameLevel | undefined) {
   const isTimeUp = useGameStore((s) => s.isTimeUp);
   const canUndo = useGameStore((s) => s.history.length > 0);
   const lastHint = useGameStore((s) => s.lastHint);
-  const { initGame, tapCell, applyHint, resetUserCells, undo, tickTimer, resetGame } =
+  const isPaused = useGameStore((s) => s.isPaused);
+  const { initGame, tapCell, applyHint, resetUserCells, undo, pause, resume, tickTimer, resetGame } =
     useGameStore.getState();
 
   const availableHints = useUserStore((s) => s.availableHints);
@@ -118,17 +119,21 @@ export function useGameEngine(level: GameLevel | undefined) {
     const sub = AppState.addEventListener('change', (state) => {
       const foreground = isForeground(state);
       setAppActive(foreground);
-      // Arka plana geçerken de kaydet: telefon uygulamayı kapatsa da kaldığı yer kalır
-      if (!foreground) saveProgress();
+      // Arka plana geçerken kaydet (telefon uygulamayı kapatsa da kaldığı yer kalır) ve duraklat:
+      // oyuncu dönünce süre hemen akmaz, "Devam et"e basınca devam eder
+      if (!foreground) {
+        saveProgress();
+        pause();
+      }
     });
     return () => sub.remove();
-  }, []);
+  }, [pause]);
 
   useEffect(() => {
-    if (!ready || isComplete || isTimeUp || !appActive) return;
+    if (!ready || isComplete || isTimeUp || isPaused || !appActive) return;
     const timer = setInterval(tickTimer, 1000);
     return () => clearInterval(timer);
-  }, [ready, isComplete, isTimeUp, appActive, tickTimer]);
+  }, [ready, isComplete, isTimeUp, isPaused, appActive, tickTimer]);
 
   // Süre sınırı varsa kalan süre; sona yaklaşınca sayaç kırmızıya döner
   const secondsLeft = timeLimit === null ? null : Math.max(0, timeLimit - elapsedSeconds);
@@ -286,6 +291,9 @@ export function useGameEngine(level: GameLevel | undefined) {
     result,
     canUndo,
     lastHint,
+    isPaused,
+    pause,
+    resume,
     handleTapCell,
     handleUndo,
     handleApplyHint,

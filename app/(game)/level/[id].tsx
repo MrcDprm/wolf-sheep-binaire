@@ -11,7 +11,7 @@
  * Kilitli bir seviyeye (ör. bağlantıyla) gelinirse oynatılmaz, uyarı gösterilir.
  */
 import { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGameEngine } from '../../../src/hooks/useGameEngine';
@@ -25,6 +25,7 @@ import { GameGrid } from '../../../src/components/grid/GameGrid';
 import { LevelCompleteModal } from '../../../src/components/modals/LevelCompleteModal';
 import { TimeUpModal } from '../../../src/components/modals/TimeUpModal';
 import { Button } from '../../../src/components/ui/Button';
+import { Icon } from '../../../src/components/ui/Icon';
 import { ToolButton } from '../../../src/components/ui/ToolButton';
 import { IconButton } from '../../../src/components/ui/IconButton';
 import { fontSize, fonts, palette } from '../../../src/theme';
@@ -57,6 +58,9 @@ export default function LevelScreen() {
     handleApplyHint,
     canUndo,
     lastHint,
+    isPaused,
+    pause,
+    resume,
     handleUndo,
     resetUserCells,
     restartLevel,
@@ -124,6 +128,8 @@ export default function LevelScreen() {
   const clockLabel =
     secondsLeft === null ? t('game.elapsed', { time: clock }) : t('game.timeLeft', { time: clock });
   const boardOver = isComplete || isTimeUp;
+  // Duraklatılmışken de tahtaya ve kontrollere dokunulmaz
+  const boardLocked = boardOver || isPaused;
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: dayPhase.sky }]}>
@@ -156,20 +162,53 @@ export default function LevelScreen() {
           />
         </View>
 
-        <Text
-          style={[
-            styles.timer,
-            { color: timeRunningOut || isTimeUp ? errorColor : dayPhase.textMuted },
-          ]}
-          accessibilityLabel={clockLabel}
+        {/* Süreye dokununca oyun duraklar */}
+        <Pressable
+          onPress={pause}
+          disabled={boardLocked}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`${t('game.pause')}, ${clockLabel}`}
+          accessibilityState={{ disabled: boardLocked }}
+          style={({ pressed }) => [styles.clock, pressed && styles.clockPressed]}
         >
-          {clock}
-        </Text>
+          {!boardLocked && <Icon name="pause" size={15} color={dayPhase.textMuted} />}
+          <Text
+            style={[
+              styles.timer,
+              { color: timeRunningOut || isTimeUp ? errorColor : dayPhase.textMuted },
+            ]}
+          >
+            {clock}
+          </Text>
+        </Pressable>
       </View>
 
       {/* ── Tahta ── */}
       <View style={styles.boardArea}>
-        {ready && <GameGrid grid={grid} onTapCell={handleTapCell} hint={lastHint} />}
+        {ready && (
+          <GameGrid
+            grid={grid}
+            onTapCell={handleTapCell}
+            hint={lastHint}
+            overlay={
+              isPaused ? (
+                <>
+                  <Text style={styles.pausedTitle} accessibilityRole="header">
+                    {t('game.paused')}
+                  </Text>
+                  <Text style={styles.pausedBody}>{t('game.pausedBody')}</Text>
+                  <Button
+                    title={t('game.resume')}
+                    onPress={resume}
+                    leading={<Icon name="play" size={18} color={palette.ink} />}
+                    style={styles.resume}
+                  />
+                </>
+              ) : undefined
+            }
+          />
+        )}
       </View>
 
       {/* ── Hata ya da ipucu satırı (yer hep ayrılı; tahta zıplamasın) ── */}
@@ -187,21 +226,21 @@ export default function LevelScreen() {
           icon="reset"
           label={t('game.reset')}
           onPress={handleReset}
-          disabled={boardOver}
+          disabled={boardLocked}
           style={styles.control}
         />
         <ToolButton
           icon="undo"
           label={t('game.undo')}
           onPress={handleUndo}
-          disabled={boardOver || !canUndo}
+          disabled={boardLocked || !canUndo}
           style={styles.control}
         />
         <ToolButton
           icon="hint"
           label={t('game.hint')}
           onPress={onHint}
-          disabled={boardOver}
+          disabled={boardLocked}
           primary
           badge={availableHints}
           accessibilityLabel={`${t('game.hint')}, ${t('hints.available', { count: availableHints })}`}
@@ -268,10 +307,37 @@ const styles = StyleSheet.create({
     fontFamily: fonts.extrabold,
     fontSize: fontSize.heading,
   },
-  timer: {
-    width: 58,
-    textAlign: 'right',
+  clock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 3,
+    minWidth: 72,
     paddingRight: 8,
+  },
+  clockPressed: {
+    opacity: 0.6,
+  },
+  pausedTitle: {
+    fontFamily: fonts.extrabold,
+    fontSize: fontSize.title,
+    color: palette.wool,
+    textAlign: 'center',
+  },
+  pausedBody: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSize.small,
+    color: palette.wool,
+    opacity: 0.85,
+    textAlign: 'center',
+    marginTop: 2,
+    marginBottom: 16,
+  },
+  resume: {
+    alignSelf: 'stretch',
+  },
+  timer: {
+    textAlign: 'right',
     fontFamily: fonts.bold,
     fontSize: fontSize.body,
     fontVariant: ['tabular-nums'],
