@@ -195,6 +195,8 @@
     "step3Body": "Her satırda ve her sütunda 3 kurt ve 3 koyun olmalı.",
     "step4Title": "Tahta dolunca kontrol",
     "step4Body": "Hatalar bütün hücreleri doldurunca görünür: kurala uymayan hücreler kırmızı yanar, yan yana 3 koyun varsa koyun meler, 3 kurt varsa kurt ulur. O yüzden her taşı düşünerek koy.",
+    "step5Title": "Geri al, ipucu ve süre",
+    "step5Body": "Geri al son hamleni geri alır, İpucu bir sonraki adımı nedeniyle gösterir. En Kolay'ın ilk 5 seviyesinden sonra süre başlar: süreye dokununca oyun durur, istersen süre sınırını Ayarlar'dan kapatırsın.",
     "skip": "Atla",
     "next": "İleri",
     "finish": "Başla",
