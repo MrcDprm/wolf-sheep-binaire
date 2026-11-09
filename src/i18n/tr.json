@@ -15,6 +15,62 @@
     "levels": "Seviyeler",
     "points": "{{count}} puan"
   },
+  "daily": {
+    "title": "Günün bulmacası",
+    "today": "Bugün: {{difficulty}}",
+    "solvedIn": "Çözüldü, {{time}}",
+    "complete": "Bulmaca çözüldü",
+    "comeBack": "Yeni bulmaca yarın",
+    "streak": "Seri",
+    "day": "{{count}} gün",
+    "days": "{{count}} gün",
+    "streakLabel": "{{count}} günlük seri",
+    "newLongest": "En uzun serin!",
+    "longest": "En uzun serin: {{count}} gün",
+    "date": "{{day}} {{month}} {{weekday}}",
+    "subtitle": "{{date}} · {{difficulty}}",
+    "shareMessage": "Koyun & Kurt'ta günün bulmacasını ({{date}}) {{time}} sürede çözdüm, serim {{streak}}. Sen de dene!",
+    "shareTitle": "Koyun & Kurt: günün bulmacası"
+  },
+  "calendar": {
+    "weekdays": [
+      "Pazar",
+      "Pazartesi",
+      "Salı",
+      "Çarşamba",
+      "Perşembe",
+      "Cuma",
+      "Cumartesi"
+    ],
+    "months": [
+      "Ocak",
+      "Şubat",
+      "Mart",
+      "Nisan",
+      "Mayıs",
+      "Haziran",
+      "Temmuz",
+      "Ağustos",
+      "Eylül",
+      "Ekim",
+      "Kasım",
+      "Aralık"
+    ],
+    "monthsShort": [
+      "OCA",
+      "ŞUB",
+      "MAR",
+      "NİS",
+      "MAY",
+      "HAZ",
+      "TEM",
+      "AĞU",
+      "EYL",
+      "EKİ",
+      "KAS",
+      "ARA"
+    ]
+  },
   "game": {
     "hint": "İpucu",
     "reset": "Sıfırla",

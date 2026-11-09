@@ -15,6 +15,62 @@
     "levels": "Levels",
     "points": "{{count}} points"
   },
+  "daily": {
+    "title": "Daily puzzle",
+    "today": "Today: {{difficulty}}",
+    "solvedIn": "Solved in {{time}}",
+    "complete": "Puzzle solved",
+    "comeBack": "New puzzle tomorrow",
+    "streak": "Streak",
+    "day": "{{count}} day",
+    "days": "{{count}} days",
+    "streakLabel": "{{count}}-day streak",
+    "newLongest": "Your longest streak!",
+    "longest": "Longest streak: {{count}} days",
+    "date": "{{weekday}}, {{month}} {{day}}",
+    "subtitle": "{{date}} · {{difficulty}}",
+    "shareMessage": "I solved the Sheep & Wolf daily puzzle ({{date}}) in {{time}}, my streak is {{streak}}. Give it a try!",
+    "shareTitle": "Sheep & Wolf: daily puzzle"
+  },
+  "calendar": {
+    "weekdays": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "monthsShort": [
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC"
+    ]
+  },
   "game": {
     "hint": "Hint",
     "reset": "Reset",
