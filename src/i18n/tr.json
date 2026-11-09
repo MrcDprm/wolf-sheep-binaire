@@ -76,6 +76,20 @@
   "hints": {
     "available": "{{count}} ipucu"
   },
+  "hintReason": {
+    "wrong": "İşaretli taş yanlıştı, kaldırıldı.",
+    "pair": "{{line}} iki {{animal}} yan yana; yanlarına {{other}} gelmeli.",
+    "gap": "{{line}} iki {{animal}} arasında tek boşluk var; araya {{other}} gelmeli.",
+    "balance": "{{line}} 3 {{animal}} tamam; kalan hücrelere {{other}} gelmeli.",
+    "line": "{{line}} başka türlü kurallara uygun dolmuyor; buraya {{value}} gelmeli.",
+    "reveal": "Bu hücre daha derin bir akıl yürütme istiyordu; cevabı açıldı.",
+    "row": "{{n}}. satırda",
+    "col": "{{n}}. sütunda",
+    "wolf": "kurt",
+    "wolves": "kurt",
+    "sheep": "koyun",
+    "sheepMany": "koyun"
+  },
   "tutorial": {
     "title": "Nasıl oynanır?",
     "step1Title": "Hücrelere dokun",

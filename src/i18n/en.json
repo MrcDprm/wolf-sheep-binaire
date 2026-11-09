@@ -76,6 +76,20 @@
   "hints": {
     "available": "{{count}} hints"
   },
+  "hintReason": {
+    "wrong": "The marked piece was wrong and has been removed.",
+    "pair": "{{line}} has two {{animals}} side by side, so a {{other}} goes next to them.",
+    "gap": "{{line}} has one gap between two {{animals}}, so a {{other}} goes in between.",
+    "balance": "{{line}} already has 3 {{animals}}, so the remaining cells are {{others}}.",
+    "line": "{{line}} only works with a {{value}} here: 3 of each and no three in a row.",
+    "reveal": "This cell needed deeper reasoning, so its answer was revealed.",
+    "row": "Row {{n}}",
+    "col": "Column {{n}}",
+    "wolf": "wolf",
+    "wolves": "wolves",
+    "sheep": "sheep",
+    "sheepMany": "sheep"
+  },
   "tutorial": {
     "title": "How to play",
     "step1Title": "Tap the cells",

@@ -4,6 +4,7 @@
  * Keçe tahtada hafif çukur bir yuva; içinde koyun ya da kurt taşı durur.
  * - Başta açık verilen ve ipucuyla açılan hücreler daha koyu yuvadadır, dokunulamaz.
  * - Taş konunca küçük bir zıplama, kural ihlalinde kırmızı halka ve sallanma.
+ * - İpucu: hedef hücre saman sarısı halkayla, gerekçe taşları açık saman zeminle vurgulanır.
  * - Hareketi azalt ayarı açıksa animasyon yapılmaz.
  */
 import { memo, useEffect, useRef } from 'react';
@@ -28,11 +29,13 @@ interface GridCellProps {
   /** Hücreler arası boşluk (px) */
   gap: number;
   onTap: (row: number, col: number) => void;
+  /** Son ipucundaki rolü: hedef hücre ya da gerekçe taşı */
+  highlight?: 'target' | 'reason';
 }
 
 const VALUE_KEY = { 0: 'cell.empty', 1: 'cell.wolf', 2: 'cell.sheep' } as const;
 
-function GridCellComponent({ cell, cellSize, gap, onTap }: GridCellProps) {
+function GridCellComponent({ cell, cellSize, gap, onTap, highlight }: GridCellProps) {
   const t = useTranslation();
   const reduceMotion = useReducedMotion();
   const offsetX = useSharedValue(0);
@@ -88,6 +91,8 @@ function GridCellComponent({ cell, cellSize, gap, onTap }: GridCellProps) {
           styles.slot,
           { width: size, height: size, borderRadius: Math.min(radius.cell, size * 0.28) },
           cell.isLocked && styles.slotGiven,
+          highlight === 'reason' && styles.slotReason,
+          highlight === 'target' && styles.slotTarget,
           cell.hasError && styles.slotError,
           slotStyle,
         ]}
@@ -112,6 +117,13 @@ const styles = StyleSheet.create({
   },
   slotGiven: {
     backgroundColor: palette.slotGiven,
+  },
+  slotReason: {
+    backgroundColor: 'rgba(232,178,58,0.32)',
+  },
+  slotTarget: {
+    borderWidth: 3,
+    borderColor: palette.straw,
   },
   slotError: {
     backgroundColor: palette.slotError,
