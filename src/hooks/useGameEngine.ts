@@ -19,10 +19,14 @@ import type { GameLevel } from '../types/game';
 import { useHaptics } from './useHaptics';
 import { useSavedGamesHydrated } from './useSavedGamesHydrated';
 
+// Sesler scripts/make-sounds.py ile sentezlenir; hiçbiri döngüde çalmaz
 const SOUND_MAP = {
   wolf: require('../../assets/sounds/wolf.mp3'),
   sheep: require('../../assets/sounds/sheep.mp3'),
+  error: require('../../assets/sounds/error.mp3'),
   complete: require('../../assets/sounds/complete.mp3'),
+  timeup: require('../../assets/sounds/timeup.mp3'),
+  hint: require('../../assets/sounds/hint.mp3'),
 };
 
 type SoundName = keyof typeof SOUND_MAP;
@@ -195,9 +199,9 @@ export function useGameEngine(level: GameLevel | undefined) {
       if (!wrong || wasWrong) return false;
       haptic('error');
       if (soundEnabled) {
+        // Üçlü yoksa hata satır/sütun dengesindedir: iki tok nota
         const animals = findTripleAnimals(board);
-        if (animals.sheep) playOnce('sheep');
-        else if (animals.wolf) playOnce('wolf');
+        playOnce(animals.sheep ? 'sheep' : animals.wolf ? 'wolf' : 'error');
       }
       return true;
     },
@@ -213,8 +217,13 @@ export function useGameEngine(level: GameLevel | undefined) {
 
   const prevTimeUpRef = useRef(false);
   useEffect(() => {
-    if (isTimeUp && !prevTimeUpRef.current) haptic('error');
+    if (isTimeUp && !prevTimeUpRef.current) {
+      haptic('error');
+      if (soundEnabled) playOnce('timeup');
+    }
     prevTimeUpRef.current = isTimeUp;
+    // Sadece süre dolduğu an çalsın; ses ayarı değişince tekrar çalmasın
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTimeUp, haptic]);
 
   // --- Tamamlama titreşimi ve sesi ---
@@ -243,10 +252,14 @@ export function useGameEngine(level: GameLevel | undefined) {
     const wasWrong = useGameStore.getState().hasActiveError;
     if (applyHint()) {
       consumeHint();
-      if (!announceMistake(wasWrong)) haptic('medium');
+      // İpucu son boşluğu doldurup tahtayı hatalı bıraktıysa hata sesi önceliklidir
+      if (!announceMistake(wasWrong)) {
+        haptic('medium');
+        if (soundEnabled) playOnce('hint');
+      }
     }
     return true;
-  }, [availableHints, applyHint, consumeHint, haptic, announceMistake]);
+  }, [availableHints, applyHint, consumeHint, haptic, announceMistake, soundEnabled, playOnce]);
 
   return {
     ready,
