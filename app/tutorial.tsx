@@ -1,8 +1,9 @@
 /**
- * Eğitim ekranı — 4 adım
+ * Eğitim ekranı — 5 adım
  *
  * Her adımda kısa bir metin ve keçe şerit üzerinde küçük bir örnek:
- * dokunma sırası, yan yana 3 yasağı, satır dengesi, hatanın sesi.
+ * dokunma sırası, yan yana 3 yasağı, satır dengesi, hatanın sesi,
+ * yardımcılar (Geri al, İpucu, süreye dokununca duraklatma).
  * Bitince ya da atlanınca useSettingsStore.completeTutorial() çağrılır.
  */
 import { useState } from 'react';
@@ -14,15 +15,17 @@ import { useTranslation } from '../src/i18n';
 import { useDayPhase } from '../src/hooks/useDayPhase';
 import { Piece } from '../src/components/pieces/Piece';
 import { Button } from '../src/components/ui/Button';
-import { Icon } from '../src/components/ui/Icon';
+import { Icon, type IconName } from '../src/components/ui/Icon';
 import { fontSize, fonts, palette, radius } from '../src/theme';
 import type { CellValue } from '../src/types/game';
 
-const STEPS = ['step1', 'step2', 'step3', 'step4'] as const;
+const STEPS = ['step1', 'step2', 'step3', 'step4', 'step5'] as const;
 
-// Her adımın örneği: şeritler (0 boş, 1 kurt, 2 koyun), hatalılar kırmızı halkalı
+// Her adımın örneği: şeritler (0 boş, 1 kurt, 2 koyun), hatalılar kırmızı halkalı;
+// yardımcılar adımında yuvalarda taş yerine düğme ikonları
 interface Strip {
-  cells: CellValue[];
+  cells?: CellValue[];
+  icons?: IconName[];
   error?: boolean;
   /** Hücreler arasına ok koy (dokunma sırası) */
   arrows?: boolean;
@@ -33,6 +36,7 @@ const EXAMPLES: Record<(typeof STEPS)[number], Strip[]> = {
   step2: [{ cells: [2, 2, 2], error: true }, { cells: [2, 2, 1] }],
   step3: [{ cells: [1, 2, 1, 2, 2, 1] }],
   step4: [{ cells: [1, 1, 1], error: true }],
+  step5: [{ icons: ['undo', 'hint', 'pause'] }],
 };
 
 const SLOT = 46;
@@ -40,12 +44,17 @@ const SLOT = 46;
 function ExampleStrip({ strip, felt, feltEdge }: { strip: Strip; felt: string; feltEdge: string }) {
   return (
     <View style={[styles.strip, { backgroundColor: felt, borderBottomColor: feltEdge }]}>
-      {strip.cells.map((value, i) => (
+      {strip.cells?.map((value, i) => (
         <View key={i} style={styles.stripItem}>
           {strip.arrows && i > 0 && <Icon name="chevronRight" size={18} color={palette.wool} />}
           <View style={[styles.slot, strip.error && styles.slotError]}>
             {value !== 0 && <Piece kind={value === 1 ? 'wolf' : 'sheep'} size={SLOT * 0.8} />}
           </View>
+        </View>
+      ))}
+      {strip.icons?.map((name) => (
+        <View key={name} style={styles.slot}>
+          <Icon name={name} size={SLOT * 0.52} color={palette.wool} />
         </View>
       ))}
     </View>
