@@ -5,7 +5,7 @@
  *   Üst çubuk: kapat | ‹ "Kolay 12" › | kalan süre (süre sınırı kapalıysa geçen süre)
  *   Keçe tahta (6x6)
  *   Hata satırı: ne yanlışsa onu söyler
- *   Kontroller: Sıfırla | İpucu (kalan sayı)
+ *   Kontroller: Sıfırla | Geri al | İpucu (kalan sayı)
  *   Tamamlama ve süre doldu pencereleri
  *
  * Kilitli bir seviyeye (ör. bağlantıyla) gelinirse oynatılmaz, uyarı gösterilir.
@@ -24,7 +24,7 @@ import { GameGrid } from '../../../src/components/grid/GameGrid';
 import { LevelCompleteModal } from '../../../src/components/modals/LevelCompleteModal';
 import { TimeUpModal } from '../../../src/components/modals/TimeUpModal';
 import { Button } from '../../../src/components/ui/Button';
-import { Icon } from '../../../src/components/ui/Icon';
+import { ToolButton } from '../../../src/components/ui/ToolButton';
 import { IconButton } from '../../../src/components/ui/IconButton';
 import { fontSize, fonts, palette } from '../../../src/theme';
 
@@ -54,6 +54,8 @@ export default function LevelScreen() {
     result,
     handleTapCell,
     handleApplyHint,
+    canUndo,
+    handleUndo,
     resetUserCells,
     restartLevel,
   } = useGameEngine(level);
@@ -175,26 +177,29 @@ export default function LevelScreen() {
         {errorMessage}
       </Text>
 
-      {/* ── Kontroller (bitmiş ya da süresi dolmuş tahtada ikisi de pasif) ── */}
+      {/* ── Kontroller (bitmiş ya da süresi dolmuş tahtada hepsi pasif) ── */}
       <View style={styles.controls}>
-        <Button
-          title={t('game.reset')}
-          variant="secondary"
+        <ToolButton
+          icon="reset"
+          label={t('game.reset')}
           onPress={handleReset}
           disabled={boardOver}
-          leading={<Icon name="reset" size={20} color={dayPhase.text} />}
           style={styles.control}
         />
-        <Button
-          title={t('game.hint')}
+        <ToolButton
+          icon="undo"
+          label={t('game.undo')}
+          onPress={handleUndo}
+          disabled={boardOver || !canUndo}
+          style={styles.control}
+        />
+        <ToolButton
+          icon="hint"
+          label={t('game.hint')}
           onPress={onHint}
           disabled={boardOver}
-          leading={<Icon name="hint" size={22} color={palette.ink} />}
-          trailing={
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{availableHints}</Text>
-            </View>
-          }
+          primary
+          badge={availableHints}
           accessibilityLabel={`${t('game.hint')}, ${t('hints.available', { count: availableHints })}`}
           style={styles.control}
         />
@@ -282,24 +287,11 @@ const styles = StyleSheet.create({
   },
   controls: {
     flexDirection: 'row',
-    gap: 14,
+    gap: 10,
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
   control: {
     flex: 1,
-  },
-  badge: {
-    minWidth: 30,
-    paddingHorizontal: 7,
-    paddingVertical: 1,
-    borderRadius: 12,
-    backgroundColor: 'rgba(46,42,36,0.16)',
-    alignItems: 'center',
-  },
-  badgeText: {
-    fontFamily: fonts.bold,
-    fontSize: fontSize.small,
-    color: palette.ink,
   },
 });

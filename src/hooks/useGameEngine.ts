@@ -70,7 +70,9 @@ export function useGameEngine(level: GameLevel | undefined) {
   const hasActiveError = useGameStore((s) => s.hasActiveError);
   const timeLimit = useGameStore((s) => s.timeLimit);
   const isTimeUp = useGameStore((s) => s.isTimeUp);
-  const { initGame, tapCell, applyHint, resetUserCells, tickTimer, resetGame } = useGameStore.getState();
+  const canUndo = useGameStore((s) => s.history.length > 0);
+  const { initGame, tapCell, applyHint, resetUserCells, undo, tickTimer, resetGame } =
+    useGameStore.getState();
 
   const availableHints = useUserStore((s) => s.availableHints);
   const consumeHint = useUserStore((s) => s.consumeHint);
@@ -246,6 +248,13 @@ export function useGameEngine(level: GameLevel | undefined) {
     [tapCell, haptic, announceMistake],
   );
 
+  /** Son hamleyi geri alır; tahtayı hatalı dolu bırakırsa dokunuş gibi bildirilir */
+  const handleUndo = useCallback(() => {
+    const before = useGameStore.getState();
+    if (!undo()) return;
+    if (!announceMistake(before.hasActiveError)) haptic('light');
+  }, [undo, haptic, announceMistake]);
+
   /** İpucu uygular. İpucu hakkı yoksa false döner (ekran uyarı gösterir). */
   const handleApplyHint = useCallback((): boolean => {
     if (availableHints <= 0) return false;
@@ -274,7 +283,9 @@ export function useGameEngine(level: GameLevel | undefined) {
     triples,
     availableHints,
     result,
+    canUndo,
     handleTapCell,
+    handleUndo,
     handleApplyHint,
     resetUserCells,
     restartLevel,
