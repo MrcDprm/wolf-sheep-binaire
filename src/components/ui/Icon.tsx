@@ -16,7 +16,9 @@ export type IconName =
   | 'lock'
   | 'star'
   | 'clock'
-  | 'undo';
+  | 'undo'
+  | 'pause'
+  | 'play';
 
 interface IconProps {
   name: IconName;
@@ -60,6 +62,8 @@ export function Icon({ name, size = 24, color }: IconProps) {
           <Path d="M6 10.5 h12 v9 h-12 Z" {...stroke} fill={color} />
         </>
       )}
+      {name === 'pause' && <Path d="M9 6 V18 M15 6 V18" {...stroke} />}
+      {name === 'play' && <Path d="M8 5.5 L18 12 L8 18.5 Z" {...stroke} fill={color} />}
       {name === 'undo' && (
         <>
           <Path d="M8.5 5.5 L4 10 L8.5 14.5" {...stroke} />

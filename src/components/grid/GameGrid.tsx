@@ -4,7 +4,7 @@
  * Yeşil keçe zemin, kenarında dikiş çizgisi, altında koyu bir kalınlık.
  * Hücre boyutu ekranın hem genişliğine hem yüksekliğine sığacak şekilde hesaplanır.
  */
-import { memo, useMemo } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GridCell } from './GridCell';
 import { useDayPhase } from '../../hooks/useDayPhase';
@@ -18,6 +18,8 @@ interface GameGridProps {
   onTapCell: (row: number, col: number) => void;
   /** Son ipucu: hedef hücre ve gerekçe taşları vurgulanır */
   hint?: Hint | null;
+  /** Verilirse hücreleri tamamen örter (duraklatınca tahta görünmesin); tahta boyu değişmez */
+  overlay?: ReactNode;
 }
 
 function highlightOf(hint: Hint | null | undefined, row: number, col: number) {
@@ -34,7 +36,7 @@ const BOARD_PADDING = 10;
 /** Hücreler arası boşluk (px) */
 const GAP = 5;
 
-function GameGridComponent({ grid, onTapCell, hint }: GameGridProps) {
+function GameGridComponent({ grid, onTapCell, hint, overlay }: GameGridProps) {
   const dayPhase = useDayPhase();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const gridSize = grid.length;
@@ -54,6 +56,9 @@ function GameGridComponent({ grid, onTapCell, hint }: GameGridProps) {
       <View style={[styles.edge, { backgroundColor: dayPhase.feltEdge }]} />
       <View style={[styles.board, { backgroundColor: dayPhase.felt }]}>
         <View style={styles.stitch} pointerEvents="none" />
+        {overlay ? (
+          <View style={[styles.overlay, { backgroundColor: dayPhase.felt }]}>{overlay}</View>
+        ) : null}
         {grid.map((row, rowIdx) => (
           <View key={rowIdx} style={styles.row}>
             {row.map((cell) => (
@@ -86,6 +91,18 @@ const styles = StyleSheet.create({
     top: EDGE + 3,
     bottom: 0,
     borderRadius: radius.board,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+    borderRadius: radius.board,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
   },
   board: {
     padding: BOARD_PADDING,
