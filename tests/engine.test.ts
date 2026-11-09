@@ -93,3 +93,29 @@ test('süre cümle içinde okunur yazılır, İngilizcede tekil ve çoğul ayrı
   assert.equal(formatDuration(1, t), '1 second');
   assert.equal(formatDuration(0, t), '0 seconds');
 });
+
+test('en iyi süre: ilk çözüm rekor değil, sonra daha hızlısı rekor', async () => {
+  const { mergeLevelResult } = await import('../src/utils/scoring');
+  const run = (stars: 0 | 1 | 2 | 3, time: number) => ({ stars, time, score: stars * 4, hintsUsed: 3 - stars });
+
+  const first = mergeLevelResult(undefined, run(2, 90));
+  assert.equal(first.isNewRecord, false, 'ilk çözüm');
+  assert.equal(first.scoreGain, 8);
+  assert.equal(first.next.bestTime, 90);
+
+  // Aynı yıldız, daha hızlı: puan değişmez, rekor kırılır
+  const faster = mergeLevelResult(first.next, run(2, 60));
+  assert.deepEqual([faster.isNewRecord, faster.scoreGain, faster.next.bestTime, faster.next.stars], [true, 0, 60, 2]);
+
+  // Daha çok yıldız ama daha yavaş: yıldız ve puan artar, en iyi süre korunur
+  const better = mergeLevelResult(faster.next, run(3, 120));
+  assert.deepEqual([better.isNewRecord, better.scoreGain, better.next.bestTime, better.next.stars], [false, 4, 60, 3]);
+
+  // Daha az yıldız ama daha hızlı: yıldız korunur, süre rekoru yine sayılır
+  const quickWorse = mergeLevelResult(better.next, run(1, 45));
+  assert.deepEqual([quickWorse.isNewRecord, quickWorse.scoreGain, quickWorse.next.bestTime, quickWorse.next.stars], [true, 0, 45, 3]);
+
+  // Eski kayıt (bestTime yok): süresi en iyi süre sayılır
+  const legacy = mergeLevelResult({ stars: 3, time: 50, score: 12, hintsUsed: 0 }, run(3, 55));
+  assert.deepEqual([legacy.isNewRecord, legacy.best], [false, 50]);
+});
